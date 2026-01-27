@@ -1,0 +1,115 @@
+name: Auto-move Project on PR events
+
+on:
+  pull_request:
+    types:
+      - opened
+      - ready_for_review
+      - closed
+
+jobs:
+  move-on-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Move linked issue in project
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const projectId = "PVT_kwDOCYmIm84BNk3g";
+            const STATUS_FIELD_ID = "PVTSSF_lADOCYmIm84BNk3gzg8h8SE";
+
+            const IN_PROGRESS_OPTION_ID = "47fc9ee4";
+            const QA_OPTION_ID = "51c4a8ed";
+            const READY_OPTION_ID = "43cb5d2b";
+
+            const REVIEWER = "sangwani-coder";
+
+            const pr = context.payload.pull_request;
+            const action = context.payload.action;
+            const isMerged = pr.merged;
+
+            const linkedIssues =
+              pr.body?.match(/(close|closes|fix|fixes|resolve|resolves)\s*:?\s*#\d+/gi);
+
+            if (!linkedIssues) {
+              console.log("No linked issues found.");
+              return;
+            }
+
+            let status;
+
+            if (action === "opened") status = IN_PROGRESS_OPTION_ID;
+            if (action === "ready_for_review") status = QA_OPTION_ID;
+            if (action === "closed" && isMerged) status = READY_OPTION_ID;
+
+            if (!status) return;
+
+            // Assign reviewer when PR is ready for review
+            if (action === "ready_for_review") {
+              await github.rest.pulls.requestReviewers({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                reviewers: [REVIEWER]
+              });
+
+              console.log(`👀 Reviewer ${REVIEWER} assigned`);
+            }
+
+            for (const ref of linkedIssues) {
+              const issueNumber = ref.match(/#(\d+)/)[1];
+
+              const { data: issue } = await github.rest.issues.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber
+              });
+
+              const contentId = issue.node_id;
+              let itemId;
+
+              try {
+                const addItem = await github.graphql(`
+                  mutation ($projectId: ID!, $contentId: ID!) {
+                    addProjectV2ItemById(
+                      input: { projectId: $projectId, contentId: $contentId }
+                    ) {
+                      item { id }
+                    }
+                  }
+                `, { projectId, contentId });
+
+                itemId = addItem.addProjectV2ItemById.item.id;
+              } catch {
+                console.log("Issue already in project, continuing...");
+                continue;
+              }
+
+              await github.graphql(`
+                mutation (
+                  $projectId: ID!
+                  $itemId: ID!
+                  $fieldId: ID!
+                  $optionId: String!
+                ) {
+                  updateProjectV2ItemFieldValue(
+                    input: {
+                      projectId: $projectId
+                      itemId: $itemId
+                      fieldId: $fieldId
+                      value: { singleSelectOptionId: $optionId }
+                    }
+                  ) {
+                    projectV2Item { id }
+                  }
+                }
+              `, {
+                projectId,
+                itemId,
+                fieldId: STATUS_FIELD_ID,
+                optionId: status
+              });
+
+              console.log(`✅ Issue #${issueNumber} moved`);
+            }
