@@ -37,14 +37,14 @@ class TestAuthenticationFlow:
         assert profile_response.status_code == status.HTTP_200_OK
         assert profile_response.data['email'] == 'newcreator@example.com'
         assert profile_response.data['user_type'] == 'creator'
-
+    
     def test_token_refresh_flow(self, api_client):
         """Test token refresh flow."""
-        user = UserFactory(email='test@example.com', password='TestPass123!')
+        user = UserFactory(password='TestPass123!')
         
         # Step 1: Login and get tokens
         login_url = reverse('customauth:token_obtain_pair')
-        login_data = {'email': 'test@example.com', 'password': 'TestPass123!'}
+        login_data = {'email': user.email, 'password': 'TestPass123!'}
         login_response = api_client.post(login_url, login_data, format='json')
         
         assert login_response.status_code == status.HTTP_200_OK
@@ -132,11 +132,11 @@ class TestMultiFrontendScenario:
         client2 = APIClientFactory(name='Admin Dashboard', rate_limit=500)
         
         # Create a user
-        user = UserFactory(email='test@example.com', password='TestPass123!')
+        user = UserFactory(password='TestPass123!')
         
         # Login and get tokens
         login_url = reverse('customauth:token_obtain_pair')
-        login_data = {'email': 'test@example.com', 'password': 'TestPass123!'}
+        login_data = {'email': user.email, 'password': 'TestPass123!'}
         
         # Both clients can login with same credentials
         response1 = api_client.post(login_url, login_data, format='json')
@@ -204,10 +204,10 @@ class TestErrorHandling:
 
     def test_invalid_credentials_returns_401(self, api_client):
         """Test invalid credentials return 401."""
-        UserFactory(email='test@example.com', password='TestPass123!')
+        user = UserFactory(password='TestPass123!')
         
         login_url = reverse('customauth:token_obtain_pair')
-        login_data = {'email': 'test@example.com', 'password': 'WrongPassword'}
+        login_data = {'email': user.email, 'password': 'WrongPassword'}
         response = api_client.post(login_url, login_data, format='json')
         
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
@@ -215,7 +215,7 @@ class TestErrorHandling:
     def test_missing_required_fields_returns_400(self, api_client):
         """Test missing required fields return 400."""
         register_url = reverse('customauth:user_register')
-        register_data = {'email': 'test@example.com'}  # Missing username, password
+        register_data = {'email': 'missingfields@example.com'}  # Missing username, password
         response = api_client.post(register_url, register_data, format='json')
         
         assert response.status_code == status.HTTP_400_BAD_REQUEST

@@ -3,9 +3,6 @@ Pytest configuration and fixtures.
 """
 import os
 import pytest
-from rest_framework.test import APIClient
-from django.test import RequestFactory
-
 
 def pytest_configure():
     """Configure pytest settings."""
@@ -17,12 +14,14 @@ def pytest_configure():
 @pytest.fixture
 def api_client():
     """Fixture for DRF API client."""
+    from rest_framework.test import APIClient
     return APIClient()
 
 
 @pytest.fixture
 def rf():
     """Fixture for Django request factory."""
+    from django.test import RequestFactory
     return RequestFactory()
 
 
