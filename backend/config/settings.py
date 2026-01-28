@@ -35,6 +35,8 @@ INSTALLED_APPS = [
     # Third-party apps
     'rest_framework',
     'rest_framework_simplejwt',
+    'drf_spectacular',
+    'drf_spectacular_sidecar',  # required for Django collectstatic discovery
     # Custom apps
     'apps.customadmin',
     'apps.customauth',
@@ -146,6 +148,7 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
     ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 # Simple JWT Configuration
@@ -162,4 +165,14 @@ SIMPLE_JWT = {
     'VERIFYING_KEY': None,
     'AUTH_HEADER_TYPES': ('Bearer',),
     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Tip Zambia API',
+    'DESCRIPTION': 'API documentation for the Tip Zambia platform',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'SWAGGER_UI_DIST': 'SIDECAR',  # shorthand to use the sidecar instead
+    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
+    'REDOC_DIST': 'SIDECAR',
 }
