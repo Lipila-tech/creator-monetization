@@ -1,4 +1,4 @@
-# Backend API - Nthanda Monetization MVP
+# Backend API - Tipzed Monetization MVP
 
 **Django REST Framework API for creator monetization platform**
 
@@ -8,7 +8,7 @@ Core service handling authentication, creator profiles, wallets, payments, payou
 
 ## 🎯 Overview
 
-RESTful API serving the Nthanda web app. Handles:
+RESTful API serving the Tipzed web app. Handles:
 - User authentication (JWT)
 - Creator profiles & public endpoints
 - Immutable wallet ledger
@@ -147,7 +147,7 @@ SECRET_KEY=your-secret-key-here
 ALLOWED_HOSTS=localhost,127.0.0.1
 
 # Database
-DATABASE_URL=postgresql://user:password@localhost:5432/nthanda_dev
+DATABASE_URL=postgresql://user:password@localhost:5432/tipzed_dev
 
 # Redis
 REDIS_URL=redis://localhost:6379/0
