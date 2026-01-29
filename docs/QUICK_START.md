@@ -2,7 +2,7 @@
 
 ## 🎯 In 30 Seconds
 
-**Issue templates created for Nthanda MVP (2-week sprint):**
+**Issue templates created for Tip Zed MVP (2-week sprint):**
 
 1. **9 Issue Templates** in `.github/ISSUE_TEMPLATE/`
 2. **5 Documentation Guides** in root directory

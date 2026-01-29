@@ -1,6 +1,6 @@
-# Contributing to Nthanda
+# Contributing to Tip Zed
 
-**Welcome to the Nthanda monetization platform!** This guide explains how to contribute code, fix bugs, and propose features during our 2-week MVP sprint.
+**Welcome to the Tip Zed monetization platform!** This guide explains how to contribute code, fix bugs, and propose features during our 2-week MVP sprint.
 
 **Project Lead:** Peter Zyambo  
 **Backend Lead:** Peter Zyambo  

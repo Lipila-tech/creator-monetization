@@ -1,4 +1,4 @@
-# Backend API - Tipzed Monetization MVP
+# Backend API - Tip Zed Monetization MVP
 
 **Django REST Framework API for creator monetization platform**
 
@@ -8,7 +8,7 @@ Core service handling authentication, creator profiles, wallets, payments, payou
 
 ## 🎯 Overview
 
-RESTful API serving the Tipzed web app. Handles:
+RESTful API serving the Tip Zed web app. Handles:
 - User authentication (JWT)
 - Creator profiles & public endpoints
 - Immutable wallet ledger
@@ -129,8 +129,45 @@ python manage.py runserver
 
 ## 📝 Environment Variables
 
-Create `.env` file and copy from `.env.dist`. Key variables:
+Create `.env` file:
 
+```env
+# Django
+DEBUG=True
+SECRET_KEY=your-secret-key-here
+ALLOWED_HOSTS=localhost,127.0.0.1
+
+# Database
+DATABASE_URL=postgresql://user:password@localhost:5432/Tip Zed_dev
+
+# Redis
+REDIS_URL=redis://localhost:6379/0
+
+# JWT
+JWT_SECRET=your-jwt-secret
+JWT_EXPIRY=3600
+JWT_REFRESH_EXPIRY=604800
+
+# Mobile Money Provider
+MOBILE_MONEY_API_KEY=your-api-key
+MOBILE_MONEY_API_URL=https://api.provider.com
+MOBILE_MONEY_WEBHOOK_SECRET=webhook-secret
+
+# Email (for notifications)
+EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_HOST_USER=your-email
+EMAIL_HOST_PASSWORD=your-password
+
+# Sentry (error tracking)
+SENTRY_DSN=
+
+# CORS
+CORS_ALLOWED_ORIGINS=http://localhost:3000
+```
+
+---
 
 ## 🔐 Authentication
 

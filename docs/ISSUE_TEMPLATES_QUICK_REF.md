@@ -1,4 +1,4 @@
-# 🚀 Nthanda MVP - Issue Template Quick Reference
+# 🚀 Tip Zed MVP - Issue Template Quick Reference
 
 ## When to Use Each Template
 

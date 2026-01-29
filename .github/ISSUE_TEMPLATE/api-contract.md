@@ -164,7 +164,7 @@ Content-Type: application/json
 
 ## 📋 Example cURL Request
 ```bash
-curl -X POST https://api.nthanda.com/api/v1/payments/initiate \
+curl -X POST https://api.Tip Zed.com/api/v1/payments/initiate \
   -H "Authorization: Bearer your_token_here" \
   -H "Content-Type: application/json" \
   -H "X-Idempotency-Key: $(uuidgen)" \

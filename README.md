@@ -1,4 +1,4 @@
-# 🇿🇲 Nthanda Monetization App - MVP
+# 🇿🇲 Tip Zed Monetization App - MVP
 
 **Help creators in Zambia get paid reliably.**
 
@@ -8,7 +8,7 @@ A web-based creator monetization platform enabling fast, reliable mobile-money-b
 
 ## 🎯 Mission
 
-Creators in Zambia lack reliable monetization tools because most global platforms don't support local payments. This forces creators to rely on foreign accounts, middlemen, or unsustainable partnerships. **Nthanda solves this by enabling direct mobile-money payments.**
+Creators in Zambia lack reliable monetization tools because most global platforms don't support local payments. This forces creators to rely on foreign accounts, middlemen, or unsustainable partnerships. **Tip Zed solves this by enabling direct mobile-money payments.**
 
 ---
 

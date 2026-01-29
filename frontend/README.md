@@ -1,4 +1,4 @@
-# Frontend App - Nthanda Monetization MVP
+# Frontend App - Tip Zed Monetization MVP
 
 **React web application for creator monetization platform**
 
@@ -171,7 +171,7 @@ REACT_APP_API_URL=http://localhost:8000/api/v1
 REACT_APP_API_TIMEOUT=30000
 
 # Auth
-REACT_APP_JWT_STORAGE_KEY=nthanda_token
+REACT_APP_JWT_STORAGE_KEY=Tip Zed_token
 REACT_APP_REDIRECT_LOGIN=/login
 REACT_APP_REDIRECT_HOME=/
 
@@ -187,7 +187,7 @@ REACT_APP_MIN_PAYMENT=5
 REACT_APP_MAX_PAYMENT=1000
 
 # URLs
-REACT_APP_SUPPORT_EMAIL=support@nthanda.com
+REACT_APP_SUPPORT_EMAIL=support@Tip Zed.com
 REACT_APP_TERMS_URL=/terms
 REACT_APP_PRIVACY_URL=/privacy
 ```
