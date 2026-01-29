@@ -6,10 +6,12 @@ export default function Signup() {
   const { register } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
-    password: "",
-    confirmPassword: "",
-    full_name: "",
-    role: "fan",
+    password1: "",
+    password2: "",
+    username: "",
+    user_type: "creator",
+    first_name: "",
+    last_name: "",
   });
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,25 +25,26 @@ export default function Signup() {
     e.preventDefault();
     setError("");
 
-    if (formData.password !== formData.confirmPassword) {
+    // VALIDATE PASSWORDS
+    if (formData.password1 !== formData.password2) {
       setError("Passwords do not match");
       return;
     }
 
-    if (formData.password.length < 8 && formData.confirmPassword.length < 8) {
+    if (formData.password1.length < 8 && formData.password2.length < 8) {
       setError("Password must be at least 8 characters long.");
       return;
     }
 
+    // VALIDATE USERNAME
+    if (formData.username.length < 2) {
+      setError("Username must be at least 2 characters");
+      return;
+    }
 
     setIsSubmitting(true);
 
-    const result = await register({
-      email: formData.email,
-      password: formData.password,
-      full_name: formData.full_name,
-      role: formData.role,
-    });
+    const result = await register(formData);
 
     if (result.success) alert("Account created!");
     else setError(result.error);
@@ -70,13 +73,39 @@ export default function Signup() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="text-sm font-medium text-gray-600">
-              Full Name
+              First Name
             </label>
             <input
-              name="full_name"
+              name="first_name"
               required
               className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-zed-orange focus:border-zed-orange outline-none"
-              value={formData.full_name}
+              value={formData.first_name}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-600">
+              Last Name
+            </label>
+            <input
+              name="last_name"
+              required
+              className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-zed-orange focus:border-zed-orange outline-none"
+              value={formData.last_name}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-600">
+              Username
+            </label>
+            <input
+              name="username"
+              required
+              className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-zed-orange focus:border-zed-orange outline-none"
+              value={formData.username}
               onChange={handleChange}
             />
           </div>
@@ -98,13 +127,13 @@ export default function Signup() {
               I am a...
             </label>
             <select
-              name="role"
+              name="user_type"
               className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-zed-orange focus:border-zed-orange outline-none"
-              value={formData.role}
+              value={formData.user_type}
               onChange={handleChange}
             >
-              <option value="fan">Supporter / Fan</option>
               <option value="creator">Creator</option>
+              <option value="fan">Supporter / Fan</option>
             </select>
           </div>
 
@@ -114,11 +143,11 @@ export default function Signup() {
                 Password
               </label>
               <input
-                name="password"
+                name="password1"
                 type={showPassword ? "text" : "password"}
                 required
                 className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-zed-orange focus:border-zed-orange outline-none"
-                value={formData.password}
+                value={formData.password1}
                 onChange={handleChange}
               />
             </div>
@@ -127,11 +156,11 @@ export default function Signup() {
                 Confirm
               </label>
               <input
-                name="confirmPassword"
+                name="password2"
                 type={showPassword ? "text" : "password"}
                 required
                 className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-zed-orange focus:border-zed-orange outline-none"
-                value={formData.confirmPassword}
+                value={formData.password2}
                 onChange={handleChange}
               />
             </div>

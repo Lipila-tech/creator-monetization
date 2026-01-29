@@ -9,29 +9,21 @@ export const loginUser = async (email, password) => {
         resolve({
           status: "success",
           data: {
-            user_id: "user_123",
-            email: email,
-            role: "creator",
             access_token: "mock_jwt_token_123",
-            full_name: "Test Creator"
-          }
+          },
         });
       } else if (email === "fan@example.com" && password === "password") {
         resolve({
           status: "success",
           data: {
-            user_id: "user_456",
-            email: email,
-            role: "fan",
             access_token: "mock_jwt_token_456",
-            full_name: "Test Fan"
-          }
+          },
         });
       } else {
         reject({
           response: {
-            data: { message: "Invalid email or password" }
-          }
+            data: { message: "Invalid email or password" },
+          },
         });
       }
     }, MOCK_DELAY);
@@ -42,11 +34,19 @@ export const registerUser = async (userData) => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       // Basic mock validation
-      if (!userData.email || !userData.password || !userData.full_name) {
-         reject({
+      if (
+        !userData.email ||
+        !userData.password1 ||
+        !userData.password1 ||
+        !userData.username ||
+        !userData.user_type ||
+        !userData.first_name ||
+        !userData.last_name
+      ) {
+        reject({
           response: {
-            data: { message: "Missing required fields" }
-          }
+            data: { message: "Missing required fields" },
+          },
         });
         return;
       }
@@ -54,12 +54,11 @@ export const registerUser = async (userData) => {
       resolve({
         status: "success",
         data: {
+          ...userData,
           user_id: "user_new_789",
-          email: userData.email,
-          role: userData.role || "fan",
+          user_type: userData.user_type || "creator",
           access_token: "mock_jwt_token_789",
-          full_name: userData.full_name
-        }
+        },
       });
     }, MOCK_DELAY);
   });

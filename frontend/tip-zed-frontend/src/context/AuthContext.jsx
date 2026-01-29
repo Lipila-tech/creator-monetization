@@ -23,15 +23,13 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await loginUser(email, password);
-      const { access_token, ...userData } = response.data;
+      const { access_token } = response.data;
 
       // Save to State
       setToken(access_token);
-      setUser(userData);
 
       // Save to LocalStorage (Persist Session)
       localStorage.setItem('token', access_token);
-      localStorage.setItem('user', JSON.stringify(userData));
       
       return { success: true };
     } catch (error) {
@@ -45,13 +43,15 @@ export const AuthProvider = ({ children }) => {
   const register = async (formData) => {
     try {
       const response = await registerUser(formData);
-      const { access_token, ...userData } = response.data;
+      const { access_token, ...user } = response.data;
 
+      // Save to State
       setToken(access_token);
-      setUser(userData);
+      setUser(user);
 
+      // Save to LocalStorage (Persist Session)
       localStorage.setItem('token', access_token);
-      localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem('user', JSON.stringify(user));
 
       return { success: true };
     } catch (error) {
