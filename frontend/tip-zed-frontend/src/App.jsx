@@ -1,26 +1,47 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import TermsOfService from "./pages/TermsOfService";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Footer from "./components/Footer";
+import Header from './components/Header';
 
 // Note: AuthProvider is already wrapping this in main.jsx, so we don't need it here.
 
 function App() {
   return (
     <Router>
-      <Routes>
-        {/* The Landing Page */}
-        <Route path="/" element={<Home />} />
+      {/* flex will force footer at the bottom of the page */}
+      <div className="flex flex-col min-h-screen">
+        {/* Header will appear at the top of all pages */}
+        <Header />
+        {/* flex grow will allow page content to fill available space */}
+        <div className="flex-grow">
+          <Routes>
+            {/* The Landing Page */}
+            <Route path="/" element={<Home />} />
 
-        {/* Auth Pages */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Signup />} />
+            {/* Auth Pages */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Signup />} />
 
-        {/* 404 Fallback (Optional) */}
-        <Route path="*" element={<div className="text-center mt-20">Page Not Found</div>} />
-      </Routes>
+            {/* Legal Pages */}
+            <Route path="/terms-of-service" element={<TermsOfService />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+
+            {/* 404 Fallback (Optional) */}
+            <Route
+              path="*"
+              element={<div className="text-center mt-20">Page Not Found</div>}
+            />
+          </Routes>
+        </div>
+        {/* Footer will appear at the bottom of all pages */}
+        <Footer />
+      </div>
     </Router>
-  )
+  );
 }
 
-export default App
+export default App;
