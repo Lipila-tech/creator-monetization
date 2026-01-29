@@ -1,54 +1,25 @@
-import { useState } from 'react'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+
+// Note: AuthProvider is already wrapping this in main.jsx, so we don't need it here.
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <div className="min-h-screen min-w-screen bg-gray-50 flex flex-col items-center justify-center px-4 py-8 md:py-16">
-      
-      {/* Header */}
-      <header className="mb-8 md:mb-12 text-center max-w-xl md:max-w-3xl">
-        <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-zed-green mb-2">
-          Tip Zed
-        </h1>
+    <Router>
+      <Routes>
+        {/* The Landing Page */}
+        <Route path="/" element={<Home />} />
 
-        <div className="flex justify-center gap-1 sm:gap-2 mb-3 md:mb-5">
-          <div className="h-2 w-10 sm:w-14 md:w-20 bg-zed-green rounded-full"></div>
-          <div className="h-2 w-10 sm:w-14 md:w-20 bg-zed-red rounded-full"></div>
-          <div className="h-2 w-10 sm:w-14 md:w-20 bg-zed-black rounded-full"></div>
-          <div className="h-2 w-10 sm:w-14 md:w-20 bg-zed-orange rounded-full"></div>
-        </div>
+        {/* Auth Pages */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Signup />} />
 
-        <p className="text-gray-600 text-sm sm:text-base md:text-lg px-2">
-          The easiest way to support Zambian creators.
-        </p>
-      </header>
-
-      {/* Main Card */}
-      <div className="bg-white w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-4xl 
-                      p-6 sm:p-8 md:p-10 
-                      rounded-2xl shadow-lg md:shadow-xl 
-                      border-t-4 border-zed-orange">
-        
-        <div className="text-center">
-          <button
-            onClick={() => setCount((count) => count + 1)}
-            className="bg-zed-green hover:bg-green-700 
-                       text-white font-bold 
-                       py-3 px-6 sm:px-8 md:px-10 
-                       text-sm sm:text-base md:text-lg
-                       rounded-lg transition-all shadow-md 
-                       active:scale-95 w-full"
-          >
-            Test Button is {count}
-          </button>
-
-          <p className="mt-4 text-xs sm:text-sm text-gray-500">
-            Day 1 Setup Complete.
-          </p>
-        </div>
-      </div>
-    </div>
+        {/* 404 Fallback (Optional) */}
+        <Route path="*" element={<div className="text-center mt-20">Page Not Found</div>} />
+      </Routes>
+    </Router>
   )
 }
 
