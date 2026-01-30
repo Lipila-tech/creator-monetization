@@ -11,18 +11,22 @@ class CustomUserAdmin(BaseUserAdmin):
     """Custom admin for CustomUser model."""
 
     model = User
-    list_display = ('email', 'username', 'first_name', 'last_name', 'user_type', 'is_active', 'is_staff', 'date_joined')
-    list_filter = ('user_type', 'is_active', 'is_staff', 'is_superuser', 'date_joined')
+    list_display = ('email', 'username', 'first_name', 'last_name',
+                    'user_type', 'is_active', 'is_staff', 'date_joined', 'slug')
+    list_filter = ('user_type', 'is_active', 'is_staff',
+                   'is_superuser', 'date_joined')
     search_fields = ('email', 'username', 'first_name', 'last_name')
     ordering = ('-date_joined',)
     readonly_fields = ('date_joined', 'updated_at')
 
     fieldsets = (
-        (None, {'fields': ('email', 'username', 'password')}),
+        (None, {'fields': ('email', 'username', 'password', 'slug')}),
         ('Personal Info', {'fields': ('first_name', 'last_name')}),
         ('User Type', {'fields': ('user_type',)}),
-        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
-        ('Important dates', {'fields': ('date_joined', 'updated_at', 'last_login')}),
+        ('Permissions', {'fields': ('is_active', 'is_staff',
+         'is_superuser', 'groups', 'user_permissions')}),
+        ('Important dates', {
+         'fields': ('date_joined', 'updated_at', 'last_login')}),
     )
 
     add_fieldsets = (
@@ -36,7 +40,8 @@ class CustomUserAdmin(BaseUserAdmin):
 class APIClientAdmin(admin.ModelAdmin):
     """Admin for APIClient model."""
 
-    list_display = ('name', 'client_type', 'is_active', 'rate_limit', 'created_at')
+    list_display = ('name', 'client_type', 'is_active',
+                    'rate_limit', 'created_at')
     list_filter = ('client_type', 'is_active', 'created_at')
     search_fields = ('name', 'description')
     ordering = ('-created_at',)
@@ -44,7 +49,8 @@ class APIClientAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None, {'fields': ('name', 'description', 'id')}),
-        ('Configuration', {'fields': ('client_type', 'api_key', 'rate_limit')}),
+        ('Configuration', {
+         'fields': ('client_type', 'api_key', 'rate_limit')}),
         ('Status', {'fields': ('is_active',)}),
         ('Dates', {'fields': ('created_at', 'updated_at')}),
     )
