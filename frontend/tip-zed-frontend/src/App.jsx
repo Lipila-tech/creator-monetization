@@ -7,8 +7,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Footer from "./components/Common/Footer";
 import Header from './components/Common/Header';
 import CreatorDashboard from "./pages/CreatorDashboard";
-
-// Note: AuthProvider is already wrapping this in main.jsx, so we don't need it here.
+import ProtectedRoute from "./components/Auth/ProtectedRoute";
 
 function App() {
   return (
@@ -32,7 +31,7 @@ function App() {
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 
             {/* Creator Pages*/}
-            <Route path="/creator-dashboard" element={<CreatorDashboard />} />
+            <Route path="/creator-dashboard" element={<ProtectedRoute><CreatorDashboard /></ProtectedRoute>} />
             
 
             {/* 404 Fallback (Optional) */}
