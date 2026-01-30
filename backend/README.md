@@ -187,36 +187,55 @@ CORS_ALLOWED_ORIGINS=http://localhost:3000
 ## 📡 API Endpoints
 
 ### Authentication
+All Auth Endpoints:
+
+Headers: `X-API-KEY: <client_api_key>`
 
 ```
-POST /api/v1/auth/register
-Body: { email, password, full_name, role }
+POST /api/v1/auth/register/
+Body: { email, password1,password2, first_name, last_name, user_type }
 Returns: { access_token, refresh_token, user }
 
-POST /api/v1/auth/login
+POST /api/v1/auth/login/
 Body: { email, password }
 Returns: { access_token, refresh_token, user }
 
-POST /api/v1/auth/refresh
+POST /api/v1/auth/refresh/
 Body: { refresh_token }
 Returns: { access_token }
-```
 
-### Creator Profiles
-
-```
-GET /api/v1/creators/{id}
-Auth: Not required (public)
-Returns: { id, name, bio, avatar, earnings, followers }
-
-GET /api/v1/creators/me
-Auth: Required
+GET /api/v1/auth/profile/
 Returns: Own creator profile + bank account
 
-PUT /api/v1/creators/me
-Auth: Required
-Body: { full_name, bio, avatar_url, bank_account }
+PATCH /api/v1/profile/
+body: { first_name, last_name, password }
+Returns: Updated user info
+
+
+PUT /api/v1/profile/
+Body: { 
+   bio, bank_account, first_name, last_name, profile_image, cover_image
+ }
 Returns: Updated profile
+```
+
+### Creator Profiles (Public)
+
+```
+
+GET /api/v1/creators/all
+Auth: Not required (public)
+Returns: {
+   "status": "success",
+   "data": [ list of creator profiles ]
+ } 
+
+GET /api/v1/creators/{slug}
+Auth: Not required (public)
+Returns: { 
+   "status": "success",
+   "data": { creator profile fields }
+ }
 ```
 
 ### Wallet & Transactions

@@ -1,10 +1,19 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 
 User = get_user_model()
 
+
+class CustomTokenRefreshSerializer(TokenRefreshSerializer):
+    """Custom serializer for refreshing JWT tokens."""
+
+    def validate(self, attrs):
+        """Validate and return new access token."""
+        data = super().validate(attrs)
+        return data
 
 class UserSerializer(serializers.ModelSerializer):
     """Serializer for user model."""

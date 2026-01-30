@@ -32,7 +32,7 @@ class TestUserSerializer:
         """Test all expected fields are present."""
         user = UserFactory()
         serializer = UserSerializer(user)
-        expected_fields = {'id', 'email', 'username', 'first_name', 'last_name', 'user_type', 'is_active', 'date_joined'}
+        expected_fields = {'id', 'email', 'username', 'first_name', 'last_name', 'user_type', 'is_active', 'date_joined', 'slug'}
         assert set(serializer.data.keys()) == expected_fields
 
     def test_user_type_is_read_only(self):

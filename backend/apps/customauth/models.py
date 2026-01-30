@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.utils import timezone
+from django.utils.text import slugify
 import uuid
 import secrets
 
@@ -65,7 +66,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         ordering = ['-date_joined']
 
     def __str__(self):
-        return f'{self.email} ({self.username})'
+        return f'{self.email} {self.username}'
 
     def get_full_name(self):
         """Return the user's full name."""
@@ -89,7 +90,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         replace spaces with hyphens in username.
         """
         if not self.slug:
-            self.slug = self.username.replace(' ', '-').lower()
+            self.slug = slugify(self.username)
+            self.slug = self.slug.lower()
         # Ensure username has no spaces
         self.username = self.username.replace(' ', '-').lower()
         super().save(*args, **kwargs)

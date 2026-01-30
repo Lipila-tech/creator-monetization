@@ -6,7 +6,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model
-from tests.factories import UserFactory, StaffUserFactory
+from tests.factories import UserFactory, StaffUserFactory, APIClientFactory
 
 User = get_user_model()
 
@@ -25,14 +25,16 @@ class TestUserRegistrationView:
             'first_name': 'John',
             'last_name': 'Doe'
         }
+        client = APIClientFactory()
+        api_client.credentials(HTTP_X_API_KEY=client.api_key)
         url = reverse('customauth:user_register')
         response = api_client.post(url, data, format='json')
         
         assert response.status_code == status.HTTP_201_CREATED
         assert response.data['user']['email'] == 'newcreator@example.com'
         assert response.data['user']['user_type'] == 'creator'
-        assert 'access' in response.data
-        assert 'refresh' in response.data
+        assert 'access_token' in response.data
+        assert 'refresh_token' in response.data
 
     def test_register_no_auth_required(self, api_client):
         """Test registration doesn't require authentication."""
@@ -46,12 +48,16 @@ class TestUserRegistrationView:
             'last_name': 'Doe'
         }
         url = reverse('customauth:user_register')
+        client = APIClientFactory()
+        api_client.credentials(HTTP_X_API_KEY=client.api_key)
         response = api_client.post(url, data, format='json')
         
         assert response.status_code == status.HTTP_201_CREATED
 
     def test_register_invalid_password(self, api_client):
         """Test registration fails with invalid password."""
+        client = APIClientFactory()
+        api_client.credentials(HTTP_X_API_KEY=client.api_key)
         data = {
             'email': 'newcreator@example.com',
             'username': 'newcreator',
@@ -68,6 +74,8 @@ class TestUserRegistrationView:
 
     def test_register_password_mismatch(self, api_client):
         """Test registration fails when passwords don't match."""
+        client = APIClientFactory()
+        api_client.credentials(HTTP_X_API_KEY=client.api_key)
         data = {
             'email': 'newcreator@example.com',
             'username': 'newcreator',
@@ -84,6 +92,8 @@ class TestUserRegistrationView:
 
     def test_register_duplicate_email(self, api_client):
         """Test registration fails with duplicate email."""
+        client = APIClientFactory()
+        api_client.credentials(HTTP_X_API_KEY=client.api_key)
         UserFactory(email='existing@example.com')
         data = {
             'email': 'existing@example.com',
@@ -100,6 +110,8 @@ class TestUserRegistrationView:
 
     def test_register_duplicate_username(self, api_client):
         """Test registration fails with duplicate username."""
+        client = APIClientFactory()
+        api_client.credentials(HTTP_X_API_KEY=client.api_key)
         UserFactory(username='existinguser')
         data = {
             'email': 'newcreator@example.com',
@@ -121,7 +133,9 @@ class TestTokenObtainView:
 
     def test_login_success(self, api_client):
         """Test successful login."""
-        user = UserFactory(email='test@example.com', password='TestPass123!')
+        UserFactory(email='test@example.com', password='TestPass123!')
+        client = APIClientFactory()
+        api_client.credentials(HTTP_X_API_KEY=client.api_key)
         url = reverse('customauth:token_obtain_pair')
         
         data = {
@@ -131,12 +145,14 @@ class TestTokenObtainView:
         response = api_client.post(url, data, format='json')
         
         assert response.status_code == status.HTTP_200_OK
-        assert 'access' in response.data
-        assert 'refresh' in response.data
+        assert 'access_token' in response.data
+        assert 'refresh_token' in response.data
 
     def test_login_invalid_email(self, api_client):
         """Test login fails with invalid email."""
         url = reverse('customauth:token_obtain_pair')
+        client = APIClientFactory()
+        api_client.credentials(HTTP_X_API_KEY=client.api_key)
         
         data = {
             'email': 'nonexistent@example.com',
@@ -150,6 +166,8 @@ class TestTokenObtainView:
         """Test login fails with invalid password."""
         UserFactory(email='test@example.com', password='TestPass123!')
         url = reverse('customauth:token_obtain_pair')
+        client = APIClientFactory()
+        api_client.credentials(HTTP_X_API_KEY=client.api_key)
         
         data = {
             'email': 'test@example.com',
@@ -161,7 +179,9 @@ class TestTokenObtainView:
 
     def test_login_token_contains_custom_claims(self, api_client):
         """Test token contains custom claims."""
-        user = UserFactory(
+        client = APIClientFactory()
+        api_client.credentials(HTTP_X_API_KEY=client.api_key)
+        UserFactory(
             email='test@example.com',
             password='TestPass123!',
             user_type='creator'
@@ -177,14 +197,16 @@ class TestTokenObtainView:
         assert response.status_code == status.HTTP_200_OK
         # Token contains custom claims (verify by decoding)
         from rest_framework_simplejwt.tokens import AccessToken
-        token = AccessToken(response.data['access'])
+        token = AccessToken(response.data['access_token'])
         assert token['email'] == 'test@example.com'
         assert token['user_type'] == 'creator'
 
     def test_login_staff_user(self, api_client):
         """Test staff user can login."""
-        user = StaffUserFactory(email='staff@example.com', password='TestPass123!')
+        StaffUserFactory(email='staff@example.com', password='TestPass123!')
         url = reverse('customauth:token_obtain_pair')
+        client = APIClientFactory()
+        api_client.credentials(HTTP_X_API_KEY=client.api_key)
         
         data = {
             'email': 'staff@example.com',
@@ -198,25 +220,27 @@ class TestTokenObtainView:
 @pytest.mark.django_db
 class TestTokenRefreshView:
     """Test token refresh endpoint."""
-
+  
     def test_refresh_token_success(self, api_client):
         """Test successful token refresh."""
         user = UserFactory()
         refresh = RefreshToken.for_user(user)
-        
+        client = APIClientFactory()
+        api_client.credentials(HTTP_X_API_KEY=client.api_key)
         url = reverse('customauth:token_refresh')
         data = {'refresh': str(refresh)}
         
         response = api_client.post(url, data, format='json')
         
         assert response.status_code == status.HTTP_200_OK
-        assert 'access' in response.data
+        assert 'access_token' in response.data
 
     def test_refresh_invalid_token(self, api_client):
         """Test refresh fails with invalid token."""
         url = reverse('customauth:token_refresh')
         data = {'refresh': 'invalid_token'}
-        
+        client = APIClientFactory()
+        api_client.credentials(HTTP_X_API_KEY=client.api_key)
         response = api_client.post(url, data, format='json')
         
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
@@ -225,7 +249,8 @@ class TestTokenRefreshView:
         """Test refresh fails when token is missing."""
         url = reverse('customauth:token_refresh')
         data = {}
-        
+        client = APIClientFactory()
+        api_client.credentials(HTTP_X_API_KEY=client.api_key)
         response = api_client.post(url, data, format='json')
         
         assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -238,6 +263,8 @@ class TestUserProfileView:
     def test_get_profile_authenticated(self, api_client):
         """Test getting profile when authenticated."""
         user = UserFactory(first_name='John', last_name='Doe')
+        client = APIClientFactory()
+        api_client.credentials(HTTP_X_API_KEY=client.api_key)
         api_client.force_authenticate(user=user)
         
         url = reverse('customauth:user_profile')
@@ -250,12 +277,16 @@ class TestUserProfileView:
     def test_get_profile_not_authenticated(self, api_client):
         """Test getting profile without authentication."""
         url = reverse('customauth:user_profile')
+        client = APIClientFactory()
+        api_client.credentials(HTTP_X_API_KEY=client.api_key)
         response = api_client.get(url)
         
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
     def test_update_profile_patch(self, api_client):
         """Test updating profile with PATCH."""
+        client = APIClientFactory()
+        api_client.credentials(HTTP_X_API_KEY=client.api_key)
         user = UserFactory(first_name='John', last_name='Doe')
         api_client.force_authenticate(user=user)
         
@@ -273,6 +304,8 @@ class TestUserProfileView:
     def test_update_profile_put(self, api_client):
         """Test updating profile with PUT."""
         user = UserFactory(first_name='John', last_name='Doe')
+        client = APIClientFactory()
+        api_client.credentials(HTTP_X_API_KEY=client.api_key)
         api_client.force_authenticate(user=user)
         
         data = {
@@ -291,6 +324,8 @@ class TestUserProfileView:
     def test_cannot_change_user_type_via_api(self, api_client):
         """Test user_type cannot be changed via API."""
         user = UserFactory(user_type='creator')
+        client = APIClientFactory()
+        api_client.credentials(HTTP_X_API_KEY=client.api_key)
         api_client.force_authenticate(user=user)
         
         data = {'user_type': 'admin', 'first_name': 'Test'}
@@ -303,6 +338,8 @@ class TestUserProfileView:
     def test_update_profile_invalid_data(self, api_client):
         """Test profile update with invalid data."""
         user = UserFactory()
+        client = APIClientFactory()
+        api_client.credentials(HTTP_X_API_KEY=client.api_key)
         api_client.force_authenticate(user=user)
         
         data = {'email': 'invalid_email'}
@@ -319,6 +356,8 @@ class TestChangePasswordView:
     def test_change_password_success(self, api_client):
         """Test successful password change."""
         user = UserFactory(password='OldPass123!')
+        client = APIClientFactory()
+        api_client.credentials(HTTP_X_API_KEY=client.api_key)
         api_client.force_authenticate(user=user)
         
         data = {
@@ -342,6 +381,8 @@ class TestChangePasswordView:
             'new_password2': 'NewPass456!'
         }
         url = reverse('customauth:change_password')
+        client = APIClientFactory()
+        api_client.credentials(HTTP_X_API_KEY=client.api_key)
         response = api_client.post(url, data, format='json')
         
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
@@ -349,6 +390,8 @@ class TestChangePasswordView:
     def test_change_password_incorrect_old(self, api_client):
         """Test change password fails with incorrect old password."""
         user = UserFactory(password='OldPass123!')
+        client = APIClientFactory()
+        api_client.credentials(HTTP_X_API_KEY=client.api_key)
         api_client.force_authenticate(user=user)
         
         data = {
@@ -364,6 +407,8 @@ class TestChangePasswordView:
     def test_change_password_mismatch(self, api_client):
         """Test change password fails when new passwords don't match."""
         user = UserFactory(password='OldPass123!')
+        client = APIClientFactory()
+        api_client.credentials(HTTP_X_API_KEY=client.api_key)
         api_client.force_authenticate(user=user)
         
         data = {
@@ -379,6 +424,8 @@ class TestChangePasswordView:
     def test_change_password_weak_new_password(self, api_client):
         """Test change password fails with weak new password."""
         user = UserFactory(password='OldPass123!')
+        client = APIClientFactory()
+        api_client.credentials(HTTP_X_API_KEY=client.api_key)
         api_client.force_authenticate(user=user)
         
         data = {
@@ -399,6 +446,8 @@ class TestLogoutView:
     def test_logout_success(self, api_client):
         """Test successful logout."""
         user = UserFactory()
+        client = APIClientFactory()
+        api_client.credentials(HTTP_X_API_KEY=client.api_key)
         api_client.force_authenticate(user=user)
         
         # Generate tokens
@@ -414,6 +463,8 @@ class TestLogoutView:
     def test_logout_not_authenticated(self, api_client):
         """Test logout requires authentication."""
         url = reverse('customauth:logout')
+        client = APIClientFactory()
+        api_client.credentials(HTTP_X_API_KEY=client.api_key)
         response = api_client.post(url, {}, format='json')
         
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
@@ -421,6 +472,8 @@ class TestLogoutView:
     def test_logout_without_refresh_token(self, api_client):
         """Test logout without refresh token still succeeds."""
         user = UserFactory()
+        client = APIClientFactory()
+        api_client.credentials(HTTP_X_API_KEY=client.api_key)
         api_client.force_authenticate(user=user)
         
         url = reverse('customauth:logout')
@@ -432,6 +485,8 @@ class TestLogoutView:
     def test_logout_invalid_refresh_token(self, api_client):
         """Test logout with invalid refresh token."""
         user = UserFactory()
+        client = APIClientFactory()
+        api_client.credentials(HTTP_X_API_KEY=client.api_key)
         api_client.force_authenticate(user=user)
         
         data = {'refresh': 'invalid_token'}

@@ -11,11 +11,31 @@ from .serializers import (
     UserSerializer,
     UserRegistrationSerializer,
     CustomTokenObtainPairSerializer,
-    ChangePasswordSerializer
+    ChangePasswordSerializer,
+    CustomTokenRefreshSerializer
 )
 
 User = get_user_model()
 
+
+class CustomTokenRefreshView(TokenRefreshView):
+    """Custom JWT token refresh view."""
+    permission_classes = [RequireAPIKey]
+    serializer_class = CustomTokenRefreshSerializer
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handle POST request to refresh JWT tokens.
+        return json {access_token, refresh_token}
+        """
+        response = super().post(request, *args, **kwargs)
+        if response.status_code == 200:
+            data = response.data
+            return Response({
+                'access_token': data['access'],
+                'refresh_token': data['refresh'],
+            })
+        return response
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     """Custom JWT token obtain view."""

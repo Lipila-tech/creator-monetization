@@ -23,6 +23,7 @@ class UserFactory(factory.django.DjangoModelFactory):
     is_active = True
     is_staff = False
     is_superuser = False
+    slug = factory.LazyAttribute(lambda obj: obj.username.lower())
 
     @factory.post_generation
     def password(obj, create, extracted, **kwargs):
@@ -75,3 +76,6 @@ class CreatorProfileFactory(factory.django.DjangoModelFactory):
     total_earnings = factory.Faker("pydecimal", left_digits=5, right_digits=2, positive=True)
     rating = factory.Faker("pyfloat", min_value=0, max_value=5)
     verified = False
+    profile_image = None
+    cover_image = None
+    website = factory.Faker("url")
