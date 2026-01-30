@@ -14,7 +14,11 @@ class TestCreatorPublicSerializer:
         serializer = CreatorPublicSerializer(profile)
         data = serializer.data
 
-        assert data['user'] == profile.user.id
+        assert data['user']["id"] == profile.user.id
+        assert data['user']["username"] == profile.user.username
+        assert data['user']["first_name"] == profile.user.first_name
+        assert data['user']["last_name"] == profile.user.last_name
+        assert data['user']["slug"] == profile.user.slug
         assert data['bio'] == "This is a test bio."
         assert data['followers_count'] == 150
         assert data['rating'] == 4.5
@@ -35,7 +39,11 @@ class TestCreatorPublicSerializer:
 
         assert len(data) == 3
         for i in range(3):
-            assert data[i]['user'] == profiles[i].user.id
+            assert data[i]['user']["id"] == profiles[i].user.id
+            assert data[i]['user']["username"] == profiles[i].user.username
+            assert data[i]['user']["first_name"] == profiles[i].user.first_name
+            assert data[i]['user']["last_name"] == profiles[i].user.last_name
+            assert data[i]['user']["slug"] == profiles[i].user.slug
             assert data[i]['bio'] == profiles[i].bio
             assert data[i]['followers_count'] == profiles[i].followers_count
             assert data[i]['rating'] == profiles[i].rating
@@ -53,7 +61,7 @@ class TestCreatorPublicSerializer:
         serializer = CreatorPublicSerializer(profile)
         data = serializer.data
 
-        assert data['user'] == profile.user.id
+        assert data['user']["id"] == profile.user.id
         assert data['verified'] is True
 
     def test_creator_public_serializer_with_inactive_profile(self):
@@ -63,7 +71,7 @@ class TestCreatorPublicSerializer:
         serializer = CreatorPublicSerializer(profile)
         data = serializer.data
 
-        assert data['user'] == profile.user.id
+        assert data['user']["id"] == profile.user.id
         assert data['status'] == "inactive"
 
     def test_creator_public_serializer_with_suspended_profile(self):
@@ -73,7 +81,7 @@ class TestCreatorPublicSerializer:
         serializer = CreatorPublicSerializer(profile)
         data = serializer.data
 
-        assert data['user'] == profile.user.id
+        assert data['user']["id"] == profile.user.id
         assert data['status'] == "suspended"
 
     def test_creator_public_serializer_with_banned_profile(self):
@@ -83,7 +91,7 @@ class TestCreatorPublicSerializer:
         serializer = CreatorPublicSerializer(profile)
         data = serializer.data
 
-        assert data['user'] == profile.user.id
+        assert data['user']["id"] == profile.user.id
         assert data['status'] == "banned"
 
     def test_creator_public_serializer_edge_case_rating(self):
@@ -106,5 +114,5 @@ class TestCreatorPublicSerializer:
         serializer = CreatorPublicSerializer(profile)
         data = serializer.data
 
-        assert data['user'] == profile.user.id
+        assert data['user']["id"] == profile.user.id
         assert data['website'] == ""
