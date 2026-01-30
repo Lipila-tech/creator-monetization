@@ -5,8 +5,6 @@ const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 const TIMEOUT = Number(import.meta.env.VITE_API_TIMEOUT) || 15000;
 const API_KEY = import.meta.env.VITE_API_CLIENT_KEY || '';
 
-console.log(BASE_URL);
-
 // Create Axios Instance
 const api = axios.create({
   baseURL: BASE_URL,

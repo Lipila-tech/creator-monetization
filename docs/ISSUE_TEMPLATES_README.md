@@ -1,6 +1,6 @@
 # 📋 Issue Template Documentation
 
-This directory contains comprehensive issue templates and guides for the **Tip Zed Monetization App MVP** (2-week sprint).
+This directory contains comprehensive issue templates and guides for the **TipZed Monetization App MVP** (2-week sprint).
 
 ## 📚 Documentation Files
 

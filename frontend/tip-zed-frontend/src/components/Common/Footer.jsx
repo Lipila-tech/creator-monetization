@@ -10,7 +10,7 @@ const Footer = () => {
           
           {/* Copyright */}
           <div className="text-gray-500 text-sm">
-            © {currentYear} Tip Zed Technologies. Made with ❤️ in Zambia.
+            © {currentYear} TipZed Technologies. Made with ❤️ in Zambia.
           </div>
 
           {/* Legal Links */}

@@ -9,7 +9,7 @@ export default function Signup() {
         {/* Header Section */}
         <div className="text-center mb-6">
           <h2 className="text-3xl font-bold text-gray-900">
-            Join <span className="text-zed-orange">Tip Zed</span> 🚀
+            Join <span className="text-zed-orange">TipZed</span> 🚀
           </h2>
           <p className="text-gray-500 text-sm">
             Create your account in seconds

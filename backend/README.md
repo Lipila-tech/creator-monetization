@@ -1,4 +1,4 @@
-# Backend API - Tip Zed Monetization MVP
+# Backend API - TipZed Monetization MVP
 
 **Django REST Framework API for creator monetization platform**
 
@@ -8,7 +8,7 @@ Core service handling authentication, creator profiles, wallets, payments, payou
 
 ## 🎯 Overview
 
-RESTful API serving the Tip Zed web app. Handles:
+RESTful API serving the TipZed web app. Handles:
 - User authentication (JWT)
 - Creator profiles & public endpoints
 - Immutable wallet ledger
@@ -138,7 +138,7 @@ SECRET_KEY=your-secret-key-here
 ALLOWED_HOSTS=localhost,127.0.0.1
 
 # Database
-DATABASE_URL=postgresql://user:password@localhost:5432/Tip Zed_dev
+DATABASE_URL=postgresql://user:password@localhost:5432/TipZed_dev
 
 # Redis
 REDIS_URL=redis://localhost:6379/0

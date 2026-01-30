@@ -6,6 +6,7 @@ import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Footer from "./components/Common/Footer";
 import Header from './components/Common/Header';
+import CreatorDashboard from "./pages/CreatorDashboard";
 
 // Note: AuthProvider is already wrapping this in main.jsx, so we don't need it here.
 
@@ -29,6 +30,10 @@ function App() {
             {/* Legal Pages */}
             <Route path="/terms-of-service" element={<TermsOfService />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+
+            {/* Creator Pages*/}
+            <Route path="/creator-dashboard" element={<CreatorDashboard />} />
+            
 
             {/* 404 Fallback (Optional) */}
             <Route

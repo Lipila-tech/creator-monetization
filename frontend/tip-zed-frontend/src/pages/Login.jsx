@@ -10,7 +10,7 @@ const Login = () => {
           <h2 className="text-3xl font-bold text-gray-900">Welcome Back 👋</h2>
           <p className="text-gray-500 text-sm mt-1">
             Login to your{" "}
-            <span className="text-zed-green font-semibold">Tip Zed</span>{" "}
+            <span className="text-zed-green font-semibold">TipZed</span>{" "}
             account
           </p>
         </div>

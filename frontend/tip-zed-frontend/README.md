@@ -4,7 +4,7 @@
 - Node.js (v18 or higher)
 - npm (v9 or higher)
 
-### How to Run the Frontend (Tip Zed)
+### How to Run the Frontend (TipZed)
 
 1. **Navigate to the frontend directory:**
 ```bash
@@ -22,4 +22,4 @@ npm run dev
 ```
 
 4. **Open in browser:**
-Visit http://localhost:5173 to see the Tip Zed landing page.
+Visit http://localhost:5173 to see the TipZed landing page.

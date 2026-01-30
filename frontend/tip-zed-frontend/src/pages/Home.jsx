@@ -10,7 +10,7 @@ const Home = () => {
       {/* Header */}
       <header className="mb-8 md:mb-12 text-center max-w-xl md:max-w-3xl">
         <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-zed-green mb-2">
-          Tip Zed
+          TipZed
         </h1>
 
         <div className="flex justify-center gap-1 sm:gap-2 mb-3 md:mb-5">

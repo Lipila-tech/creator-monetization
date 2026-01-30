@@ -1,4 +1,4 @@
-# Tip Zed Monetization App - Issue Template Guide
+# TipZed Monetization App - Issue Template Guide
 
 ## 📋 Overview
 This guide explains the issue templates available for the 2-week MVP sprint. Use the correct template to ensure clear communication and proper task tracking.

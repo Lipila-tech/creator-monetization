@@ -1,6 +1,6 @@
-import { LayoutDashboard, Wallet, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, Wallet, LogOut, ArrowRightLeft } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 
 const Sidebar = () => {
   const location = useLocation();
@@ -8,20 +8,19 @@ const Sidebar = () => {
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Overview', path: '/dashboard' },
-    { icon: Wallet, label: 'My Wallet', path: '/dashboard/wallet' },
-    { icon: Settings, label: 'Settings', path: '/dashboard/settings' },
+    { icon: ArrowRightLeft, label: 'Transactions', path: '/dashboard/transactions' },
   ];
 
   return (
     <div className="w-64 bg-white h-screen border-r border-gray-200 flex flex-col hidden md:flex fixed left-0 top-0">
       
-      {/* Brand Logo */}
-      <div className="h-16 flex items-center px-6 border-b border-gray-100">
-        <span className="text-2xl font-bold text-zed-green">Tip Zed</span>
+      {/* Brand Logo Area */}
+      <div className="p-6">
+        <h2 className="text-2xl font-bold text-zed-green">TipZed</h2>
       </div>
 
       {/* Navigation Links */}
-      <nav className="flex-1 p-4 space-y-2">
+      <nav className="flex-1 px-4 space-y-2">
         {menuItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (

@@ -14,7 +14,7 @@ const Header = () => {
           {/* Logo - Click to go Home */}
           <Link to="/" className="flex items-center">
              {/* You can add a real <img> logo here later */}
-             <span className="text-2xl font-bold text-zed-green">Tip Zed</span>
+             <span className="text-2xl font-bold text-zed-green">TipZed</span>
           </Link>
 
           {/* Navigation Links */}

@@ -1,4 +1,4 @@
-# 🚀 Tip Zed MVP - Issue Template Quick Reference
+# 🚀 TipZed MVP - Issue Template Quick Reference
 
 ## When to Use Each Template
 
