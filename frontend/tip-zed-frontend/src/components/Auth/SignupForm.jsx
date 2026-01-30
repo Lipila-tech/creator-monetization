@@ -5,7 +5,7 @@ const SignupForm = () => {
   const { register } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
-    password1: "",
+    password: "",
     password2: "",
     username: "",
     user_type: "creator",
@@ -25,12 +25,12 @@ const SignupForm = () => {
     setError("");
 
     // VALIDATE PASSWORDS
-    if (formData.password1 !== formData.password2) {
+    if (formData.password !== formData.password2) {
       setError("Passwords do not match");
       return;
     }
 
-    if (formData.password1.length < 8) {
+    if (formData.password.length < 8) {
       setError("Password must be at least 8 characters long.");
       return;
     }
@@ -63,7 +63,7 @@ const SignupForm = () => {
         </div>
       )}
 
-      <div>
+      {/* <div>
         <label className="text-sm font-medium text-gray-600">First Name</label>
         <input
           name="first_name"
@@ -72,9 +72,9 @@ const SignupForm = () => {
           value={formData.first_name}
           onChange={handleChange}
         />
-      </div>
+      </div> */}
 
-      <div>
+      {/* <div>
         <label className="text-sm font-medium text-gray-600">Last Name</label>
         <input
           name="last_name"
@@ -83,7 +83,7 @@ const SignupForm = () => {
           value={formData.last_name}
           onChange={handleChange}
         />
-      </div>
+      </div> */}
 
       <div>
         <label className="text-sm font-medium text-gray-600">Username</label>
@@ -108,7 +108,7 @@ const SignupForm = () => {
         />
       </div>
 
-      <div>
+      {/* <div>
         <label className="text-sm font-medium text-gray-600">I am a...</label>
         <select
           name="user_type"
@@ -119,13 +119,13 @@ const SignupForm = () => {
           <option value="creator">Creator</option>
           <option value="fan">Supporter / Fan</option>
         </select>
-      </div>
+      </div> */}
 
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="text-sm font-medium text-gray-600">Password</label>
           <input
-            name="password1"
+            name="password"
             type={showPassword ? "text" : "password"}
             required
             className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-zed-orange focus:border-zed-orange outline-none"
