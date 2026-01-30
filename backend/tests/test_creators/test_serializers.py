@@ -7,6 +7,22 @@ from apps.creators.serializers import CreatorPublicSerializer, CreatorListSerial
 class TestCreatorPublicSerializer:
     """Test CreatorPublicSerializer."""
 
+    def test_creator_serializer_fields(self):
+        """Test that the serializer includes all expected fields."""
+        profile = CreatorProfileFactory()
+
+        serializer = CreatorPublicSerializer(profile)
+        data = serializer.data
+
+        expected_fields = {
+            'user', 'bio', 'profile_image', 'cover_image', 'website',
+            'followers_count', 'rating', 'verified', 'status',
+            'created_at', 'updated_at'
+        }
+
+        assert set(data.keys()) == expected_fields
+        
+
     def test_creator_public_serializer(self):
         """Test serialization of creator profile public data."""
         profile = CreatorProfileFactory(bio="This is a test bio.", followers_count=150, rating=4.5)
