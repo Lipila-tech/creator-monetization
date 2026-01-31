@@ -1,30 +1,40 @@
-import axios from 'axios';
+import axios from "axios";
 
 // Setup Constants (Fixed for Vite)
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
 const TIMEOUT = Number(import.meta.env.VITE_API_TIMEOUT) || 15000;
-const API_KEY = import.meta.env.VITE_API_CLIENT_KEY || '';
+const API_KEY = import.meta.env.VITE_API_CLIENT_KEY || "";
 
 // Create Axios Instance
 const api = axios.create({
   baseURL: BASE_URL,
   timeout: TIMEOUT,
   headers: {
-    'X-API-KEY': API_KEY,
-    'Content-Type': 'application/json',
+    "X-API-KEY": API_KEY,
+    "Content-Type": "application/json",
   },
 });
 
 // Request Interceptor (Attach Token)
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    const publicRoutes = [
+      "/auth/login/",
+      "/auth/register/",
+      "/creators/all/",
+      "/creators/",
+    ];
+
+    const isPublic = publicRoutes.some((route) => config.url.includes(route));
+
+    if (!isPublic) {
+      const token = localStorage.getItem("token");
+
+      if (token) config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 // Response Interceptor (Handle 401 & Refresh Token)
@@ -38,10 +48,10 @@ api.interceptors.response.use(
       originalRequest._retry = true; // Mark as retried to prevent infinite loops
 
       try {
-        const refreshToken = localStorage.getItem('refresh_token');
-        
+        const refreshToken = localStorage.getItem("refresh_token");
+
         if (!refreshToken) {
-          throw new Error('No refresh token available');
+          throw new Error("No refresh token available");
         }
 
         // Call backend to get a new access token
@@ -52,25 +62,24 @@ api.interceptors.response.use(
         const newAccessToken = response.data.access;
 
         // Save new token to storage
-        localStorage.setItem('token', newAccessToken);
+        localStorage.setItem("token", newAccessToken);
 
         // Update the header for the failed request
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
         // Retry the original request with the new token
         return api(originalRequest);
-
       } catch (refreshError) {
         // If refresh fails (token expired), force logout
-        localStorage.removeItem('token');
-        window.location.href = '/login'; // Redirect to login
-        
+        localStorage.removeItem("token");
+        window.location.href = "/login"; // Redirect to login
+
         return Promise.reject(refreshError);
       }
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;

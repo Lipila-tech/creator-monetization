@@ -5,9 +5,12 @@ import Signup from "./pages/Signup";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Footer from "./components/Common/Footer";
-import Header from './components/Common/Header';
+import Header from "./components/Common/Header";
 import CreatorDashboard from "./pages/CreatorDashboard";
 import ProtectedRoute from "./components/Auth/ProtectedRoute";
+import CreatorCatalog from "./pages/CreatorCatalog";
+import CreatorProfile from "./pages/CreatorProfile";
+import NotFound from "./pages/NotFound";
 
 function App() {
   return (
@@ -26,19 +29,26 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Signup />} />
 
+            {/* Public Facing Pages */}
+            <Route path="/creator-catalog" element={<CreatorCatalog />} />
+            <Route path="/creator-profile/:slug" element={<CreatorProfile />} />
+
             {/* Legal Pages */}
             <Route path="/terms-of-service" element={<TermsOfService />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 
             {/* Creator Pages*/}
-            <Route path="/creator-dashboard" element={<ProtectedRoute><CreatorDashboard /></ProtectedRoute>} />
-            
+            <Route
+              path="/creator-dashboard"
+              element={
+                <ProtectedRoute>
+                  <CreatorDashboard />
+                </ProtectedRoute>
+              }
+            />
 
             {/* 404 Fallback (Optional) */}
-            <Route
-              path="*"
-              element={<div className="text-center mt-20">Page Not Found</div>}
-            />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
         {/* Footer will appear at the bottom of all pages */}
