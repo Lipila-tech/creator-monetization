@@ -11,7 +11,7 @@ env = environ.Env(
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-print(BASE_DIR)
+
 # Take environment variables from .env file
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
@@ -97,10 +97,10 @@ DATABASES = {
     # ImproperlyConfigured exception if not found
     #
     # The db() method is an alias for db_url().
-    'default': env.db(),
+    # 'default': env.db(),
 
     # read os.environ['SQLITE_URL']
-    'extra': env.db_url(
+    'default': env.db_url(
         'SQLITE_URL',
         default='sqlite:///db.sqlite3'
     )
