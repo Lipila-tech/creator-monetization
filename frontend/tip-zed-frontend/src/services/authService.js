@@ -2,7 +2,7 @@ import api from './api';
 
 export const loginUser = async (email, password) => {
   try {
-    const response = await api.post('/api/v1/auth/token/', { 
+    const response = await api.post('/auth/token/', { 
       email, 
       password 
     });
@@ -20,7 +20,7 @@ export const loginUser = async (email, password) => {
 
 export const registerUser = async (userData) => {
   try {
-    const response = await api.post('/api/v1/auth/register/', userData);
+    const response = await api.post('/auth/register/', userData);
     
     return { success: true, data: response.data };
   } catch (error) {

@@ -1,41 +1,44 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import { loginUser, registerUser } from '../services/authService';
+import { createContext, useContext, useState } from "react";
+import { loginUser, registerUser } from "../services/authService";
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token') || null);
-  const [loading, setLoading] = useState(true);
+  // Lazy Initialization: Reads storage ONCE when app starts so there is no need for useEffect.
+  
+  const [token, setToken] = useState(() => {
+    return localStorage.getItem("token") || null;
+  });
 
-  // Check for existing session on load
-  useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
-    
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem("user");
+    try {
+      return storedUser ? JSON.parse(storedUser) : null;
+    } catch (error) {
+      console.error("Failed to parse user data", error);
+      return null;
     }
-    setLoading(false);
-  }, []);
+  });
 
   const login = async (email, password) => {
     try {
       const response = await loginUser(email, password);
-      const { access_token } = response.data;
+      
+      const { access_token, user: userData } = response.data; 
 
       // Save to State
       setToken(access_token);
+      if (userData) setUser(userData); // if user is returned on login
 
-      // Save to LocalStorage (Persist Session)
-      localStorage.setItem('token', access_token);
-      
+      // Save to LocalStorage
+      localStorage.setItem("token", access_token);
+      if (userData) localStorage.setItem("user", JSON.stringify(userData));
+
       return { success: true };
     } catch (error) {
-      return { 
-        success: false, 
-        error: error.response?.data?.message || 'Login failed' 
+      return {
+        success: false,
+        error: error.response?.data?.message || "Login failed",
       };
     }
   };
@@ -43,21 +46,19 @@ export const AuthProvider = ({ children }) => {
   const register = async (formData) => {
     try {
       const response = await registerUser(formData);
-      const { access_token, ...user } = response.data;
+      const { access_token, ...userData } = response.data;
 
-      // Save to State
       setToken(access_token);
-      setUser(user);
+      setUser(userData);
 
-      // Save to LocalStorage (Persist Session)
-      localStorage.setItem('token', access_token);
-      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem("token", access_token);
+      localStorage.setItem("user", JSON.stringify(userData));
 
       return { success: true };
     } catch (error) {
-      return { 
-        success: false, 
-        error: error.response?.data?.message || 'Registration failed' 
+      return {
+        success: false,
+        error: error.response?.data?.message || "Registration failed",
       };
     }
   };
@@ -65,13 +66,13 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     setToken(null);
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout, loading }}>
-      {!loading && children}
+    <AuthContext.Provider value={{ user, token, login, register, logout }}>
+      {children}
     </AuthContext.Provider>
   );
 };

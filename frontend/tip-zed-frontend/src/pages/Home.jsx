@@ -1,8 +1,6 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom' // Import Link for navigation
+import { Link } from 'react-router-dom'
 
 const Home = () => {
-  const [count, setCount] = useState(0)
 
   return (
     <div className="min-h-screen min-w-screen bg-gray-50 flex flex-col items-center justify-center px-4 py-8 md:py-16">

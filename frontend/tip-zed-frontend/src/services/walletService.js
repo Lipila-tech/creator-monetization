@@ -1,4 +1,4 @@
-import api from './api';
+// import api from './api';
 
 export const getWalletData = async (page = 1) => {
   // Simulate Network Delay (1 second) to test your Skeleton Loader

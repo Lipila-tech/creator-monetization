@@ -20,7 +20,7 @@ api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {
-      // config.headers.Authorization = `Bearer ${token}`;
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
@@ -45,7 +45,7 @@ api.interceptors.response.use(
         }
 
         // Call backend to get a new access token
-        const response = await axios.post(`${BASE_URL}/api/v1/auth/token/refresh/`, {
+        const response = await axios.post(`${BASE_URL}/auth/token/refresh/`, {
           refresh: refreshToken,
         });
 
