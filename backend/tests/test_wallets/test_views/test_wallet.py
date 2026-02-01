@@ -119,11 +119,11 @@ class TestWalletViews:
         assert data.get("recent_transactions") == []
 
 
-    def test_get_wallet_kyc(self, api_client, wallet_kyc_factory):
+    def test_get_wallet_kyc(self, api_client, user_factory):
         """Test getting current user's wallet KYC"""
         client = APIClientFactory()
         api_client.credentials(HTTP_X_API_KEY=client.api_key)
-        api_client.force_authenticate(user=wallet_kyc_factory.wallet.creator.user)
+        api_client.force_authenticate(user=user_factory)
         response = api_client.get("/api/v1/wallets/kyc/")
         assert response.status_code == 200
         data = response.data
@@ -133,11 +133,11 @@ class TestWalletViews:
         assert isinstance(data['data']['wallet_id'], str)
 
 
-    def test_update_wallet_kyc(self, api_client, wallet_kyc_factory):
+    def test_update_wallet_kyc(self, api_client, user_factory):
         """Test updating current user's wallet KYC"""
         client = APIClientFactory()
         api_client.credentials(HTTP_X_API_KEY=client.api_key)
-        api_client.force_authenticate(user=wallet_kyc_factory.wallet.creator.user)
+        api_client.force_authenticate(user=user_factory)
         payload = {
             "id_document_type": "PASSPORT",
             "id_document_number": "A1234567",
