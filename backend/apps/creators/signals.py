@@ -9,4 +9,4 @@ User = get_user_model()
 def create_creator_profile(sender, instance, created, **kwargs):
     """Create a CreatorProfile when a User with user_type 'creator' is created."""
     if created and instance.user_type == 'creator':
-        CreatorProfile.objects.create(user=instance)
+        CreatorProfile.objects.get_or_create(user=instance)

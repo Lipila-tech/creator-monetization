@@ -111,7 +111,6 @@ The API implements throttling:
 
 Currently using namespace-based versioning:
 - Future versions can be accessed via: `/api/v1/`, `/api/v2/`, etc.
-- Configured in `REST_FRAMEWORK['DEFAULT_VERSIONING_CLASS']`
 
 ## Custom Permissions
 
@@ -165,23 +164,14 @@ The API supports multiple authentication methods (tried in order):
 2. **JWT Authentication** - Via `Authorization: Bearer <token>` header
 
 ## API Endpoints
+**Base URL**: `https://tipzed.pythonanywhere.com/`
 
-### Authentication
+**Check the documentation for API endpoints at:**
+- swagger: https://tipzed.pythonanywhere.com/api/v1/schema/swagger-ui/
+- redoc: https://tipzed.pythonanywhere.com/api/v1/schema/docs/
 
-- `POST /api/v1/auth/register/` - Register new creator
-- `POST /api/v1/auth/token/` - Obtain JWT tokens
-- `POST /api/v1/auth/token/refresh/` - Refresh access token
-- `POST /api/v1/auth/logout/` - Logout (requires auth)
-
-### User Profile
-
-- `GET /api/v1/auth/profile/` - Get current user profile (requires auth)
-- `PUT /api/v1/auth/profile/` - Update profile (full update, requires auth)
-- `PATCH /api/v1/auth/profile/` - Update profile (partial update, requires auth)
-
-### Password Management
-
-- `POST /api/v1/auth/change-password/` - Change password (requires auth)
+**Or Test in Postman Collection:**
+- [Postman Collection Link]('#')
 
 ## Environment Variables
 

@@ -1,11 +1,11 @@
 import { createContext, useContext, useState } from "react";
-import { loginUser, registerUser } from "../services/authService";
+import authService from "../services/authService";
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   // Lazy Initialization: Reads storage ONCE when app starts so there is no need for useEffect.
-  
+
   const [token, setToken] = useState(() => {
     return localStorage.getItem("token") || null;
   });
@@ -22,9 +22,9 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await loginUser(email, password);
-      
-      const { access_token, user: userData } = response.data; 
+      const response = await authService.loginUser(email, password);
+
+      const { access_token, user: userData } = response.data;
 
       // Save to State
       setToken(access_token);
@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (formData) => {
     try {
-      const response = await registerUser(formData);
+      const response = await authService.registerUser(formData);
       const { access_token, ...userData } = response.data;
 
       setToken(access_token);

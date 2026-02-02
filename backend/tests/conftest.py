@@ -3,10 +3,18 @@ Pytest configuration and fixtures.
 """
 import os
 import pytest
+from decimal import Decimal
+from apps.wallets.models.payment import PaymentStatus
+from apps.wallets.models.payment import (
+    PaymentStatus,
+    PaymentProvider,
+    PaymentMethod,
+    Currency,
+)
 
 def pytest_configure():
     """Configure pytest settings."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
     import django
     django.setup()
 
@@ -54,7 +62,72 @@ def api_client_obj(db):
 
 
 @pytest.fixture
-def creator_profile(db):
-    """Fixture for creating a creator profile."""
-    from tests.factories import CreatorProfileFactory
-    return CreatorProfileFactory()
+def user_factory(db):
+    """Create a test user"""
+    from tests.factories import UserFactory
+    return UserFactory()
+
+
+@pytest.fixture
+def payment_factory(user_factory):
+    """Create a test payment"""
+    from tests.factories import PaymentFactory
+    return PaymentFactory(
+        wallet=user_factory.creator_profile.wallet,
+        amount=Decimal("100.00"),
+        currency=Currency.ZMW,
+        status=PaymentStatus.PENDING,
+        provider=PaymentProvider.PAWAPAY,
+    )
+
+
+@pytest.fixture
+def payout_account_factory(user_factory):
+    """Create a test payout account"""
+    from tests.factories import WalletPayoutAccountFactory
+    return WalletPayoutAccountFactory(wallet=user_factory.creator_profile.wallet)
+
+@pytest.fixture
+def wallet_transaction_factory(user_factory, payment_factory):
+    """Create a test wallet transaction"""
+    from tests.factories import WalletTransactionFactory
+    return WalletTransactionFactory(
+        wallet=user_factory.creator_profile.wallet,
+        payment=payment_factory,
+    )
+
+
+@pytest.fixture
+def wallet_kyc_factory(user_factory):
+    """Create a test wallet KYC"""
+    from tests.factories import WalletKYCFactory
+    return WalletKYCFactory(wallet=user_factory.creator_profile.wallet)
+
+
+@pytest.fixture
+def payment_attempt_factory(payment_factory):
+    """Create a test payment attempt"""
+    from tests.factories import PaymentAttemptFactory
+    return PaymentAttemptFactory(payment=payment_factory)
+
+
+@pytest.fixture
+def refund_factory(payment_factory):
+    """Create a test refund"""
+    from tests.factories import RefundFactory
+    return RefundFactory(payment=payment_factory)
+
+
+@pytest.fixture
+def dispute_factory(payment_factory):
+    """Create a test dispute"""
+    from tests.factories import DisputeFactory
+    return DisputeFactory(payment=payment_factory)
+
+
+@pytest.fixture
+def webhook_log_factory(payment_factory):
+    """Create a test webhook log"""
+    from tests.factories import PaymentWebhookLogFactory
+    return PaymentWebhookLogFactory(payment=payment_factory)
+
