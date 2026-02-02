@@ -32,7 +32,7 @@ class WalletListView(APIView):
             wallet = WalletService.get_wallet_for_user(request.user)
         except WalletNotFound:
             return Response(
-                {"error": "User does not have a wallet"},
+                {"status": "NOT_FOUND"},
                 status=status.HTTP_404_NOT_FOUND
             )
 
@@ -135,7 +135,7 @@ class WalletTransactionsView(APIView):
             wallet = WalletService.get_wallet_for_user(request.user)
         except WalletNotFound:
             return Response(
-                {"error": "User does not have a wallet"},
+                {"status": "NOT_FOUND"},
                 status=status.HTTP_404_NOT_FOUND
             )
 

@@ -1,8 +1,19 @@
 import pytest
-from tests.factories import APIClientFactory, PaymentFactory
+from tests.factories import APIClientFactory, UserFactory
 @pytest.mark.django_db
 class TestWalletViews:
     """Tests for wallet views"""
+    
+    def test_get_user_wallet_404(self, api_client):
+        """Test getting a current users wallet with no wallet"""
+        user = UserFactory(user_type="admin")
+        client = APIClientFactory()
+        api_client.credentials(HTTP_X_API_KEY=client.api_key)
+        api_client.force_authenticate(user=user)
+        response = api_client.get("/api/v1/wallets/me/")
+        assert response.status_code == 404
+        assert response.data["status"] == "NOT_FOUND"
+
 
     def test_get_user_wallet(self, api_client, user_factory, mocker):
         """Test getting current user's wallet"""
