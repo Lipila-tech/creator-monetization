@@ -27,6 +27,7 @@ pytestmark = pytest.mark.django_db
 class TestWalletListSerializer:
     """Test WalletListSerializer"""
     
+    @pytestmark
     def test_serialize_wallet_list(self, user_factory):
         """Test serialization of wallet list"""
         wallet_factory = user_factory.creator_profile.wallet
@@ -242,22 +243,23 @@ class TestWalletTransactionCreateSerializer:
 class TestWalletKYCSerializer:
     """Test WalletKYCSerializer"""
 
-    def test_serialize_kyc(self, wallet_kyc_factory):
+    def test_serialize_kyc(self, user_factory):
         """Test serialization of KYC"""
-        serializer = WalletKYCSerializer(wallet_kyc_factory)
+        wallet_kyc = user_factory.creator_profile.wallet.kyc
+        serializer = WalletKYCSerializer(wallet_kyc)
         data = serializer.data
 
-        assert data["id"] == wallet_kyc_factory.id
-        assert data["full_name"] == wallet_kyc_factory.full_name
-        assert data["id_document_number"] == wallet_kyc_factory.id_document_number
-        assert data["bank_name"] == wallet_kyc_factory.bank_name
+        assert data["id"] == wallet_kyc.id
+        assert data["account_type"] == wallet_kyc.account_type
+        assert data["id_document_number"] == wallet_kyc.id_document_number
+        assert data["bank_name"] == wallet_kyc.bank_name
 
-    def test_create_kyc_valid(self, user_factory):
+    def test_create_kyc_valid(self):
         """Test creating KYC with valid data"""
         data = {
             "id_document_type": "NRC",
             "id_document_number": "123456",
-            "full_name": "John Doe",
+            "account_type": "BANK",
             "bank_name": "Standard Chartered",
             "bank_account_name": "John Doe",
             "bank_account_number": "1234567890",
@@ -265,12 +267,12 @@ class TestWalletKYCSerializer:
         serializer = WalletKYCSerializer(data=data)
         assert serializer.is_valid(), serializer.errors
 
-    def test_create_kyc_invalid_document_type(self, user_factory):
+    def test_create_kyc_invalid_document_type(self):
         """Test creating KYC with invalid document type"""
         data = {
             "id_document_type": "INVALID",
             "id_document_number": "123456",
-            "full_name": "John Doe",
+            "account_type": "BANK",
             "bank_name": "Standard Chartered",
             "bank_account_name": "John Doe",
             "bank_account_number": "1234567890",
@@ -284,7 +286,7 @@ class TestWalletKYCSerializer:
         data = {
             "id_document_type": "NRC",
             "id_document_number": "12",
-            "full_name": "John Doe",
+            "account_type": "BANK",
             "bank_name": "Standard Chartered",
             "bank_account_name": "John Doe",
             "bank_account_number": "1234567890",
@@ -293,19 +295,19 @@ class TestWalletKYCSerializer:
         assert not serializer.is_valid()
         assert "id_document_number" in serializer.errors
 
-    def test_create_kyc_short_full_name(self):
-        """Test creating KYC with short full name"""
+    def test_create_kyc_with_invalid_bank(self):
+        """Test creating KYC with account bank"""
         data = {
             "id_document_type": "NRC",
             "id_document_number": "123456",
-            "full_name": "J",
+            "account_type": "INVALID_ACCOUNT_TYPE",
             "bank_name": "Standard Chartered",
             "bank_account_name": "John Doe",
             "bank_account_number": "1234567890",
         }
         serializer = WalletKYCSerializer(data=data)
         assert not serializer.is_valid()
-        assert "full_name" in serializer.errors
+        assert "account_type" in serializer.errors
 
 
 # ========== PAYMENT ATTEMPT SERIALIZER TESTS ==========
