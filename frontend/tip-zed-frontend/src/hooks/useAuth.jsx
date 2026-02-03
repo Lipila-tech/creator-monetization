@@ -10,10 +10,6 @@ export const AuthProvider = ({ children }) => {
     return JSON.parse(localStorage.getItem("user"));
   };
 
-  const getToken = () => {
-    return JSON.parse(localStorage.getItem("token"));
-  };
-
   const saveUser = (user) => {
     setUser(user);
     localStorage.setItem("user", JSON.stringify(user));
@@ -42,7 +38,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await authService.loginUser(email, password);
 
-      const { access_token, user: userData } = response.data;
+      const { access_token } = response.data;
 
       saveToken(access_token);
 
@@ -80,7 +76,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    await authService.logoutUser(formData);
+    await authService.logoutUser();
     setUser(null);
     setToken(null);
     localStorage.removeItem("token");
