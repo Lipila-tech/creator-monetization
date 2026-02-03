@@ -2,8 +2,8 @@ from decimal import Decimal
 
 
 class FeeService:
-    CASH_IN_FEE_PERCENT = Decimal("0.03")  # 3%
-    PAYOUT_FEE_FLAT = Decimal("10.00")  # K10
+    CASH_IN_FEE_PERCENT = Decimal("0.1")  # 3%
+    PAYOUT_FEE_FLAT = Decimal("0.00")  # K10
 
     @classmethod
     def calculate_cash_in_fee(cls, amount: Decimal) -> Decimal:

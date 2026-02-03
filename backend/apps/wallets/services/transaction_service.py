@@ -34,15 +34,19 @@ class WalletTransactionService:
         transaction linked to another transaction.
         Amount MUST be positive.
         """
-        if amount <= 0:
-            raise InvalidTransaction("Fee amount must be positive")
+        if amount < 0:
+            raise InvalidTransaction("Amount must be positive")
+        elif amount == 0:
+            final_amount = 0
+        else:
+            final_amount = -amount if transaction_type == "FEE" else amount
 
         if WalletTransaction.objects.filter(reference=reference).exists():
             raise DuplicateTransaction("Transaction already exists")
-
+            
         fee_tx = WalletTransaction.objects.create(
             wallet=wallet,
-            amount=-amount if transaction_type == "FEE" else amount,
+            amount=final_amount,
             transaction_type=transaction_type,
             status="COMPLETED",
             reference=reference,
@@ -96,6 +100,7 @@ class WalletTransactionService:
     @staticmethod
     @transaction.atomic
     def payout(*, wallet, amount: Decimal, correlation_id: str):
+        
         if amount <= 0:
             raise InvalidTransaction("Amount must be positive")
 

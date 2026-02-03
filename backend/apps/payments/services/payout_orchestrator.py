@@ -11,7 +11,7 @@ from utils.exceptions import InsufficientBalance, InvalidTransaction
 class PayoutOrchestrator:
     """Orchestrates the payout process for wallets."""
 
-    PAYOUT_FEE = Decimal("10.00")
+    PAYOUT_FEE = Decimal("0.00")
 
     @staticmethod
     @transaction.atomic
@@ -39,7 +39,7 @@ class PayoutOrchestrator:
             raise InsufficientBalance("No balance to payout")
 
         correlation_id = f"PAYOUT-{uuid.uuid4()}"
-
+        
         payout_tx = WalletTransactionService.payout(
             wallet=wallet,
             amount=wallet.balance - FeeService.payout_fee(),  # Deduct fee
