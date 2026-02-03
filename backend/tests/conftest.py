@@ -8,10 +8,9 @@ from apps.payments.models import PaymentStatus
 from apps.payments.models import (
     PaymentStatus,
     PaymentProvider,
-    PaymentMethod,
     Currency,
 )
-
+from apps.wallets.models import WalletTransaction as WTxn
 def pytest_configure():
     """Configure pytest settings."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
@@ -103,6 +102,14 @@ def wallet_transaction_factory(user_factory, payment_factory):
         return instance
     yield create_txn
 
+
+@pytest.fixture
+def txn_filter(db):
+    """Factory that filter for existing transactions"""
+    def _find(**filters):
+        """Filter for existing data"""
+        return WTxn.objects.filter(**filters).first()
+    return _find
 
 @pytest.fixture
 def wallet_kyc_factory(user_factory):
