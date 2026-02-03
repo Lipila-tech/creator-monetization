@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from apps.creators.models import CreatorProfile
-from apps.wallets.models.payment_related import Wallet, WalletKYC
+from apps.wallets.models import Wallet, WalletKYC
 
 @receiver(post_save, sender=CreatorProfile)
 def create_wallet_for_creator(sender, instance, created, **kwargs):

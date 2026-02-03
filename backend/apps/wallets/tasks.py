@@ -1,8 +1,8 @@
 from celery import shared_task
 from utils.external_requests import pawapay_request
-from apps.wallets.models.payment import Payment
-from apps.wallets.models.payment_related import Wallet
-from apps.wallets.services.payout_orchestrator import PayoutOrchestrator
+from apps.payments.models import Payment
+from apps.wallets.models import Wallet
+from apps.payments.services.payout_orchestrator import PayoutOrchestrator
 
 
 @shared_task

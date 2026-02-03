@@ -4,13 +4,14 @@ function as expected.
 """
 import pytest
 from django.urls import reverse
-from tests.factories import CreatorProfileFactory
+from tests.factories import CreatorProfileFactory, UserFactory
 
 @pytest.mark.django_db
 def test_list_creator_profiles_view(client):
     """Test the view that lists all creator profiles."""
     # Create multiple creator profiles
-    profiles = [CreatorProfileFactory() for _ in range(3)]
+    users = UserFactory.create_batch(3)
+    profiles = [user.creator_profile for user in users]
 
     url = reverse('creators:creator_profiles_list')
 
@@ -25,9 +26,9 @@ def test_list_creator_profiles_view(client):
 
 
 @pytest.mark.django_db
-def test_creator_public_view(client):
+def test_creator_public_view(client, user_factory):
     """Test the public view of a creator profile."""
-    creator_profile = CreatorProfileFactory()
+    creator_profile = user_factory.creator_profile
 
     url = reverse('creators:creator_public_view', args=[creator_profile.user.slug])
 
@@ -59,9 +60,11 @@ def test_creator_public_view_not_found(client):
     assert response.status_code == 404
 
 @pytest.mark.django_db
-def test_creator_public_view_inactive_profile(client):
+def test_creator_public_view_inactive_profile(client, user_factory):
     """Test that an inactive creator profile returns 404."""
-    creator_profile = CreatorProfileFactory(status="inactive")
+    creator_profile = user_factory.creator_profile
+    creator_profile.status = "inactive"
+    creator_profile.save()
 
     url = reverse('creators:creator_public_view', args=[creator_profile.user.slug])
 
@@ -71,12 +74,12 @@ def test_creator_public_view_inactive_profile(client):
 
 
 @pytest.mark.django_db
-def test_creator_public_view_content(client):
+def test_creator_public_view_content(client, user_factory):
     """Test that the creator public view displays correct content."""
-    creator_profile = CreatorProfileFactory(
-        bio="This is a test bio for the creator.",
-        website="https://example.com",
-    )
+    creator_profile = user_factory.creator_profile
+    creator_profile.bio = "This is a test bio for the creator."
+    creator_profile.website = "https://example.com"
+    creator_profile.save()
 
     url = reverse('creators:creator_public_view', args=[creator_profile.user.slug])
 
@@ -91,7 +94,8 @@ def test_creator_public_view_content(client):
 @pytest.mark.django_db
 def test_creator_public_view_multiple_profiles(client):
     """Test that multiple creator profiles can be accessed correctly."""
-    profiles = [CreatorProfileFactory() for _ in range(5)]
+    users = UserFactory.create_batch(5)
+    profiles = [user.creator_profile for user in users]
 
     for profile in profiles:
         url = reverse('creators:creator_public_view', args=[profile.user.slug])
@@ -103,9 +107,9 @@ def test_creator_public_view_multiple_profiles(client):
 
     
 @pytest.mark.django_db
-def test_creator_public_view_slug_case_insensitivity(client):
+def test_creator_public_view_slug_case_insensitivity(client, user_factory):
     """Test that the creator public view is case insensitive regarding slugs."""
-    creator_profile = CreatorProfileFactory()
+    creator_profile = user_factory.creator_profile
 
     url = reverse('creators:creator_public_view', args=[creator_profile.user.slug.upper()])
 
@@ -118,9 +122,9 @@ def test_creator_public_view_slug_case_insensitivity(client):
 
 
 @pytest.mark.django_db
-def test_creator_public_view_special_characters_in_slug(client):
+def test_creator_public_view_special_characters_in_slug(client, user_factory):
     """Test that the creator public view handles special characters in slugs."""
-    creator_profile = CreatorProfileFactory()
+    creator_profile = user_factory.creator_profile
     creator_profile.user.slug = "specialchar_slug-123"
     creator_profile.user.save()
 
@@ -134,9 +138,9 @@ def test_creator_public_view_special_characters_in_slug(client):
 
 
 @pytest.mark.django_db
-def test_creator_public_view_redirects(client):
+def test_creator_public_view_redirects(client, user_factory):
     """Test that the creator public view redirects correctly if needed."""
-    creator_profile = CreatorProfileFactory()
+    creator_profile = user_factory.creator_profile
 
     url = reverse('creators:creator_public_view', args=[creator_profile.user.slug]) + '?ref=homepage'
 

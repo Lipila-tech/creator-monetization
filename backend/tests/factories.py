@@ -6,8 +6,8 @@ from decimal import Decimal
 from django.contrib.auth import get_user_model
 from apps.customauth.models import APIClient
 from apps.creators.models import CreatorProfile
-from apps.wallets.models.payment import Payment
-from apps.wallets.models.payment_related import (
+from apps.payments.models import Payment
+from apps.wallets.models import (
     Wallet, WalletKYC, WalletPayoutAccount, WalletTransaction,
     PaymentAttempt, Refund, Dispute, PaymentWebhookLog,)
 

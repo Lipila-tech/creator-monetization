@@ -1,5 +1,5 @@
 from django.urls import path
-from apps.wallets.views.wallet import (
+from apps.wallets.views import (
     WalletListView, WalletTransactionsView, WalletKYCView)
 
 app_name = 'wallets'

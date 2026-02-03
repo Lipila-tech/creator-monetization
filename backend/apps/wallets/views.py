@@ -4,9 +4,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
-from apps.wallets.models.payment_related import WalletTransaction, WalletKYC
-from apps.wallets.models.payment import Payment
-from apps.wallets.serializers.payments_related import (
+from apps.wallets.models import WalletTransaction, WalletKYC
+from apps.payments.models import Payment
+from apps.wallets.serializers import (
     WalletDetailSerializer,
     WalletTransactionListSerializer,
     WalletKYCSerializer
@@ -32,7 +32,7 @@ class WalletListView(APIView):
             wallet = WalletService.get_wallet_for_user(request.user)
         except WalletNotFound:
             return Response(
-                {"error": "User does not have a wallet"},
+                {"status": "NOT_FOUND"},
                 status=status.HTTP_404_NOT_FOUND
             )
 
@@ -135,7 +135,7 @@ class WalletTransactionsView(APIView):
             wallet = WalletService.get_wallet_for_user(request.user)
         except WalletNotFound:
             return Response(
-                {"error": "User does not have a wallet"},
+                {"status": "NOT_FOUND"},
                 status=status.HTTP_404_NOT_FOUND
             )
 

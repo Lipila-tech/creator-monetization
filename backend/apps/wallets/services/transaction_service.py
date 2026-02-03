@@ -2,14 +2,14 @@ import uuid
 from decimal import Decimal
 from django.db import transaction
 
-from apps.wallets.models.payment_related import WalletTransaction, Wallet
+from apps.wallets.models import WalletTransaction, Wallet
 from utils.exceptions import (
     InsufficientBalance,
     DuplicateTransaction,
     InvalidTransaction,
 )
 from apps.wallets.services.wallet_service import WalletService
-from apps.wallets.services.fee_service import FeeService
+from apps.payments.services.fee_service import FeeService
 
 
 class WalletTransactionService:

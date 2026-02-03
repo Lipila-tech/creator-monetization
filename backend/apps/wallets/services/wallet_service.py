@@ -1,6 +1,5 @@
 from django.db.models import Sum
-
-from apps.wallets.models.payment_related import Wallet
+from apps.wallets.models import Wallet
 from utils.exceptions import WalletNotFound
 
 
@@ -19,7 +18,7 @@ class WalletService:
         """
         try:
             return user.creator_profile.wallet
-        except Wallet.DoesNotExist:
+        except Exception:
             raise WalletNotFound("User does not have a wallet")
 
     @staticmethod

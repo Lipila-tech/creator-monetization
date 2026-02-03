@@ -3,7 +3,7 @@ Tests for Payment serializers
 """
 import pytest
 from decimal import Decimal
-from apps.wallets.serializers.payments import (
+from apps.payments.serializers import (
     PaymentListSerializer,
 )
 

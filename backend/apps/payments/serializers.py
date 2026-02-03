@@ -2,16 +2,7 @@
 Serializers for Payment model
 """
 from rest_framework import serializers
-from decimal import Decimal
-from django.utils import timezone
-from apps.wallets.models.payment import (
-    Payment,
-    PaymentStatus,
-    PaymentProvider,
-    PaymentMethod,
-    ISPPaymentProvider,
-    Currency,
-)
+from .models import Payment
 
 
 class PaymentListSerializer(serializers.ModelSerializer):

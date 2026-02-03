@@ -5,8 +5,8 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 
-from apps.wallets.models.payment_related import Wallet, WalletTransaction
-from apps.wallets.services.payout_orchestrator import PayoutOrchestrator
+from apps.wallets.models import Wallet, WalletTransaction
+from apps.payments.services.payout_orchestrator import PayoutOrchestrator
 
 
 def superuser_required(view_func):

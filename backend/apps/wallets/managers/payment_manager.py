@@ -4,7 +4,7 @@ from django.utils import timezone
 from decimal import Decimal
 from datetime import timedelta
 
-from apps.wallets.models.payment import Payment, PaymentStatus
+from apps.payments.models import Payment, PaymentStatus
 
 
 class PaymentManager(models.Manager):

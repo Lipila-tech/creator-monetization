@@ -1,16 +1,12 @@
 import json
 from django.shortcuts import redirect, render, get_object_or_404
-from django.views.decorators.csrf import csrf_exempt
 from django.db import transaction
 from django.conf import settings
-from django.http import JsonResponse
 from django.contrib.auth import get_user_model
-from apps.wallets.models.payment import Payment
-from apps.wallets.models.payment_related import Invoice, WalletKYC
-from apps.wallets.models.payment_related import PaymentWebhookLog as WebHook
+from apps.payments.models import Payment
+from apps.wallets.models import Invoice, WalletKYC
 from utils.external_requests import pawapay_request
-from utils.exceptions import DuplicateTransaction
-from apps.wallets.services.transaction_service import WalletTransactionService
+
 
 User = get_user_model()
 
@@ -41,7 +37,6 @@ def payment_status(request, deposit_id):
     Handles the payment status view for a given deposit ID.
     """
     payment = Payment.objects.filter(id=deposit_id).first()
-    invoice = Invoice.objects.filter(payment=payment).first()
 
     context = {
         "status": "Unknown", "message": "Unknown status", "statuses": []
@@ -56,7 +51,6 @@ def payment_status(request, deposit_id):
         failure_msg = payment.metadata["failureReason"]["failureMessage"]
         context["status"] = "rejected"
         context["message"] = failure_msg
-        context["invoice_id"] = invoice.id
         return render(request, "payments/status.html", context)
     data, code = pawapay_request("GET", f"/v2/deposits/{deposit_id}")
     if code == 200 and "data" in data:
@@ -89,11 +83,7 @@ def payment_status(request, deposit_id):
         context["status"] = status
         context["statuses"] = skip_statuses
         context["message"] = message
-        try:
-            invoice.status = status
-            invoice.save()
-        except Exception:
-            pass
+        
         return render(request, "payments/status.html", context)
     return render(request, "payments/status.html", context)
 
@@ -102,7 +92,6 @@ def deposit_invoice_payment(request, invoice_id=None):
     """Handles deposit payment for a given invoice."""
 
     invoice = get_object_or_404(Invoice, id=invoice_id)
-
     if request.method == "POST":
         amount = invoice.subtotal()
         phone = request.POST.get("phone")

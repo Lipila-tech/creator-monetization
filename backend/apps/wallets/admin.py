@@ -1,14 +1,14 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
-from apps.wallets.models.payment import Payment, PaymentStatus
-from apps.wallets.models.payment_related import (
+from apps.payments.models import Payment, PaymentStatus
+from apps.wallets.models import (
     PaymentAttempt,
     Refund,
     Wallet,
     WalletTransaction,
 )
-from apps.wallets.models.payment_related import PaymentWebhookLog as WebHook
+from apps.wallets.models import PaymentWebhookLog as WebHook
 
 
 class LipilaAdminSite(admin.AdminSite):

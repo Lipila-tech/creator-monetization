@@ -4,7 +4,7 @@ Serializers for payment-related models (Wallet, WalletTransaction, KYC, etc.)
 from rest_framework import serializers
 from decimal import Decimal
 from django.db import models
-from apps.wallets.models.payment_related import (
+from .models import (
     Wallet,
     WalletPayoutAccount,
     WalletTransaction,

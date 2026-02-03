@@ -5,7 +5,7 @@ Management command to create creator wallets for existing creators with no walle
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from apps.creators.models import CreatorProfile
-from apps.wallets.models.payment_related import Wallet
+from apps.wallets.models import Wallet
 
 User = get_user_model()
 

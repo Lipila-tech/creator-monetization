@@ -4,8 +4,8 @@ Pytest configuration and fixtures.
 import os
 import pytest
 from decimal import Decimal
-from apps.wallets.models.payment import PaymentStatus
-from apps.wallets.models.payment import (
+from apps.payments.models import PaymentStatus
+from apps.payments.models import (
     PaymentStatus,
     PaymentProvider,
     PaymentMethod,

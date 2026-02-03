@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from apps.creators.models import CreatorProfile
-from .payment import (
+from apps.payments.models import (
     Payment,
     PaymentProvider,
     PaymentStatus,

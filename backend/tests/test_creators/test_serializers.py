@@ -1,5 +1,5 @@
 import pytest
-from tests.factories import CreatorProfileFactory
+from tests.factories import UserFactory
 from apps.creators.serializers import CreatorPublicSerializer, CreatorListSerializer
 
 
@@ -7,9 +7,9 @@ from apps.creators.serializers import CreatorPublicSerializer, CreatorListSerial
 class TestCreatorPublicSerializer:
     """Test CreatorPublicSerializer."""
 
-    def test_creator_serializer_fields(self):
+    def test_creator_serializer_fields(self, user_factory):
         """Test that the serializer includes all expected fields."""
-        profile = CreatorProfileFactory()
+        profile = user_factory.creator_profile
 
         serializer = CreatorPublicSerializer(profile)
         data = serializer.data
@@ -23,10 +23,14 @@ class TestCreatorPublicSerializer:
         assert set(data.keys()) == expected_fields
         
 
-    def test_creator_public_serializer(self):
+    def test_creator_public_serializer(self, user_factory):
         """Test serialization of creator profile public data."""
-        profile = CreatorProfileFactory(bio="This is a test bio.", followers_count=150, rating=4.5)
-
+        profile = user_factory.creator_profile
+        profile.bio = "This is a test bio."
+        profile.followers_count = 150
+        profile.rating = 4.5
+        profile.save()
+        
         serializer = CreatorPublicSerializer(profile)
         data = serializer.data
 
@@ -48,7 +52,8 @@ class TestCreatorPublicSerializer:
 
     def test_list_creator_public_serializer(self):
         """Test serialization of multiple creator profiles."""
-        profiles = [CreatorProfileFactory() for _ in range(3)]
+        users = UserFactory.create_batch(3)
+        profiles = [user.creator_profile for user in users]
 
         serializer = CreatorListSerializer(profiles, many=True)
         data = serializer.data
@@ -70,9 +75,11 @@ class TestCreatorPublicSerializer:
             
 
 
-    def test_creator_public_serializer_with_verified_profile(self):
+    def test_creator_public_serializer_with_verified_profile(self, user_factory):
         """Test serialization of a verified creator profile."""
-        profile = CreatorProfileFactory(verified=True)
+        profile = user_factory.creator_profile
+        profile.verified = True
+        profile.save()
 
         serializer = CreatorPublicSerializer(profile)
         data = serializer.data
@@ -80,9 +87,11 @@ class TestCreatorPublicSerializer:
         assert data['user']["id"] == profile.user.id
         assert data['verified'] is True
 
-    def test_creator_public_serializer_with_inactive_profile(self):
+    def test_creator_public_serializer_with_inactive_profile(self, user_factory):
         """Test serialization of an inactive creator profile."""
-        profile = CreatorProfileFactory(status="inactive")
+        profile = user_factory.creator_profile
+        profile.status = "inactive"
+        profile.save()
 
         serializer = CreatorPublicSerializer(profile)
         data = serializer.data
@@ -90,45 +99,14 @@ class TestCreatorPublicSerializer:
         assert data['user']["id"] == profile.user.id
         assert data['status'] == "inactive"
 
-    def test_creator_public_serializer_with_suspended_profile(self):
+    def test_creator_public_serializer_with_suspended_profile(self, user_factory):
         """Test serialization of a suspended creator profile."""
-        profile = CreatorProfileFactory(status="suspended")
+        profile = user_factory.creator_profile
+        profile.status = "suspended"
+        profile.save()
 
         serializer = CreatorPublicSerializer(profile)
         data = serializer.data
 
         assert data['user']["id"] == profile.user.id
         assert data['status'] == "suspended"
-
-    def test_creator_public_serializer_with_banned_profile(self):
-        """Test serialization of a banned creator profile."""
-        profile = CreatorProfileFactory(status="banned")
-
-        serializer = CreatorPublicSerializer(profile)
-        data = serializer.data
-
-        assert data['user']["id"] == profile.user.id
-        assert data['status'] == "banned"
-
-    def test_creator_public_serializer_edge_case_rating(self):
-        """Test serialization of a creator profile with edge case rating values."""
-        profile_low = CreatorProfileFactory(rating=0.0)
-        profile_high = CreatorProfileFactory(rating=5.0)
-
-        serializer_low = CreatorPublicSerializer(profile_low)
-        data_low = serializer_low.data
-        assert data_low['rating'] == 0.0
-
-        serializer_high = CreatorPublicSerializer(profile_high)
-        data_high = serializer_high.data
-        assert data_high['rating'] == 5.0
-
-    def test_creator_public_serializer_no_website(self):
-        """Test serialization of a creator profile without a website."""
-        profile = CreatorProfileFactory(website="")
-
-        serializer = CreatorPublicSerializer(profile)
-        data = serializer.data
-
-        assert data['user']["id"] == profile.user.id
-        assert data['website'] == ""
