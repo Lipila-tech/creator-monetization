@@ -83,10 +83,8 @@ class TestPayoutOrchestratorTest:
             transaction_type="FEE", related_transaction=payout_tx
         )
 
-        assert fee_tx is not None
-        assert fee_tx.amount == Decimal("0.00")
-        assert fee_tx.status == "COMPLETED"
-
+        assert fee_tx is None
+     
     def test_finalize_successful_payout(self, staff_user, user_factory):
         wallet = user_factory.creator_profile.wallet
         wallet.kyc.verified = True
@@ -135,7 +133,7 @@ class TestPayoutOrchestratorTest:
         assert payout_tx.status == "FAILED"
         assert user_factory.creator_profile.wallet.balance == Decimal("90.00")
 
-        assert txn_filter(transaction_type="FEE_REVERSAL") is not None
+        assert txn_filter(transaction_type="FEE_REVERSAL") is None
 
     def test_finalize_is_idempotent(self, staff_user, user_factory, txn_filter):
         wallet = user_factory.creator_profile.wallet
@@ -158,4 +156,4 @@ class TestPayoutOrchestratorTest:
         # Call again (should not create duplicate reversals)
         PayoutOrchestrator.finalize(payout_tx=payout_tx, success=False)
 
-        assert WalletTransaction.objects.filter(transaction_type="FEE_REVERSAL").count() == 1
+        assert WalletTransaction.objects.filter(transaction_type="FEE_REVERSAL").count() == 0

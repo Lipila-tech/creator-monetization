@@ -83,6 +83,22 @@ class TestCashinViews:
 
         mock_request.assert_called_once()
 
+    def test_external_gateway_down(self, auth_api_client, wallet_factory, mocker):
+        mock_request = mocker.patch("apps.payments.views.pawapay_request")
+        mock_request.return_value = (
+            {"depositId": "1234", "status": "INTERNAL_ERROR"}, 500)
+
+        data = {
+            "patronPhone": "7655555556",
+            "ispProvider": "MTN_MOMO_ZMB",
+            "amount": "10",
+        }
+        response = auth_api_client.post(
+            f"/api/v1/payments/deposits/{wallet_factory.id}/", data, format="json")
+
+        assert response.status_code == 503
+        mock_request.assert_called_once()
+
     def test_deposit_no_wallet_exists(self, api_key, auth_api_client, mocker):
         mock_request = mocker.patch("apps.payments.views.pawapay_request")
 

@@ -64,13 +64,14 @@ class DepositAPIView(APIView):
                 payment.status = status_lower
                 payment.metadata = data
                 payment.save()
-            serializer = PaymentSerializer(payment)
-            return Response(
-                {"status": "ACCEPTED",
-                 "data": serializer.data
-                 },
-                status=status.HTTP_201_CREATED
-            )
+                serializer = PaymentSerializer(payment)
+                return Response(
+                    {"status": "ACCEPTED",
+                    "data": serializer.data
+                    },
+                    status=status.HTTP_201_CREATED
+                )
+            return Response({"status":"ERROR"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
         return Response(
             {"status": "INVALID_DATA"},
