@@ -19,15 +19,20 @@ from utils.authentication import RequireAPIKey
 
 
 class WalletListView(APIView):
-    """
-    API view for retrieving user's wallet details.
-    GET: Retrieve current user's wallet with transaction summaries.
-    """
     permission_classes = [RequireAPIKey, IsAuthenticated]
     serializer_class = WalletDetailSerializer
 
     def get(self, request):
-        """Get current user's wallet details with transaction summaries."""
+        """
+        Retrieve the authenticated creator's wallet summary.
+
+        Returns the creator wallet balance, including available and pending balances,
+        and currency. Used by the creator dashboard.
+
+        Authentication
+        --------------
+        Requires authentication (creator).
+        """
         try:
             wallet = WalletService.get_wallet_for_user(request.user)
         except WalletNotFound:
@@ -115,21 +120,19 @@ class WalletListView(APIView):
                             pass
 
 class WalletTransactionsView(APIView):
-    """
-    API view for retrieving wallet transactions.
-    GET: List recent wallet transactions with pagination and filtering.
-    """
     permission_classes = [RequireAPIKey, IsAuthenticated]
     serializer_class = WalletTransactionListSerializer
 
     def get(self, request):
         """
-        Get wallet transactions.
-        
-        Query parameters:
-            - transaction_type: Filter by CASH_IN, PAYOUT, REVERSAL, FEE
-            - status: Filter by PENDING, COMPLETED, FAILED
-            - limit: Number of results (default: 10)
+        List transactions for the authenticated creator's wallet.
+
+        Returns a paginated list of wallet transactions including tips received,
+        fees, refunds, and payouts. Supports filtering by date, type, and status.
+
+        Authentication
+        --------------
+        Requires authentication (creator).
         """
         try:
             wallet = WalletService.get_wallet_for_user(request.user)
@@ -167,14 +170,19 @@ class WalletTransactionsView(APIView):
 
 
 class WalletKYCView(APIView):
-    """
-    API view for retrieving and updating wallet KYC information.
-    """
-
     permission_classes = [RequireAPIKey, IsAuthenticated]
     serializer_class = WalletKYCSerializer
     def get(self, request):
-        """Get current user's wallet KYC information."""
+        """
+        Retrieve details for a specific wallet transaction.
+
+        Returns full transaction details including provider metadata and any
+        reconciliation information required for support.
+
+        Authentication
+        --------------
+        Requires authentication (creator).
+        """
         try:
             wallet = WalletService.get_wallet_for_user(request.user)
             wallet_kyc = WalletKYC.objects.get(wallet=wallet)

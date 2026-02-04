@@ -12,43 +12,20 @@ class CreatorPublicView(APIView):
 
     def get(self, request, slug: str) -> Response:
         """
-        Retrieve a public creator profile by slug.
-        ---
-        parameters:
-          - name: slug
-            in: path
-            required: true
-            description: The slug of the creator profile.
-            type: string
-        responses:
-          200:
-            description: Successful retrieval of creator profile.
-            schema:
-              {
-              "status": "success",
-              "data": {
-                  "user": {
-                      "id": 1,
-                      "username": "creator_username",
-                      "full_name": "Creator Full Name",
-                      "slug": "creator-slug",
-                      "email": "creator@example.com"
-                  },
-                  "bio": "This is a test bio.",
-                  "profile_image": "http://example.com/media/profile_images/image.jpg",
-                  "cover_image": "http://example.com/media/cover_images/image.jpg",
-                  "website": "http://creatorwebsite.com",
-                  "followers_count": 150,
-                  "rating": 4.5,
-                  "verified": true,
-                  "status": "active",
-                  "created_at": "2024-01-01T12:00:00Z",
-                  "updated_at": "2024-01-02T12:00:00Z
-                }
-              }
-          404:
-            "status": "error",
-            "message": "Creator profile not found."
+        Retrieve a single public creator profile.
+
+        Returns the public profile information for a creator based on username
+        (or creator id). This endpoint powers the public creator page and is
+        designed to be shareable.
+
+        Authentication
+        --------------
+        Public endpoint (no authentication required).
+
+        Path Parameters
+        ---------------
+        slug : str
+            Creator slug
         """
         try:
             creator_profile = CreatorProfile.objects.get(user__slug__iexact=slug, status="active")
@@ -66,35 +43,19 @@ class CreatorPublicView(APIView):
 
 
 class CreatorsListView(APIView):
-    """API view to list all active creator profiles."""
+    
     permission_classes = [AllowAny]
 
     def get(self, request) -> Response:
-        """
-        Retrieve a list of all active creator profiles.
-        ---
-        responses:
-          200:
-            description: Successful retrieval of creator profiles list.
-            schema:
-              {
-              "status": "success",
-              "data": [
-                  {
-                      "user": 1,
-                      "bio": "This is a test bio.",
-                      "profile_image": "http://example.com/media/profile_images/image.jpg",
-                      "cover_image": "http://example.com/media/cover_images/image.jpg",
-                      "website": "http://creatorwebsite.com",
-                      "followers_count": 150,
-                      "rating": 4.5,
-                      "verified": true,
-                      "created_at": "2024-01-01T12:00:00Z",
-                      "updated_at": "2024-01-02T12:00:00Z"
-                  },
-                  ...
-                ]
-              }
+        """List public creators for discovery.
+
+        Returns a paginated list of creators that are publicly visible. Supports
+        search and filtering to help patrons discover creators by name, category,
+        or tags.
+
+        Authentication
+        --------------
+        Public endpoint (no authentication required).
         """
         creator_profiles = CreatorProfile.objects.filter(status="active").order_by('-followers_count')
         serializer = CreatorListSerializer(creator_profiles, many=True)

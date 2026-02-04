@@ -19,7 +19,20 @@ class DepositAPIView(APIView):
     serializer_class = PaymentSerializer
 
     def post(self, request, id):
-        """Create a new deposit payment"""
+        """
+        Create a tip and initiate payment for a creator.
+
+        Creates a tip intent and initiates a Mobile Money payment request. This
+        endpoint is called when a patron selects an amount (K10, K20, or custom)
+        and provides their phone number/provider details.
+
+        Authentication
+        --------------
+        Guest tipping is supported currently.
+        Optional:Authenticated patron(future).
+        
+        If guest is supported, return a receipt without attaching a user identity.
+        """
 
         serializer = PaymentSerializer(data=request.data)
         if serializer.is_valid():

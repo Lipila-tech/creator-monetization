@@ -44,8 +44,14 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
     def post(self, request, *args, **kwargs):
         """
-        Handle POST request to obtain JWT tokens.
-        return json {access_token, refresh_token}
+        Login with email and password.
+
+            Authenticates a user and returns access/refresh tokens to be used for
+            subsequent requests.
+
+            Authentication
+            --------------
+            Public endpoint.
         """
         response = super().post(request, *args, **kwargs)
         if response.status_code == 200:
@@ -64,8 +70,13 @@ class TokenRefreshView(TokenRefreshView):
 
     def post(self, request, *args, **kwargs):
         """
-        Handle POST request to refresh JWT tokens.
-        return json {access_token}
+        Refresh an access token.
+
+        Exchanges a valid refresh token for a new access token.
+
+        Authentication
+        --------------
+        Public endpoint (token-based).
         """
         response = super().post(request, *args, **kwargs)
         if response.status_code == 200:
@@ -77,12 +88,18 @@ class TokenRefreshView(TokenRefreshView):
 
 
 class UserRegistrationView(APIView):
-    """User registration endpoint."""
     permission_classes = [RequireAPIKey]
     serializer_class = UserRegistrationSerializer
 
     def post(self, request):
-        """Register a new user."""
+        """ Register a new user account (creator or patron).
+
+        Creates a new account using email/password. The backend may assign roles
+        (creator vs patron) during onboarding or via a separate profile endpoint.
+
+        Authentication
+        --------------
+        Public endpoint."""
         serializer = UserRegistrationSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
@@ -143,12 +160,21 @@ class ChangePasswordView(APIView):
 
 
 class LogoutView(APIView):
-    """User logout endpoint."""
     serializer_class = None
     permission_classes = [RequireAPIKey, IsAuthenticated]
 
     def post(self, request):
-        """Logout user."""
+        """
+            Logout / revoke refresh token (optional, recommended).
+
+            Invalidates the refresh token server-side (if supported). Access tokens
+            typically expire naturally.
+
+            Authentication
+            --------------
+            Requires authentication.
+            """
+            
         try:
             refresh_token = request.data.get('refresh')
             if refresh_token:
