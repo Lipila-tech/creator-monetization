@@ -8,7 +8,7 @@ from apps.customauth.models import APIClient
 from apps.creators.models import CreatorProfile
 from apps.payments.models import Payment
 from apps.wallets.models import (
-    Wallet, WalletKYC, WalletPayoutAccount, WalletTransaction,
+    Wallet, WalletKYC, WalletPayoutAccount, WalletTransaction, Tier,
     PaymentAttempt, Refund, Dispute, PaymentWebhookLog,)
 
 User = get_user_model()
@@ -84,7 +84,6 @@ class CreatorProfileFactory(factory.django.DjangoModelFactory):
     profile_image = None
     cover_image = None
     website = factory.Faker("url")
-
 
 # ========== WALLET FACTORIES ==========
 class WalletFactory(factory.django.DjangoModelFactory):

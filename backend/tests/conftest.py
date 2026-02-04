@@ -24,6 +24,22 @@ def api_client():
     from rest_framework.test import APIClient
     return APIClient()
 
+@pytest.fixture
+def auth_api_client():
+    """Fixture for DRF authenticated API client."""
+    from rest_framework.test import APIClient
+    from tests.factories import APIClientFactory
+    auth_client = APIClientFactory()
+    client = APIClient()
+    client.credentials(HTTP_X_API_KEY=auth_client.api_key)
+    return client
+
+@pytest.fixture
+def api_key():
+    """Fixture for DRF API Authenticated client."""
+    from tests.factories import APIClientFactory
+    client = APIClientFactory()
+    return client.api_key
 
 @pytest.fixture
 def rf():

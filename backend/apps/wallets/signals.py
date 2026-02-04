@@ -1,7 +1,8 @@
+from decimal import Decimal
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from apps.creators.models import CreatorProfile
-from apps.wallets.models import Wallet, WalletKYC
+from apps.wallets.models import Wallet, WalletKYC, Tier
 
 @receiver(post_save, sender=CreatorProfile)
 def create_wallet_for_creator(sender, instance, created, **kwargs):
@@ -15,3 +16,26 @@ def create_wallet_kyc_for_wallet(sender, instance, created, **kwargs):
     """Create a WalletKYC when a Wallet is created."""
     if created:
         WalletKYC.objects.get_or_create(wallet=instance)
+
+
+@receiver(post_save, sender=CreatorProfile)
+def create_default_tiers(sender, instance, created, **kwargs):
+    """Create default tiers for a creator"""
+    if created:
+        Tier.objects.get_or_create(
+            creator=instance,
+            tier_type="ONE_TIME_TIP",
+            tier_name="T1",
+            amount=Decimal("10"),
+        )
+        Tier.objects.get_or_create(
+            creator=instance,
+            tier_type="ONE_TIME_TIP",
+            tier_name="T2",
+            amount=Decimal("20"),
+        )
+        Tier.objects.get_or_create(
+            creator=instance,
+            tier_type="ONE_TIME_TIP",
+            tier_name="T3",
+        )

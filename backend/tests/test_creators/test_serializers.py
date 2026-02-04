@@ -10,14 +10,14 @@ class TestCreatorPublicSerializer:
     def test_creator_serializer_fields(self, user_factory):
         """Test that the serializer includes all expected fields."""
         profile = user_factory.creator_profile
-
+        
         serializer = CreatorPublicSerializer(profile)
         data = serializer.data
 
         expected_fields = {
             'user', 'bio', 'profile_image', 'cover_image', 'website',
             'followers_count', 'rating', 'verified', 'status',
-            'created_at', 'updated_at'
+            'created_at', 'updated_at', "wallet",
         }
 
         assert set(data.keys()) == expected_fields
@@ -33,7 +33,7 @@ class TestCreatorPublicSerializer:
         
         serializer = CreatorPublicSerializer(profile)
         data = serializer.data
-
+        assert data['wallet']['id'] == profile.wallet.id
         assert data['user']["id"] == profile.user.id
         assert data['user']["username"] == profile.user.username
         assert data['user']["first_name"] == profile.user.first_name
@@ -73,8 +73,6 @@ class TestCreatorPublicSerializer:
             assert data[i]['website'] == profiles[i].website
             
             
-
-
     def test_creator_public_serializer_with_verified_profile(self, user_factory):
         """Test serialization of a verified creator profile."""
         profile = user_factory.creator_profile
@@ -84,6 +82,7 @@ class TestCreatorPublicSerializer:
         serializer = CreatorPublicSerializer(profile)
         data = serializer.data
 
+        assert data['wallet']['id'] == profile.user.id
         assert data['user']["id"] == profile.user.id
         assert data['verified'] is True
 

@@ -1,16 +1,21 @@
 """
 Tests for Payment serializers
 """
-import pytest
-from decimal import Decimal
-from apps.payments.serializers import (
-    PaymentListSerializer,
-)
+from apps.payments.serializers import PaymentListSerializer, PaymentSerializer
+
+class TestPaymentSerializer:
+    """Test PaymentListSerializer"""
+
+    def test_serialize_payment_list(self, payment_factory):
+        """Test serialization of payment list"""
+        serializer = PaymentSerializer(payment_factory)
+        assert 'amount' in serializer.data
+        assert 'patronPhone' in serializer.data
+        assert 'patronMessage' in serializer.data
+        assert 'patronEmail' in serializer.data
+        assert 'ispProvider' in serializer.data
 
 
-pytestmark = pytest.mark.django_db
-
-# ========== PAYMENT LIST SERIALIZER TESTS ==========
 class TestPaymentListSerializer:
     """Test PaymentListSerializer"""
 
@@ -19,6 +24,7 @@ class TestPaymentListSerializer:
         serializer = PaymentListSerializer(payment_factory)
         data = serializer.data
         assert data["id"] == str(payment_factory.id)
+        assert data["wallet"] == str(payment_factory.wallet)
         assert data["reference"] == payment_factory.reference
         assert data["amount"] == str(payment_factory.amount)
         assert data["currency"] == payment_factory.currency
