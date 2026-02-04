@@ -54,9 +54,13 @@ def pawapay_request(method, endpoint, headers=None, payload=None):
             return response.json(), response.status_code
         except ValueError:
             return response.text, response.status_code
+    except AttributeError:
+        return {"status": "BAD_REQUEST"}, 400
     except requests.exceptions.RequestException as e:
         logger.error(f"PawaPay Request Error: {e}")
-        return None, 500
+        return {"status": "EXTERNAL_ERROR"}, 500
+    except requests.exceptions.ConnectionError:
+        return {"status": "NETWORK_ERROR"}, 500
 
     except Exception as e:
         logger.error(f"Internal Error: {e}")

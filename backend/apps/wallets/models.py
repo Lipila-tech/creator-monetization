@@ -7,9 +7,11 @@ from apps.payments.models import (
     PaymentStatus,
     Currency,
     UUIDModel,
-    TimeStampedModel)
+    TimeStampedModel, 
+    SoftDeleteModel)
 from django.contrib.auth import get_user_model
-
+from django.core.exceptions import ValidationError
+from decimal import Decimal
 
 User = get_user_model()
 
@@ -354,3 +356,43 @@ class PaymentWebhookLog(UUIDModel, TimeStampedModel):
 
     def __str__(self):
         return f"{self.provider} - {self.event_type} - {self.status}"
+
+
+class Tier(UUIDModel, TimeStampedModel, SoftDeleteModel):
+    """Model for storing create tiers"""
+    creator = models.ForeignKey(
+        CreatorProfile,
+        on_delete=models.CASCADE,
+        related_name="tiers",
+    )
+    tier_name = models.CharField(
+        max_length=30,
+        choices=[
+            ("T1", 'Tier 1'),
+            ("T2", 'Tier 2'),
+            ("T3", 'Tier 3'),
+        ],
+        default="T1"
+    )
+    tier_type = models.CharField(
+        max_length=30,
+        choices=[
+            ("ONE_TIME_TIP", "One Time Tip"),
+            ("SUBSCRIPTION", "Subscription"),
+        ],
+        db_index=True,
+        default="ONE_TIME_TIP",
+    )
+    amount = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=True)
+    description = models.CharField(
+        max_length=500, help_text=_("Short Message to Payer"))
+    is_active = models.BooleanField(default=True)
+
+
+    def clean(self):
+        # --- Basic invariants (always enforced) ---
+        if self.tier_type == "ONE_TIME_TIP" and not self.creator_profile:
+            raise ValidationError("Tier must have an associated Creator")
+
+    def __str__(self):
+        return f"Tier {self.id} - {self.subtotal()}"

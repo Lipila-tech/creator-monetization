@@ -109,7 +109,7 @@ class WalletPayoutAccountFactory(factory.django.DjangoModelFactory):
 
     wallet = factory.SubFactory(WalletFactory)
     provider = "MTN_MOMO_ZMB"
-    phone_number = factory.Faker("phone_number")
+    phone_number = '0003334455'
     verified = False
 
 

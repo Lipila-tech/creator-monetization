@@ -4,8 +4,7 @@ Tests for authentication models.
 import pytest
 from django.contrib.auth import get_user_model
 from apps.customauth.models import APIClient
-from apps.creators.models import CreatorProfile
-from tests.factories import UserFactory, APIClientFactory, CreatorProfileFactory
+from tests.factories import UserFactory, APIClientFactory
 
 User = get_user_model()
 

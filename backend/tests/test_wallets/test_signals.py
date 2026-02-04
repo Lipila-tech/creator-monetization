@@ -2,7 +2,7 @@ import pytest
 from tests.factories import UserFactory
 
 @pytest.mark.django_db
-def test_creating_a_creator_creates_a_wallet(client):
+def test_creating_a_creator_creates_a_wallet():
     """Test that creating a creator also creates a Wallet."""
     user = UserFactory()
     creator_profile = user.creator_profile
@@ -13,7 +13,7 @@ def test_creating_a_creator_creates_a_wallet(client):
 
 
 @pytest.mark.django_db
-def test_creating_a_wallet_creates_wallet_kyc(client):
+def test_creating_a_wallet_creates_wallet_kyc():
     """Test that creating a Wallet also creates a WalletKYC."""
     user = UserFactory()
     creator_profile = user.creator_profile

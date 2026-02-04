@@ -13,8 +13,18 @@ from .models import (
     Refund,
     Dispute,
     PaymentWebhookLog,
+    Tier
 )
 
+class TierListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tier 
+        fields = [
+            "tier_name",
+            "amount",
+            "tier_type",
+            "is_active",
+        ]
 
 # ========== WALLET SERIALIZERS ==========
 class WalletListSerializer(serializers.ModelSerializer):
