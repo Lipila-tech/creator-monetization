@@ -152,7 +152,10 @@ class UserProfileView(APIView):
     def get(self, request):
         """Get user profile."""
         serializer = UserSerializer(request.user)
-        return Response(serializer.data)
+        return Response({
+            'status': 'success',
+            'data':serializer.data
+        })
 
     @extend_schema(
         operation_id="update_profile",
@@ -245,7 +248,7 @@ class ChangePasswordView(APIView):
                 'message': 'Password changed successfully.'
             }, status=status.HTTP_200_OK)
         return Response({'status': 'failed',
-                         'errors': serializer.data
+                         'errors': serializer.errors
                          }, status=status.HTTP_400_BAD_REQUEST)
 
 

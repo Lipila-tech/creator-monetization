@@ -32,22 +32,11 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         required=True,
         validators=[validate_password]
     )
-    password2 = serializers.CharField(
-        write_only=True,
-        required=True
-    )
-
+ 
     class Meta:
         model = User
-        fields = ('email', 'username', 'password', 'password2', 'first_name', 'last_name')
+        fields = ('email', 'username', 'password', 'first_name', 'last_name')
 
-    def validate(self, attrs):
-        """Validate passwords match."""
-        if attrs['password'] != attrs.pop('password2'):
-            raise serializers.ValidationError({
-                'password': 'Passwords do not match.'
-            })
-        return attrs
 
     def create(self, validated_data):
         """Create user as creator with hashed password."""
@@ -58,7 +47,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             password=validated_data['password'],
             first_name=validated_data.get('first_name', ''),
             last_name=validated_data.get('last_name', ''),
-            user_type='creator'  # Self-registered users are creators
+            user_type='creator'
         )
         return user
 
@@ -103,18 +92,7 @@ class ChangePasswordSerializer(serializers.Serializer):
         required=True,
         validators=[validate_password]
     )
-    new_password2 = serializers.CharField(
-        write_only=True,
-        required=True
-    )
 
-    def validate(self, attrs):
-        """Validate passwords match."""
-        if attrs['new_password'] != attrs.pop('new_password2'):
-            raise serializers.ValidationError({
-                'new_password': 'Passwords do not match.'
-            })
-        return attrs
 
     def validate_old_password(self, value):
         """Validate old password."""

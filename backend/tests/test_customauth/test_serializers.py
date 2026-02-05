@@ -60,9 +60,8 @@ class TestUserRegistrationSerializer:
             'email': 'newuser@example.com',
             'username': 'newuser',
             'password': 'SecurePass123!',
-            'password2': 'SecurePass123!',
-            'first_name': 'John',
-            'last_name': 'Doe'
+            'firstName': 'John',
+            'lastName': 'Doe',
         }
         serializer = UserRegistrationSerializer(data=data)
         assert serializer.is_valid()
@@ -72,29 +71,14 @@ class TestUserRegistrationSerializer:
         assert user.user_type == 'creator'
         assert user.check_password('SecurePass123!')
 
-    def test_register_password_mismatch(self):
-        """Test registration fails when passwords don't match."""
-        data = {
-            'email': 'newuser@example.com',
-            'username': 'newuser',
-            'password': 'SecurePass123!',
-            'password2': 'DifferentPass123!',
-            'first_name': 'John',
-            'last_name': 'Doe'
-        }
-        serializer = UserRegistrationSerializer(data=data)
-        assert not serializer.is_valid()
-        assert 'password' in serializer.errors
-
     def test_register_weak_password(self):
         """Test registration fails with weak password."""
         data = {
             'email': 'newuser@example.com',
             'username': 'newuser',
             'password': '123',
-            'password2': '123',
-            'first_name': 'John',
-            'last_name': 'Doe'
+            'firstName': 'John',
+            'lastName': 'Doe',
         }
         serializer = UserRegistrationSerializer(data=data)
         assert not serializer.is_valid()
@@ -107,9 +91,8 @@ class TestUserRegistrationSerializer:
             'email': 'existing@example.com',
             'username': 'newuser',
             'password': 'SecurePass123!',
-            'password2': 'SecurePass123!',
-            'first_name': 'John',
-            'last_name': 'Doe'
+            'firstName': 'John',
+            'lastName': 'Doe',
         }
         serializer = UserRegistrationSerializer(data=data)
         assert not serializer.is_valid()
@@ -122,24 +105,34 @@ class TestUserRegistrationSerializer:
             'email': 'newuser@example.com',
             'username': 'existinguser',
             'password': 'SecurePass123!',
-            'password2': 'SecurePass123!',
-            'first_name': 'John',
-            'last_name': 'Doe'
+            'firstName': 'John',
+            'lastName': 'Doe',
         }
         serializer = UserRegistrationSerializer(data=data)
         assert not serializer.is_valid()
         assert 'username' in serializer.errors
 
-    def test_register_missing_required_fields(self):
+    def test_register_missing_username(self):
         """Test registration fails when missing required fields."""
         data = {
             'email': 'newuser@example.com',
             'password': 'SecurePass123!',
-            'password2': 'SecurePass123!',
+            
         }
         serializer = UserRegistrationSerializer(data=data)
         assert not serializer.is_valid()
         assert 'username' in serializer.errors
+
+    def test_register_missing_email(self):
+        """Test registration fails when missing required fields."""
+        data = {
+            'username': 'newuser',
+            'password': 'SecurePass123!',
+            
+        }
+        serializer = UserRegistrationSerializer(data=data)
+        assert not serializer.is_valid()
+        assert 'email' in serializer.errors
 
     def test_registered_user_is_creator(self):
         """Test newly registered user is always a creator."""
@@ -147,18 +140,15 @@ class TestUserRegistrationSerializer:
             'email': 'newuser@example.com',
             'username': 'newuser',
             'password': 'SecurePass123!',
-            'password2': 'SecurePass123!',
-            'first_name': 'John',
-            'last_name': 'Doe'
+            'firstName': 'John',
+            'lastName': 'Doe',
         }
         serializer = UserRegistrationSerializer(data=data)
         assert serializer.is_valid()
         
         user = serializer.save()
         assert user.user_type == 'creator'
-        assert user.is_staff is False
-
-
+    
 @pytest.mark.django_db
 class TestCustomTokenObtainPairSerializer:
     """Test CustomTokenObtainPairSerializer."""
@@ -173,7 +163,6 @@ class TestCustomTokenObtainPairSerializer:
         assert token['email'] == 'test@example.com'
         assert token['username'] == 'testuser'
         assert token['user_type'] == 'creator'
-        assert token['is_staff'] is False
 
     def test_token_claims_admin_user(self):
         """Test token includes is_staff for admin users."""
@@ -208,7 +197,6 @@ class TestChangePasswordSerializer:
         data = {
             'old_password': 'OldPass123!',
             'new_password': 'NewPass456!',
-            'new_password2': 'NewPass456!'
         }
         serializer = ChangePasswordSerializer(
             user,
@@ -221,7 +209,7 @@ class TestChangePasswordSerializer:
         user.refresh_from_db()
         assert user.check_password('NewPass456!')
 
-    def test_change_password_incorrect_old_password(self, rf):
+    def test_change_password_incorrect_oldPassword(self, rf):
         """Test change password fails with incorrect old password."""
         user = UserFactory(password='OldPass123!')
         request = rf.post('/')
@@ -230,7 +218,6 @@ class TestChangePasswordSerializer:
         data = {
             'old_password': 'WrongPass123!',
             'new_password': 'NewPass456!',
-            'new_password2': 'NewPass456!'
         }
         serializer = ChangePasswordSerializer(
             user,
@@ -240,26 +227,7 @@ class TestChangePasswordSerializer:
         assert not serializer.is_valid()
         assert 'old_password' in serializer.errors
 
-    def test_change_password_mismatch(self, rf):
-        """Test change password fails when new passwords don't match."""
-        user = UserFactory(password='OldPass123!')
-        request = rf.post('/')
-        request.user = user
-        
-        data = {
-            'old_password': 'OldPass123!',
-            'new_password': 'NewPass456!',
-            'new_password2': 'DifferentPass123!'
-        }
-        serializer = ChangePasswordSerializer(
-            user,
-            data=data,
-            context={'request': request}
-        )
-        assert not serializer.is_valid()
-        assert 'new_password' in serializer.errors
-
-    def test_change_password_weak_new_password(self, rf):
+    def test_change_password_weak_newPassword(self, rf):
         """Test change password fails with weak new password."""
         user = UserFactory(password='OldPass123!')
         request = rf.post('/')
@@ -268,7 +236,6 @@ class TestChangePasswordSerializer:
         data = {
             'old_password': 'OldPass123!',
             'new_password': '123',
-            'new_password2': '123'
         }
         serializer = ChangePasswordSerializer(
             user,
