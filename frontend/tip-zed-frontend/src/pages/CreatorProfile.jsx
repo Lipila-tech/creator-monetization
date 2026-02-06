@@ -5,7 +5,7 @@ import { creatorService } from "../services/creatorService";
 import SupportModal from "../components/Payment/SupportModal";
 
 const getName = (creator) =>
-  `${creator.user?.first_name || ""} ${creator.user?.last_name || ""}`.trim() ||
+  `${creator.user?.firstName || ""} ${creator.user?.lastName || ""}`.trim() ||
   creator.user?.username ||
   "Creator";
 
@@ -69,16 +69,16 @@ const CreatorProfile = () => {
     <div className="min-h-screen bg-gray-50">
       {/* Cover Image (Top of page) */}
       <div className="h-48 w-full bg-gray-200 relative overflow-hidden">
-        {creator.cover_image ? (
+        {creator.coverImage ? (
           <img
-            src={creator.cover_image}
+            src={creator.coverImage}
             alt="Cover"
             className="w-full h-full object-cover"
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-r from-zed-green via-yellow-500 to-zed-orange flex items-center justify-center opacity-90">
             <span className="text-9xl font-black text-white opacity-10 select-none transform rotate-12 scale-150">
-              {creator.user.full_name || creator.user.username || "?"}
+              {creator.user.username || "?"}
             </span>
           </div>
         )}
@@ -90,10 +90,10 @@ const CreatorProfile = () => {
           <div className="flex flex-col md:flex-row gap-6 items-start">
             {/* Profile Image */}
             <div className="flex-shrink-0">
-              {creator.profile_image ? (
+              {creator.profileImage ? (
                 <img
-                  src={creator.profile_image}
-                  alt={creator.user.full_name}
+                  src={creator.profileImage}
+                  alt={creator.user.username}
                   className="w-32 h-32 rounded-2xl object-cover shadow-md border-4 border-white bg-white"
                 />
               ) : (
@@ -124,7 +124,7 @@ const CreatorProfile = () => {
                       </span>
                     )}
                     <span className="bg-gray-100 text-gray-700 text-xs font-semibold px-2.5 py-1 rounded-full capitalize">
-                      {creator.user.user_type}
+                      {creator.user.userType}
                     </span>
                   </div>
                 </div>
@@ -134,7 +134,7 @@ const CreatorProfile = () => {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4 border-t border-gray-100 pt-4">
                 <div className="text-center sm:text-left">
                   <p className="text-lg font-bold text-gray-900">
-                    {creator.followers_count || 0}
+                    {creator.followersCount || 0}
                   </p>
                   <p className="text-xs text-gray-500">Followers</p>
                 </div>
@@ -146,7 +146,7 @@ const CreatorProfile = () => {
                 </div>
                 <div className="text-center sm:text-left">
                   <p className="text-lg font-bold text-gray-900">
-                    {formatDate(creator.user.date_joined)}
+                    {formatDate(creator.user.dateJoined)}
                   </p>
                   <p className="text-xs text-gray-500">Joined</p>
                 </div>

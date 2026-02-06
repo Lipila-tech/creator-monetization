@@ -12,7 +12,7 @@ import { Link } from "react-router-dom";
 import { creatorService } from "../services/creatorService";
 
 const getName = (creator) =>
-  `${creator.user?.first_name || ""} ${creator.user?.last_name || ""}`.trim() ||
+  `${creator.user?.firstName || ""} ${creator.user?.lastName || ""}`.trim() ||
   creator.user?.username ||
   "Creator";
 
@@ -109,9 +109,9 @@ const CreatorCatalog = () => {
               >
                 <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all cursor-pointer group border border-gray-100 h-full">
                   <div className="aspect-square overflow-hidden bg-gray-100 relative">
-                    {creator.profile_image ? (
+                    {creator.profileImage ? (
                       <img
-                        src={creator.profile_image}
+                        src={creator.profileImage}
                         alt={getName(creator)}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />
@@ -128,13 +128,13 @@ const CreatorCatalog = () => {
                       {getName(creator)}
                     </h3>
                     <span className="inline-block bg-zed-green text-white text-xs font-semibold px-3 py-1 rounded-full mb-3">
-                      {creator.user.user_type}
+                      {creator.user.userType}
                     </span>
                     <p className="text-gray-600 text-sm mb-3 line-clamp-2">
                       {creator.bio || "No bio available."}
                     </p>
                     <p className="text-gray-500 text-sm">
-                      {creator.followers_count} supporters
+                      {creator.followersCount} supporters
                     </p>
                   </div>
                 </div>

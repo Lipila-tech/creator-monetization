@@ -1,15 +1,21 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 
 const Header = () => {
   const location = useLocation();
-  const { user, token } = useAuth();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
+  const logoutUser = async () => {
+    await logout();
+    navigate("/");
+  };
 
   // We can hide the login buttons if we are actually ON the login/signup pages
   const isAuthPage =
     location.pathname === "/login" || location.pathname === "/register";
   const isCreatorPage = location.pathname === "/creator-dashboard";
-  const isLoggedIn = user && token;
+  const isLoggedIn = !!user;
 
   return (
     <nav className="bg-white shadow-sm sticky top-0 z-50">
@@ -39,14 +45,25 @@ const Header = () => {
             </div>
           )}
 
-          {!isCreatorPage && isLoggedIn && (
-            <Link
-              to="/creator-dashboard"
-              className="bg-zed-black text-white hover:bg-orange-600 font-medium px-4 py-2 rounded-lg transition-colors shadow-sm"
-            >
-              My Dashboard
-            </Link>
-          )}
+          <div className="flex space-x-4">
+            {isLoggedIn && (
+              <button
+                onClick={logoutUser}
+                className="bg-zed-orange text-white hover:bg-orange-600 font-medium px-4 py-2 rounded-lg transition-colors shadow-sm"
+              >
+                Log out
+              </button>
+            )}
+
+            {!isCreatorPage && isLoggedIn && (
+              <Link
+                to="/creator-dashboard"
+                className="bg-zed-black text-white hover:bg-orange-600 font-medium px-4 py-2 rounded-lg transition-colors shadow-sm"
+              >
+                My Dashboard
+              </Link>
+            )}
+          </div>
         </div>
       </div>
     </nav>

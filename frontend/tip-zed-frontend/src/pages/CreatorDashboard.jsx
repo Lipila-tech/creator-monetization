@@ -76,7 +76,7 @@ const CreatorDashboard = () => {
         <h1 className="text-2xl font-bold text-gray-900">
           {isTransactionsView
             ? "Transaction History"
-            : `Welcome back, ${user?.full_name || "Creator"}!`}
+            : `Welcome back, ${user?.username || "Creator"}!`}
         </h1>
         <p className="text-gray-500">
           {isTransactionsView
@@ -113,7 +113,7 @@ const CreatorDashboard = () => {
                   Total Earnings
                 </p>
                 <h3 className="text-2xl font-bold text-gray-900 mt-2">
-                  {data?.currency || 'ZMW'} {data?.total_earnings?.toLocaleString() || '0'}
+                  {data?.currency || 'ZMW'} {data?.totalEarnings?.toLocaleString() || '0'}
                 </h3>
               </div>
               <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
@@ -130,7 +130,7 @@ const CreatorDashboard = () => {
                   Total Transactions
                 </p>
                 <h3 className="text-2xl font-bold text-gray-900 mt-2">
-                  {data?.total_transactions || 0}
+                  {data?.totalTransactions || 0}
                 </h3>
               </div>
               <div className="p-2 bg-purple-50 rounded-lg text-purple-600">

@@ -15,13 +15,14 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("user", JSON.stringify(user));
   };
 
-  const saveToken = (token) => {
+  const saveTokens = (access, refresh) => {
     setToken(token);
-    localStorage.setItem("token", token);
+    localStorage.setItem("accessToken", access);
+    localStorage.setItem("refreshToken", refresh);
   };
 
   const [token, setToken] = useState(() => {
-    return localStorage.getItem("token") || null;
+    return localStorage.getItem("accessToken") || null;
   });
 
   const [user, setUser] = useState(() => {
@@ -38,9 +39,9 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await authService.loginUser(email, password);
 
-      const { access_token } = response.data;
+      const { accessToken, refreshToken } = response.data;
 
-      saveToken(access_token);
+      saveTokens(accessToken, refreshToken);
 
       // if user is not in local storage
       if (!getUser()) {
@@ -61,9 +62,9 @@ export const AuthProvider = ({ children }) => {
   const register = async (formData) => {
     try {
       const response = await authService.registerUser(formData);
-      const { access_token, ...userData } = response.data;
+      const { accessToken, refreshToken, ...userData } = response.data;
 
-      saveToken(access_token);
+      saveTokens(accessToken, refreshToken);
       saveUser(userData)
 
       return { success: true };
@@ -79,7 +80,8 @@ export const AuthProvider = ({ children }) => {
     await authService.logoutUser();
     setUser(null);
     setToken(null);
-    localStorage.removeItem("token");
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
     localStorage.removeItem("user");
   };
 

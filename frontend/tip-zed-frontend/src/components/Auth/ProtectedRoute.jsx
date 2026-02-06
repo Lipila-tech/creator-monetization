@@ -16,6 +16,7 @@ const ProtectedRoute = ({ children }) => {
 
   // If no user, redirect to Login
   if (!user) {
+    console.log("away");
     // redirect them back after login
     return <Navigate to="/login" state={{ from: location }} replace />;
   }

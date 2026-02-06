@@ -22,13 +22,14 @@ api.interceptors.request.use(
       "/auth/login/",
       "/auth/register/",
       "/creators/all/",
-      "/creators/",
+      "/creator-catalog/",
+      "/creator-profile/",
     ];
 
     const isPublic = publicRoutes.some((route) => config.url.includes(route));
 
     if (!isPublic) {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("accessToken");
 
       if (token) config.headers.Authorization = `Bearer ${token}`;
     }
@@ -48,7 +49,7 @@ api.interceptors.response.use(
       originalRequest._retry = true; // Mark as retried to prevent infinite loops
 
       try {
-        const refreshToken = localStorage.getItem("refresh_token");
+        const refreshToken = localStorage.getItem("refreshToken");
 
         if (!refreshToken) {
           throw new Error("No refresh token available");
@@ -62,7 +63,7 @@ api.interceptors.response.use(
         const newAccessToken = response.data.access;
 
         // Save new token to storage
-        localStorage.setItem("token", newAccessToken);
+        localStorage.setItem("accessToken", newAccessToken);
 
         // Update the header for the failed request
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
@@ -71,7 +72,7 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         // If refresh fails (token expired), force logout
-        localStorage.removeItem("token");
+        localStorage.removeItem("accessToken");
         window.location.href = "/login"; // Redirect to login
 
         return Promise.reject(refreshError);

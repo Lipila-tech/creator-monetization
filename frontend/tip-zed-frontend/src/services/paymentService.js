@@ -1,59 +1,34 @@
-// import api from "./api";
-
-// export const paymentService = {
-//   // Initialize a tip/donation
-//   sendTip: async (creatorId, amount, currency = "ZMW") => {
-//     try {
-//       const response = await api.post("/payments/tips/initiate/", {
-//         creator_id: creatorId,
-//         amount,
-//         currency,
-//       });
-//       return response.data;
-//     } catch (error) {
-//       throw error.response?.data || error.message;
-//     }
-//   },
-// };
+import api from "./api";
 
 export const paymentService = {
   /**
    * Simulates sending a tip to a creator.
-   * @param {number} creatorId - The ID of the creator receiving the tip
+   * @param {number} walletId - The ID of the creator receiving the tip
+   * @param {number} ispProvider - The selected provider ("MTN_MOMO_ZMB" "AIRTEL_OAPI_ZMB" "ZAMTEL_ZMB")
    * @param {number} amount - The amount in ZMW
    * @param {string} currency - The currency code (e.g., "ZMW")
-   * @param {string} phoneNumber - The user's mobile number
-   * @param {string} providerId - The selected provider (mtn, airtel, zamtel)
+   * @param {string} patronPhone - The user's mobile number
+   * @param {string} patronEmail -
    */
-  sendTip: async (creatorId, amount, currency, phoneNumber, providerId) => {
-    console.log(`Initiating payment: K${amount} via ${providerId} (${phoneNumber})`);
-
-    // 1. Simulate Network Delay (2 seconds)
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    // 2. Simulate Validation Error
-    // Rule: Reject if amount is less than 2
-    if (amount < 2) {
-      throw new Error("Minimum tip amount is K2.00");
+  sendTip: async (
+    walletId,
+    ispProvider,
+    amount,
+    patronPhone,
+    patronEmail,
+    patronMessage = "",
+  ) => {
+    try {
+      const response = await api.post(`/payments/deposits/${walletId}/`, {
+        amount,
+        provider: ispProvider,
+        patronPhone,
+        patronEmail,
+        patronMessage,
+      });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
     }
-
-    // Rule: Reject specific "test" numbers to test Error State
-    // If you type "0999999999", it will fail.
-    if (phoneNumber === "0999999999") {
-      throw new Error("Payment provider rejected the transaction. Insufficient funds.");
-    }
-
-    // 3. Return Mock Success Response
-    return {
-      status: "success",
-      transaction_id: `TXN-${Date.now()}`,
-      message: "Payment initiated successfully. Check your phone for the prompt.",
-      data: {
-        amount: amount,
-        currency: currency,
-        provider: providerId,
-        timestamp: new Date().toISOString(),
-      },
-    };
   },
 };

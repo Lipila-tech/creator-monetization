@@ -1,20 +1,20 @@
 export const PROVIDERS = {
   mtn: {
-    id: 'mtn',
+    id: 'MTN_MOMO_ZMB',
     name: 'MTN Money',
     color: 'bg-yellow-400',
     logo: 'https://static-content.pawapay.io/provider_logos/mtn.png',
     prefixes: ['096', '076', '056']
   },
   airtel: {
-    id: 'airtel',
+    id: 'AIRTEL_OAPI_ZMB',
     name: 'Airtel Money',
     color: 'bg-red-500',
     logo: 'https://static-content.pawapay.io/provider_logos/airtel.png',
     prefixes: ['097', '077', '057']
   },
   zamtel: {
-    id: 'zamtel',
+    id: 'ZAMTEL_ZMB',
     name: 'Zamtel Kwacha',
     color: 'bg-green-600',
     logo: 'https://static-content.pawapay.io/provider_logos/zamtel.png',
