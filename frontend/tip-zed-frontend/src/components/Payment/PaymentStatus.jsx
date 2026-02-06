@@ -23,7 +23,7 @@ export default function PaymentStatus({ status, amount, error, onRetry, onManual
           onClick={onManualConfirm}
           className="w-full bg-zed-black text-white py-3.5 rounded-xl font-bold hover:bg-gray-800 transition-colors shadow-lg"
         >
-          I have approved payment
+          Done
         </button>
 
         <p className="mt-4 text-xs text-gray-400">

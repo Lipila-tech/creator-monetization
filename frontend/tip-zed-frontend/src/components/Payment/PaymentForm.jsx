@@ -98,7 +98,6 @@ const PaymentForm = ({ amount, onSubmit, onBack }) => {
           {isManual ? (
             <div className="grid grid-cols-3 gap-2">
               {PROVIDERS_ARRAY.map((p) => {
-                console.log(p);
                 return <>{p.id}</>;
               })}
             </div>

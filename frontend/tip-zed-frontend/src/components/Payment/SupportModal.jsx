@@ -21,9 +21,7 @@ const SupportModal = ({ isOpen, onClose, creator }) => {
   const handlePaymentSubmit = async (phone, providerId) => {
     setStep("PROCESSING");
 
-    console.log(creator);
     try {
-      // Call the service we defined earlier
       await paymentService.sendTip(
         creator.walletId,
         providerId,
@@ -39,19 +37,17 @@ const SupportModal = ({ isOpen, onClose, creator }) => {
   };
 
   const handleManualConfirm = () => {
-    setStep('SUCCESS');
+    setStep("SUCCESS");
   };
 
   const handleRetry = () => {
     setStep("PHONE");
     setErrorMsg("");
   };
-
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
-        {/* Modal Header */}
-        <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+      <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 max-h-[90vh] flex flex-col">
+        <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center shrink-0">
           <div>
             <h3 className="font-bold text-gray-900">Support {creator.name}</h3>
             {step === "PHONE" && (
@@ -67,9 +63,8 @@ const SupportModal = ({ isOpen, onClose, creator }) => {
             <X size={20} className="text-gray-500" />
           </button>
         </div>
-
-        {/* Dynamic Body */}
-        <div className="p-6">
+        
+        <div className="p-6 overflow-y-auto">
           {step === "AMOUNT" && (
             <AmountSelector onSelect={handleAmountSelect} />
           )}
