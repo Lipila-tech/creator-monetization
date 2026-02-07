@@ -49,6 +49,7 @@ const CreatorProfile = () => {
       </div>
     );
   }
+  console.log('Data', creator)
 
   if (error || !creator) {
     return (

@@ -49,7 +49,7 @@ class CreatorPublicView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        serializer = CreatorPublicSerializer(creator_profile)
+        serializer = CreatorPublicSerializer(creator_profile, context={'request':request})
         return Response(
             {"status": "success", "data": serializer.data},
             status=status.HTTP_200_OK,

@@ -28,6 +28,13 @@ class CreatorPublicSerializer(serializers.ModelSerializer):
             'status',
         ]
 
+    # def get_profile_image(self, obj):
+    #     request = self.context.get('request')
+    #     if obj.profile_image and request:
+    #         return request.build_absolute_uri(obj.profile_image.url)
+    #     return None
+
+
 
 class CreatorListSerializer(serializers.ModelSerializer):
     """Serializer for listing creator profiles."""

@@ -4,12 +4,8 @@ Pytest configuration and fixtures.
 import os
 import pytest
 from decimal import Decimal
-from apps.payments.models import PaymentStatus
-from apps.payments.models import (
-    PaymentStatus,
-    PaymentProvider,
-    Currency,
-)
+
+
 from apps.wallets.models import WalletTransaction as WTxn
 def pytest_configure():
     """Configure pytest settings."""

@@ -81,8 +81,8 @@ class CreatorProfileFactory(factory.django.DjangoModelFactory):
     total_earnings = factory.Faker("pydecimal", left_digits=5, right_digits=2, positive=True)
     rating = factory.Faker("pyfloat", min_value=0, max_value=5)
     verified = False
-    profile_image = None
-    cover_image = None
+    profile_image = factory.django.ImageField(color='red', format='JPEG')
+    cover_image = factory.django.ImageField(color='blue', format='JPEG')
     website = factory.Faker("url")
 
 # ========== WALLET FACTORIES ==========
