@@ -39,6 +39,7 @@ class CreatorPublicSerializer(serializers.ModelSerializer):
 class CreatorListSerializer(serializers.ModelSerializer):
     """Serializer for listing creator profiles."""
     user = UserSerializer(read_only=True)
+    profile_image = serializers.ImageField(max_length=None, use_url=True)
     
     profile_image = serializers.ImageField(max_length=None, use_url=True)
     class Meta:

@@ -83,7 +83,7 @@ class CreatorsListView(APIView):
         Public endpoint (no authentication required).
         """
         creator_profiles = CreatorProfile.objects.filter(status="active").order_by('-followers_count')
-        serializer = CreatorListSerializer(creator_profiles, many=True)
+        serializer = CreatorListSerializer(creator_profiles, many=True, context={'request':request})
         return Response(
             {"status": "success", "data": serializer.data},
             status=status.HTTP_200_OK,
