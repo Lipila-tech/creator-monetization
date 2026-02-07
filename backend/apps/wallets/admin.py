@@ -82,15 +82,12 @@ class PaymentAdmin(admin.ModelAdmin):
         "patron_phone",
         "amount",
         "currency",
-        "status_badge",
         "provider",
-        "isp_provider",
         "created_at",
     ]
     list_filter = [
         "status",
-        "isp_provider",
-        "payment_method",
+        "provider",
         "currency",
         "created_at",
         "is_deleted",
@@ -105,9 +102,7 @@ class PaymentAdmin(admin.ModelAdmin):
         "created_at",
         "updated_at",
         "amount_remaining",
-        "refundable_amount",
         "is_successful",
-        "is_refundable",
     ]
     fieldsets = (
         (

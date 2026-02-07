@@ -16,3 +16,7 @@ class DuplicateTransaction(WalletError):
 
 class InvalidTransaction(WalletError):
     pass
+
+
+class InvalidAmount(Exception):
+    pass

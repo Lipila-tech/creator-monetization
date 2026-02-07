@@ -150,19 +150,19 @@ class TestWalletViews:
         api_client.credentials(HTTP_X_API_KEY=client.api_key)
         api_client.force_authenticate(user=user_factory)
         payload = {
-            "id_document_type": "PASSPORT",
-            "id_document_number": "A1234567",
-            "account_type": "BANK",
-            "bank_name": "Updated Bank",
-            "bank_account_name": "Updated Account Name",
-            "bank_account_number": "9876543210",
+            "idDocumentType": "PASSPORT",
+            "idDocumentNumber": "A1234567",
+            "accountType": "BANK",
+            "bankName": "Updated Bank",
+            "bankAccountName": "Updated Account Name",
+            "bankAccountNumber": "9876543210",
         }
-        response = api_client.put("/api/v1/wallets/kyc/", data=payload)
+        response = api_client.put("/api/v1/wallets/kyc/", data=payload, format='json')
         assert response.status_code == 200
         data = response.data.get("data")
         assert data is not None
-        assert data["id_document_type"] == payload["id_document_type"]
-        assert data["id_document_number"] == payload["id_document_number"]
-        assert data["account_type"] == payload["account_type"]
-        assert data["bank_name"] == payload["bank_name"]
+        assert data["id_document_type"] == payload["idDocumentType"]
+        assert data["id_document_number"] == payload["idDocumentNumber"]
+        assert data["account_type"] == payload["accountType"]
+        assert data["bank_name"] == payload["bankName"]
        

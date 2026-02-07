@@ -4,7 +4,7 @@ function as expected.
 """
 import pytest
 from django.urls import reverse
-from tests.factories import CreatorProfileFactory, UserFactory
+from tests.factories import UserFactory
 
 @pytest.mark.django_db
 def test_list_creator_profiles_view(client):
@@ -38,6 +38,7 @@ def test_creator_public_view(client, user_factory):
     assert creator_profile.user.first_name in response.content.decode()
     assert creator_profile.user.last_name in response.content.decode()
     assert "bio" in response.content.decode()
+    assert "walletId" in response.content.decode()
     assert creator_profile.user.slug in response.content.decode()
     assert creator_profile.user.username in response.content.decode()
     assert creator_profile.website in response.content.decode()

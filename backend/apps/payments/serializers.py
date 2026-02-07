@@ -4,36 +4,17 @@ Serializers for Payment model
 from rest_framework import serializers
 from .models import Payment
 
-
-class PaymentListSerializer(serializers.ModelSerializer):
-    """Lightweight serializer for listing payments"""
-
-    status_display = serializers.CharField(source="get_status_display", read_only=True)
-    provider_display = serializers.CharField(
-        source="get_provider_display", read_only=True
-    )
-    method_display = serializers.SerializerMethodField()
+class PaymentSerializer(serializers.ModelSerializer):
+    """Lightweight serializer for creating payments"""
 
     class Meta:
         model = Payment
         fields = [
-            "id",
-            "reference",
             "amount",
-            "currency",
-            "status",
-            "status_display",
+            "patron_phone",
             "provider",
-            "provider_display",
-            "payment_method",
-            "method_display",
             "patron_email",
-            "completed_at",
-            "created_at",
+            "patron_message",
+            "metadata",
         ]
-        read_only_fields = fields
-
-    def get_method_display(self, obj):
-        if obj.payment_method:
-            return obj.get_payment_method_display()
-        return None
+      

@@ -26,6 +26,26 @@ if not logger.handlers:
     logger.addHandler(file_handler)
     logger.setLevel(logging.ERROR)
 
+# class AvailabilityAPIView(APIView):
+#     """Checks Mobile money providers availability"""
+#     permission_classes = [AllowAny, RequireAPIKey]
+
+#     def get(self, request):
+#         data, code = pawapay_request(
+#             "GET", "/availability?country=ZMB&operationType=DEPOSIT"
+#         )
+#         return Response(data, status=code)
+
+
+# class ActiveConfigAPIView(APIView):
+#     """Gets recommended active configuration"""
+#     permission_classes = [AllowAny, RequireAPIKey]
+
+#     def get(self, request):
+#         data, code = pawapay_request(
+#             "GET", "/active-conf?country=ZMB&operationType=DEPOSIT"
+#         )
+#         return Response(data, status=code)
 
 def pawapay_request(method, endpoint, headers=None, payload=None):
     """
@@ -54,9 +74,13 @@ def pawapay_request(method, endpoint, headers=None, payload=None):
             return response.json(), response.status_code
         except ValueError:
             return response.text, response.status_code
+    except AttributeError:
+        return {"status": "BAD_REQUEST"}, 400
     except requests.exceptions.RequestException as e:
         logger.error(f"PawaPay Request Error: {e}")
-        return None, 500
+        return {"status": "EXTERNAL_ERROR"}, 500
+    except requests.exceptions.ConnectionError:
+        return {"status": "NETWORK_ERROR"}, 500
 
     except Exception as e:
         logger.error(f"Internal Error: {e}")

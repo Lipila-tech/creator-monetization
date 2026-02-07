@@ -158,7 +158,6 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
     ],
-    # 'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.NamespaceVersioning',
     'DEFAULT_THROTTLE_CLASSES': [
         'rest_framework.throttling.AnonRateThrottle',
         'rest_framework.throttling.UserRateThrottle',
@@ -168,6 +167,12 @@ REST_FRAMEWORK = {
         'user': '1000/hour',
     },
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_RENDERER_CLASSES':(
+        'djangorestframework_camel_case.render.CamelCaseJSONRenderer',
+    ),
+    'DEFAULT_PARSER_CLASSES':(
+        'djangorestframework_camel_case.parser.CamelCaseJSONParser',
+    ),
 }
 
 # Simple JWT Configuration
@@ -184,12 +189,33 @@ SIMPLE_JWT = {
     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
 }
 
+description = """
+
+API Overview
+
+These endpoints power a Zambian creator monetization platform where fans (patrons)
+can discover creators, view public creator profiles, and send tips via Mobile Money (ZMW).
+Creators can authenticate, manage their profile, and view their wallet balance and
+transaction history.
+
+Conventions
+- All money values are in ZMW (Kwacha). All amounta are converted to decimal(0.00) for consistency.
+- Authenticated endpoints require:
+  Authorization: Bearer <access_token>
+"""
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Tip Zambia API',
-    'DESCRIPTION': 'API documentation for the Tip Zambia platform',
+    'TITLE': 'TipZed API',
+    'DESCRIPTION': description,
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     'SWAGGER_UI_DIST': 'SIDECAR',  # shorthand to use the sidecar instead
     'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
     'REDOC_DIST': 'SIDECAR',
+    'POSTPROCESSING_HOOKS': [
+        'drf_spectacular.contrib.djangorestframework_camel_case.camelize_serializer_fields',
+        'utils.hooks.capitalize_operation_hook',
+    ],
 }
+
+PAWAPAY_BASE_URL = env("PAWAPAY_BASE_URL")
+PAWAPAY_API_KEY = env("PAWAPAY_API_KEY")

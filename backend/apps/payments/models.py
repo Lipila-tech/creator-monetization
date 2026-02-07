@@ -52,7 +52,7 @@ class PaymentProvider(models.TextChoices):
     LIPILA = "lipila", _("Lipila Online")
 
 
-class ISPPaymentProvider(models.TextChoices):
+class PaymentProvider(models.TextChoices):
     """Supported payment providers"""
 
     MTN_MOMO_ZMB = "MTN_MOMO_ZMB", _("MTN ZAMBIA")
@@ -297,48 +297,32 @@ class Payment(UUIDModel, TimeStampedModel, SoftDeleteModel):
         db_index=True,
     )
     provider = models.CharField(
-        max_length=30, choices=PaymentProvider.choices, db_index=True
-    )
-    isp_provider = models.CharField(
         max_length=30,
-        choices=ISPPaymentProvider.choices,
-        null=True,
-        blank=True,
+        choices=PaymentProvider.choices,
         db_index=True,
     )
-    payment_method = models.CharField(
-        max_length=30,
-        choices=PaymentMethod.choices,
-        null=True,
-        blank=True,
-        db_index=True,
-    )
-
+    patron_phone = models.CharField(
+        max_length=12, help_text=_("Zambia standard 10 digit mobile number"))
     patron_email = models.EmailField(
         null=True,
         blank=True,
     )
-    patron_name = models.CharField(max_length=255, blank=True)
-    patron_phone = models.CharField(max_length=50, blank=True)
+    patron_name = models.CharField(max_length=255, blank=True, null=True)
 
-    order_reference = models.CharField(
+    patron_message = models.CharField(
         max_length=100,
         db_index=True,
         null=True,
         blank=True,
-        help_text=_("Reference to the associated order in your system"),
     )
-    description = models.TextField(blank=True)
+    patron_message = models.TextField(blank=True, null=True)
     metadata = models.JSONField(
         default=dict, blank=True, help_text=_("Additional payment metadata")
     )
 
     # Timing Information
     completed_at = models.DateTimeField(null=True, blank=True)
-    captured_at = models.DateTimeField(null=True, blank=True)
-    expired_at = models.DateTimeField(null=True, blank=True)
-    cancelled_at = models.DateTimeField(null=True, blank=True)
-
+  
     # Fee and Settlement Information
     provider_fee = models.DecimalField(
         max_digits=20,
@@ -386,9 +370,7 @@ class Payment(UUIDModel, TimeStampedModel, SoftDeleteModel):
         ordering = ["-created_at"]
         indexes = [
             models.Index(fields=["reference", "status"]),
-            models.Index(fields=["patron_email", "created_at"]),
-            models.Index(fields=["order_reference"]),
-            models.Index(fields=["provider", "status"]),
+            models.Index(fields=["patron_phone", "created_at"]),
             models.Index(fields=["created_at", "status"]),
             models.Index(fields=["amount", "currency"]),
         ]
@@ -426,29 +408,13 @@ class Payment(UUIDModel, TimeStampedModel, SoftDeleteModel):
         """Calculate remaining amount to be captured"""
         return Decimal(self.amount) - Decimal(self.amount_captured)
 
-    @property
-    def refundable_amount(self) -> Decimal:
-        """Calculate refundable amount"""
-        return Decimal(self.amount_captured) - Decimal(self.amount_refunded)
-
+    
     @property
     def is_successful(self) -> bool:
         """Check if payment was successful"""
         return self.status in [PaymentStatus.CAPTURED, PaymentStatus.COMPLETED]
 
-    @property
-    def is_refundable(self) -> bool:
-        """Check if payment can be refunded"""
-        return (
-            self.status
-            in [
-                PaymentStatus.CAPTURED,
-                PaymentStatus.PARTIALLY_CAPTURED,
-                PaymentStatus.PARTIALLY_REFUNDED,
-            ]
-            and self.refundable_amount > 0
-        )
-
+    
     def update_status(self, new_status: str, metadata: Optional[Dict] = None):
         """Safely update payment status with validation"""
         old_status = self.status
@@ -488,109 +454,6 @@ class Payment(UUIDModel, TimeStampedModel, SoftDeleteModel):
                     "metadata": metadata,
                 }
             )
-        self.save()
-
-    def capture(
-        self, amount: Optional[Decimal] = None, metadata: Optional[Dict] = None
-    ):
-        """Capture payment or partial payment"""
-        if amount is None:
-            amount = self.amount_remaining
-
-        if amount <= 0:
-            raise ValueError("Amount must be at least")
-
-        if amount > self.amount_remaining:
-            raise ValueError(
-                f"Cannot capture more than remaining amount:\
-                      {self.amount_remaining}"
-            )
-
-        # Update amounts
-        self.amount_captured = Decimal(self.amount_captured) + amount
-
-        # Update status
-        if self.amount_captured == self.amount:
-            self.update_status(PaymentStatus.CAPTURED, metadata)
-        else:
-            self.update_status(PaymentStatus.PARTIALLY_CAPTURED, metadata)
-
-        # Log capture
-        if "captures" not in self.metadata:
-            self.metadata["captures"] = []
-
-        self.metadata["captures"].append(
-            {
-                "amount": str(amount),
-                "timestamp": timezone.now().isoformat(),
-                "metadata": metadata or {},
-            }
-        )
-
-        self.save()
-
-    def refund(
-        self,
-        amount: Optional[Decimal] = None,
-        reason: str = "",
-        metadata: Optional[Dict] = None,
-    ):
-        """Refund payment or partial refund"""
-        if not self.is_refundable:
-            raise ValueError("Payment is not refundable")
-
-        if amount is None:
-            amount = self.refundable_amount
-
-        if amount <= 0:
-            raise ValueError("Refund amount Amount must be at least k10")
-
-        if amount > self.refundable_amount:
-            raise ValueError(
-                f"Cannot refund more than refundable amount:\
-                {self.refundable_amount}"
-            )
-
-        # Update amounts
-        self.amount_refunded = Decimal(self.amount_refunded) + amount
-
-        # Update status
-        if self.amount_refunded == self.amount_captured:
-            self.update_status(PaymentStatus.REFUNDED, metadata)
-        else:
-            self.update_status(PaymentStatus.PARTIALLY_REFUNDED, metadata)
-
-        # Log refund
-        if "refunds" not in self.metadata:
-            self.metadata["refunds"] = []
-
-        self.metadata["refunds"].append(
-            {
-                "amount": str(amount),
-                "reason": reason,
-                "timestamp": timezone.now().isoformat(),
-                "metadata": metadata or {},
-            }
-        )
-
-        self.save()
-
-    def add_provider_data(self, data: Dict, metadata: Optional[Dict] = None):
-        """Add provider response data"""
-        self.provider_data.update(data)
-
-        if metadata:
-            self.provider_metadata.update(metadata)
-
-        # Extract and store important fields
-        if "id" in data:
-            self.external_id = data["id"]
-
-        # Calculate net amount if fee is provided
-        if "fee" in data:
-            self.provider_fee = Decimal(str(data["fee"]))
-            self.net_amount = Decimal(self.amount) - Decimal(self.provider_fee)
-
         self.save()
 
     @classmethod

@@ -19,9 +19,8 @@ class TestAuthenticationFlow:
             'email': 'newcreator@example.com',
             'username': 'newcreator',
             'password': 'SecurePass123!',
-            'password2': 'SecurePass123!',
-            'first_name': 'John',
-            'last_name': 'Doe'
+            'firstName': 'John',
+            'lastName': 'Doe'
         }
         client = APIClientFactory()
         api_client.credentials(HTTP_X_API_KEY=client.api_key)
@@ -37,8 +36,9 @@ class TestAuthenticationFlow:
         profile_response = api_client.get(profile_url)
         
         assert profile_response.status_code == status.HTTP_200_OK
-        assert profile_response.data['email'] == 'newcreator@example.com'
-        assert profile_response.data['user_type'] == 'creator'
+        assert profile_response.data['status'] == 'success'
+        assert profile_response.data['data']['email'] == 'newcreator@example.com'
+        assert profile_response.data['data']['user_type'] == 'creator'
     
     def test_token_refresh_flow(self, api_client):
         """Test token refresh flow."""
@@ -77,16 +77,17 @@ class TestAuthenticationFlow:
         api_client.force_authenticate(user=user)
         
         # Update profile
-        update_data = {'first_name': 'Jane', 'last_name': 'Smith'}
+        update_data = {'firstName': 'Jane', 'lastName': 'Smith'}
         profile_url = reverse('customauth:user_profile')
         update_response = api_client.patch(profile_url, update_data, format='json')
-        
         assert update_response.status_code == status.HTTP_200_OK
-        assert update_response.data['first_name'] == 'Jane'
+        assert update_response.data['status'] == 'success'
+        assert update_response.data['data']['first_name'] == 'Jane'
         
         # Verify update persisted
         get_response = api_client.get(profile_url)
-        assert get_response.data['first_name'] == 'Jane'
+        assert get_response.data['status'] == 'success'
+        assert get_response.data['data']['first_name'] == 'Jane'
 
     def test_password_change_flow(self, api_client):
         """Test changing password."""
@@ -97,13 +98,11 @@ class TestAuthenticationFlow:
         
         # Change password
         password_data = {
-            'old_password': 'OldPass123!',
-            'new_password': 'NewPass456!',
-            'new_password2': 'NewPass456!'
+            'oldPassword': 'OldPass123!',
+            'newPassword': 'NewPass456!',
         }
         password_url = reverse('customauth:change_password')
         password_response = api_client.post(password_url, password_data, format='json')
-        
         assert password_response.status_code == status.HTTP_200_OK
         
         # Verify can login with new password
@@ -168,10 +167,6 @@ class TestMultiFrontendScenario:
             HTTP_AUTHORIZATION=f'Bearer dummy_token',
             HTTP_X_API_KEY=client.api_key
         )
-        
-        # The request should be processed (client identified)
-        # Real implementation would check client rate limits, etc.
-
 
 @pytest.mark.django_db
 class TestUserTypePermissions:
@@ -202,7 +197,7 @@ class TestUserTypePermissions:
         response = api_client.get(profile_url)
         
         assert response.status_code == status.HTTP_200_OK
-        assert response.data['user_type'] == 'staff'
+        assert response.data['data']['user_type'] == 'staff'
 
     def test_admin_can_access_their_profile(self, api_client):
         """Test admin can access profile."""
@@ -215,7 +210,7 @@ class TestUserTypePermissions:
         response = api_client.get(profile_url)
         
         assert response.status_code == status.HTTP_200_OK
-        assert response.data['user_type'] == 'admin'
+        assert response.data['data']['user_type'] == 'admin'
 
 
 @pytest.mark.django_db

@@ -4,51 +4,42 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from apps.creators.models import CreatorProfile
 from apps.creators.serializers import CreatorPublicSerializer, CreatorListSerializer
-
+from drf_spectacular.utils import extend_schema
+from utils import serializers as helpers
 
 class CreatorPublicView(APIView):
     """API view to retrieve public creator profile data."""
     permission_classes = [AllowAny]
+    serializer_class = CreatorPublicSerializer
+
+    @extend_schema(
+        operation_id="retrieve_creator",
+        summary="Retrieve a Creator",
+        responses={
+            200: helpers.SuccessResponseSerializer,
+            400: helpers.ValidationErrorSerializer,
+            401: helpers.UnauthorizedErrorSerializer,
+            403: helpers.ForbiddenErrorSerializer,
+            500: helpers.ServerErrorSerializer,
+        }
+    )
 
     def get(self, request, slug: str) -> Response:
         """
-        Retrieve a public creator profile by slug.
-        ---
-        parameters:
-          - name: slug
-            in: path
-            required: true
-            description: The slug of the creator profile.
-            type: string
-        responses:
-          200:
-            description: Successful retrieval of creator profile.
-            schema:
-              {
-              "status": "success",
-              "data": {
-                  "user": {
-                      "id": 1,
-                      "username": "creator_username",
-                      "full_name": "Creator Full Name",
-                      "slug": "creator-slug",
-                      "email": "creator@example.com"
-                  },
-                  "bio": "This is a test bio.",
-                  "profile_image": "http://example.com/media/profile_images/image.jpg",
-                  "cover_image": "http://example.com/media/cover_images/image.jpg",
-                  "website": "http://creatorwebsite.com",
-                  "followers_count": 150,
-                  "rating": 4.5,
-                  "verified": true,
-                  "status": "active",
-                  "created_at": "2024-01-01T12:00:00Z",
-                  "updated_at": "2024-01-02T12:00:00Z
-                }
-              }
-          404:
-            "status": "error",
-            "message": "Creator profile not found."
+        Retrieve a single public creator profile.
+
+        Returns the public profile information for a creator based on username
+        (or creator id). This endpoint powers the public creator page and is
+        designed to be shareable.
+
+        Authentication
+        --------------
+        Public endpoint (no authentication required).
+
+        Path Parameters
+        ---------------
+        slug : str
+            Creator slug
         """
         try:
             creator_profile = CreatorProfile.objects.get(user__slug__iexact=slug, status="active")
@@ -66,35 +57,30 @@ class CreatorPublicView(APIView):
 
 
 class CreatorsListView(APIView):
-    """API view to list all active creator profiles."""
     permission_classes = [AllowAny]
+    serializer_class = CreatorListSerializer
+    @extend_schema(
+        operation_id="fetch_creators",
+        summary="Fetch Active Creators",
+        responses={
+            200: helpers.SuccessResponseSerializer,
+            400: helpers.ValidationErrorSerializer,
+            401: helpers.UnauthorizedErrorSerializer,
+            403: helpers.ForbiddenErrorSerializer,
+            500: helpers.ServerErrorSerializer,
+        }
+    )
 
     def get(self, request) -> Response:
-        """
-        Retrieve a list of all active creator profiles.
-        ---
-        responses:
-          200:
-            description: Successful retrieval of creator profiles list.
-            schema:
-              {
-              "status": "success",
-              "data": [
-                  {
-                      "user": 1,
-                      "bio": "This is a test bio.",
-                      "profile_image": "http://example.com/media/profile_images/image.jpg",
-                      "cover_image": "http://example.com/media/cover_images/image.jpg",
-                      "website": "http://creatorwebsite.com",
-                      "followers_count": 150,
-                      "rating": 4.5,
-                      "verified": true,
-                      "created_at": "2024-01-01T12:00:00Z",
-                      "updated_at": "2024-01-02T12:00:00Z"
-                  },
-                  ...
-                ]
-              }
+        """List active public creators for discovery.
+
+        Returns a paginated list of creators that are publicly visible. Supports
+        search and filtering to help patrons discover creators by name, category,
+        or tags.
+
+        Authentication
+        --------------
+        Public endpoint (no authentication required).
         """
         creator_profiles = CreatorProfile.objects.filter(status="active").order_by('-followers_count')
         serializer = CreatorListSerializer(creator_profiles, many=True)
