@@ -1,28 +1,28 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Search,
   Music,
   Video,
   Palette,
   Mic,
-  Loader,
   UserX,
+  ArrowRight,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { creatorService } from "../services/creatorService";
 
-const getName = (creator) =>
-  `${creator.user?.firstName || ""} ${creator.user?.lastName || ""}`.trim() ||
-  creator.user?.username ||
-  "Creator";
+const getCreatorName = (creator) => {
+  const name =
+    `${creator?.user?.firstName || ""} ${creator?.user?.lastName || ""}`.trim();
+  return name || creator?.user?.username || "Anonymous Creator";
+};
 
 const CreatorCatalog = () => {
   const [creators, setCreators] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  // Later Add category state
-  // const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedCategory, setSelectedCategory] = useState("All");
 
   useEffect(() => {
     const fetchCreators = async () => {
@@ -30,39 +30,107 @@ const CreatorCatalog = () => {
         const response = await creatorService.getAllCreators();
         if (response.status === "success") {
           setCreators(response.data);
+        } else {
+          throw new Error("Failed to fetch");
         }
       } catch (err) {
         console.error(err);
-        setError("Failed to load creators. Please try again.");
+        setError("Unable to reach the gallery. Please try again later.");
       } finally {
         setLoading(false);
       }
     };
-
     fetchCreators();
   }, []);
 
-  // Filter Logic
-  const filteredCreators = creators.filter((c) =>
-    getName(c).toLowerCase().includes(searchTerm.toLowerCase()),
+  const filteredCreators = useMemo(() => {
+    return creators.filter((c) =>
+      getCreatorName(c).toLowerCase().includes(searchTerm.toLowerCase()),
+    );
+  }, [creators, searchTerm]);
+
+  // Skeleton loader component
+  const SkeletonLoader = () => (
+    <div className="min-h-screen bg-white">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+        {/* Header Area Skeleton */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
+          <div className="space-y-4">
+            <div className="h-12 w-64 bg-gray-100 rounded-2xl animate-pulse"></div>
+            <div className="h-5 w-96 bg-gray-100 rounded-xl animate-pulse"></div>
+          </div>
+
+          {/* Search Bar Skeleton */}
+          <div className="relative w-full md:w-96">
+            <div className="h-14 bg-gray-100 rounded-2xl animate-pulse"></div>
+          </div>
+        </div>
+
+        {/* Category Filter Skeleton */}
+        <div className="flex overflow-x-auto pb-4 gap-3 no-scrollbar mb-12">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div
+              key={i}
+              className="h-11 w-32 bg-gray-100 rounded-full animate-pulse"
+            ></div>
+          ))}
+        </div>
+
+        {/* Catalog Grid Skeleton */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+          {[...Array(8)].map((_, index) => (
+            <div key={index} className="flex flex-col h-full">
+              {/* Image Container Skeleton */}
+              <div className="aspect-[4/5] overflow-hidden rounded-[2rem] bg-gray-100 relative animate-pulse">
+                <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200"></div>
+
+                {/* Floating Badge Skeleton */}
+                <div className="absolute top-4 left-4">
+                  <div className="h-7 w-20 bg-gray-200 rounded-full"></div>
+                </div>
+              </div>
+
+              {/* Content Section Skeleton */}
+              <div className="pt-6 px-2 space-y-3">
+                <div className="h-6 w-3/4 bg-gray-100 rounded-lg animate-pulse"></div>
+                <div className="space-y-2">
+                  <div className="h-4 w-full bg-gray-100 rounded animate-pulse"></div>
+                  <div className="h-4 w-5/6 bg-gray-100 rounded animate-pulse"></div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="h-6 w-28 bg-gray-100 rounded animate-pulse"></div>
+                  <div className="h-5 w-5 bg-gray-100 rounded animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </main>
+    </div>
   );
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <Loader className="animate-spin text-zed-green" size={32} />
-      </div>
-    );
+    return <SkeletonLoader />;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        {/* Search Bar */}
-        <div className="mb-6">
-          <div className="relative">
+    <div className="min-h-screen bg-white">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+        {/* Header Area */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
+          <div className="space-y-2">
+            <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">
+              Gallery
+            </h1>
+            <p className="text-gray-500 font-medium italic">
+              Support creators directly.
+            </p>
+          </div>
+
+          {/* REFINED SEARCH BAR */}
+          <div className="relative w-full md:w-96 group">
             <Search
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-zed-green transition-colors"
               size={20}
             />
             <input
@@ -70,86 +138,108 @@ const CreatorCatalog = () => {
               placeholder="Search creators..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3.5 bg-white text-gray-900 placeholder-gray-400 caret-zed-green border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-zed-green"
+              className="w-full text-black pl-12 pr-4 py-3.5 bg-zed-green/[0.02] border border-gray-100 rounded-2xl focus:ring-4 focus:ring-zed-green/10 focus:border-zed-green focus:bg-white outline-none transition-all shadow-sm placeholder-gray-400"
             />
           </div>
         </div>
 
-        {/* Category Buttons (Visual Only for now) */}
-        <div className="flex flex-wrap gap-3 mb-8">
-          {["Music", "Video", "Art", "Podcast"].map((cat) => (
+        <div className="flex overflow-x-auto pb-4 gap-3 no-scrollbar mb-12">
+          {["All", "Music", "Video", "Art", "Podcast"].map((cat) => (
             <button
               key={cat}
-              onClick={() => console.log("Category filter not implemented yet")}
-              className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:border-zed-green hover:bg-zed-green/5 transition-colors text-gray-700 font-medium text-sm"
+              onClick={() => setSelectedCategory(cat)}
+              className={`flex items-center gap-2 px-6 py-2.5 rounded-full transition-all font-bold text-sm whitespace-nowrap shadow-sm border ${
+                selectedCategory === cat
+                  ? "bg-zed-green text-white border-zed-green"
+                  : "bg-white text-gray-600 border-gray-100 hover:border-zed-green/30"
+              }`}
             >
-              {cat === "Music" && <Music size={18} />}
-              {cat === "Video" && <Video size={18} />}
-              {cat === "Art" && <Palette size={18} />}
-              {cat === "Podcast" && <Mic size={18} />}
+              {cat === "Music" && <Music size={16} />}
+              {cat === "Video" && <Video size={16} />}
+              {cat === "Art" && <Palette size={16} />}
+              {cat === "Podcast" && <Mic size={16} />}
               {cat}
             </button>
           ))}
         </div>
 
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">
-          Featured Creators
-        </h2>
+        {error && (
+          <div className="bg-red-50 border border-red-100 text-red-600 p-4 rounded-xl mb-6">
+            {error}
+          </div>
+        )}
 
-        {error && <div className="text-red-500 mb-4">{error}</div>}
-
-        {/* Grid or Empty State */}
+        {/* Catalog Grid */}
         {filteredCreators.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredCreators.map((creator) => (
-              <Link
-                to={`/creator-profile/${creator.user.slug}`}
-                key={creator.user.id}
-                className="block"
-              >
-                <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all cursor-pointer group border border-gray-100 h-full">
-                  <div className="aspect-square overflow-hidden bg-gray-100 relative">
-                    {creator.profileImage ? (
-                      <img
-                        src={creator.profileImage}
-                        alt={getName(creator)}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gray-200 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
-                        <span className="text-5xl font-bold text-gray-400">
-                          {getName(creator)?.charAt(0).toUpperCase()}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+            {filteredCreators.map((creator) => {
+              const name = getCreatorName(creator);
+              return (
+                <Link
+                  to={`/creator-profile/${creator.user?.slug}`}
+                  key={creator.user?.id || creator._id}
+                  className="group"
+                >
+                  <div className="flex flex-col h-full">
+                    {/* Image Container with high-end shadow */}
+                    <div className="aspect-[4/5] overflow-hidden rounded-[2rem] bg-gray-100 relative shadow-[0_15px_35px_-10px_rgba(0,0,0,0.1)] transition-transform duration-500 group-hover:-translate-y-2">
+                      {creator.profileImage ? (
+                        <img
+                          src={creator.profileImage}
+                          alt={name}
+                          loading="lazy"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-gray-50 to-gray-200 flex items-center justify-center">
+                          <span className="text-4xl font-black text-gray-300 uppercase">
+                            {name.charAt(0)}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Floating Badge */}
+                      <div className="absolute top-4 left-4">
+                        <span className="bg-white/80 backdrop-blur-md text-gray-900 text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-tighter shadow-sm">
+                          {creator.user?.userType || "Creator"}
                         </span>
                       </div>
-                    )}
+                    </div>
+
+                    {/* Content Section */}
+                    <div className="pt-6 px-2">
+                      <h3 className="font-bold text-xl text-gray-900 mb-1 group-hover:text-zed-green transition-colors">
+                        {name}
+                      </h3>
+                      <p className="text-gray-500 text-sm mb-4 line-clamp-2">
+                        {creator.bio || "No bio available."}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-black uppercase tracking-widest text-zed-green bg-zed-green/10 px-2 py-1 rounded">
+                          {creator.followersCount || 0} Supporters
+                        </span>
+                        <ArrowRight
+                          size={18}
+                          className="text-gray-300 group-hover:text-zed-green group-hover:translate-x-1 transition-all"
+                        />
+                      </div>
+                    </div>
                   </div>
-                  <div className="p-5">
-                    <h3 className="font-bold text-lg text-gray-900 mb-2">
-                      {getName(creator)}
-                    </h3>
-                    <span className="inline-block bg-zed-green text-white text-xs font-semibold px-3 py-1 rounded-full mb-3">
-                      {creator.user.userType}
-                    </span>
-                    <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                      {creator.bio || "No bio available."}
-                    </p>
-                    <p className="text-gray-500 text-sm">
-                      {creator.followersCount} supporters
-                    </p>
-                  </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         ) : (
-          <div className="text-center py-20">
-            <div className="bg-gray-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <UserX className="text-gray-400" size={32} />
-            </div>
-            <h3 className="text-lg font-medium text-gray-900">
+          <div className="text-center py-24 border-2 border-dashed border-gray-100 rounded-[3rem]">
+            <UserX
+              className="mx-auto text-gray-200 mb-4"
+              size={64}
+              strokeWidth={1}
+            />
+            <h3 className="text-xl font-bold text-gray-900">
               No creators found
             </h3>
-            <p className="text-gray-500">Try searching for a different name.</p>
+            <p className="text-gray-500 mt-1">Try a different search term.</p>
           </div>
         )}
       </main>

@@ -1,65 +1,84 @@
-import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, ArrowRightLeft, X } from 'lucide-react';
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { LayoutDashboard, ArrowRightLeft, X, LogOut } from "lucide-react";
+import { useAuth } from "../../hooks/useAuth";
 
-const Sidebar = ({ onClose, isMobile = false, showCloseButton = false, title='' }) => {
+const Sidebar = ({
+  onClose,
+  isMobile = false,
+  showCloseButton = false,
+  title = "TipZed",
+}) => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Overview', path: '/dashboard' },
-    { icon: ArrowRightLeft, label: 'Transactions', path: '/dashboard/transactions' },
+    { icon: LayoutDashboard, label: "Overview", path: "/dashboard" },
+    {
+      icon: ArrowRightLeft,
+      label: "Transactions",
+      path: "/dashboard/transactions",
+    },
   ];
 
-  const handleLinkClick = () => {
-    // Close mobile menu when a link is clicked
-    if (isMobile && onClose) {
-      onClose();
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/");
+    } catch (error) {
+      console.error("Logout failed:", error);
     }
   };
 
   return (
-    <div className="h-full flex flex-col bg-white">
-      {/* Mobile Header with Close Button (only visible on mobile when sidebar is open) */}
-      {showCloseButton && (
-        <div className="md:hidden p-4 border-b border-gray-200 flex justify-between items-center">
-          <span className="text-xl font-bold text-green-600">{title}</span>
-          <button 
-            onClick={onClose} 
-            className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-            aria-label="Close menu"
+    <div className="h-full flex flex-col bg-white border-r border-gray-100">
+      {/* Header Section */}
+      <div
+        className={`p-6 border-b border-gray-100 flex justify-between items-center ${!showCloseButton && "hidden md:flex"}`}
+      >
+        <span className="text-xl font-bold text-zed-green">{title}</span>
+        {showCloseButton && (
+          <button
+            onClick={onClose}
+            className="md:hidden p-2 text-gray-400 hover:bg-gray-50 rounded-full"
           >
-            <X size={24} />
+            <X size={20} />
           </button>
-        </div>
-      )}
-
-      {/* Desktop Header (only visible on desktop) */}
-      <div className="hidden md:block p-6 border-b border-gray-200">
-        <span className="text-xl font-bold text-green-600">{title}</span>
+        )}
       </div>
 
-      {/* Navigation Links */}
-      <nav className="flex-1 px-4 py-4 space-y-2">
+      {/* Navigation Section (expands to fill space) */}
+      <nav className="flex-1 px-4 py-6 space-y-1">
         {menuItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (
             <Link
               key={item.path}
               to={item.path}
-              onClick={handleLinkClick}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                isActive 
-                  ? 'bg-green-50 text-green-600' 
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              onClick={() => isMobile && onClose?.()}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
+                isActive
+                  ? "bg-zed-green text-white shadow-md shadow-green-100"
+                  : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
               }`}
             >
-              <item.icon size={20} />
+              <item.icon size={18} strokeWidth={isActive ? 2.5 : 2} />
               {item.label}
             </Link>
           );
         })}
       </nav>
 
-  
+      {/* Footer Section (Fixed the stretched button here) */}
+      <div className="p-4 border-t border-gray-50">
+        <button
+          onClick={handleLogout}
+          className="flex items-center justify-center gap-2 w-full px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
+        >
+          <LogOut size={16} />
+          Logout
+        </button>
+      </div>
     </div>
   );
 };

@@ -14,12 +14,13 @@ const SignupForm = () => {
     lastName: "",
   });
   const [error, setError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -43,45 +44,32 @@ const SignupForm = () => {
       return;
     }
 
-    setIsSubmitting(true);
+    setIsLoading(true);
 
-    const result = await register(formData);
+    try {
+      const result = await register(formData);
 
-    if (result.success) navigate("/login");
-    else setError(result.error);
-
-    setIsSubmitting(false);
+      if (result.success) navigate("/login");
+      else setError(result.error);
+    } catch (err) {
+      console.error(err);
+      setError("An unexpected error occurred. Please check your connection.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-600 text-sm p-3 rounded-lg text-center mb-4">
+        <div
+          role="alert"
+          aria-live="polite"
+          className="bg-red-50 border border-red-200 text-red-600 text-sm p-3 rounded-lg text-center mb-4"
+        >
           {error}
         </div>
       )}
-
-      {/* <div>
-        <label className="text-sm font-medium text-gray-600">First Name</label>
-        <input
-          name="firstName"
-          required
-          className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-zed-orange focus:border-zed-orange outline-none"
-          value={formData.firstName}
-          onChange={handleChange}
-        />
-      </div> */}
-
-      {/* <div>
-        <label className="text-sm font-medium text-gray-600">Last Name</label>
-        <input
-          name="lastName"
-          required
-          className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-zed-orange focus:border-zed-orange outline-none"
-          value={formData.lastName}
-          onChange={handleChange}
-        />
-      </div> */}
 
       <div>
         <label className="text-sm font-medium text-gray-600">Username</label>
@@ -103,21 +91,9 @@ const SignupForm = () => {
           className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-zed-orange focus:border-zed-orange outline-none"
           value={formData.email}
           onChange={handleChange}
+          autoComplete="email"
         />
       </div>
-
-      {/* <div>
-        <label className="text-sm font-medium text-gray-600">I am a...</label>
-        <select
-          name="userType"
-          className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-zed-orange focus:border-zed-orange outline-none"
-          value={formData.userType}
-          onChange={handleChange}
-        >
-          <option value="creator">Creator</option>
-          <option value="fan">Supporter / Fan</option>
-        </select>
-      </div> */}
 
       <div className="grid grid-cols-2 gap-3">
         <div>
@@ -127,8 +103,9 @@ const SignupForm = () => {
             type={showPassword ? "text" : "password"}
             required
             className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-zed-orange focus:border-zed-orange outline-none"
-            value={formData.password1}
+            value={formData.password}
             onChange={handleChange}
+            autoComplete="current-password"
           />
         </div>
         <div>
@@ -154,10 +131,10 @@ const SignupForm = () => {
 
       <button
         type="submit"
-        disabled={isSubmitting}
+        disabled={isLoading}
         className="w-full py-3 rounded-lg font-semibold text-white bg-zed-orange hover:bg-orange-600 transition shadow-md disabled:opacity-50"
       >
-        {isSubmitting ? "Creating Account..." : "Sign Up"}
+        {isLoading ? "Creating Account..." : "Sign Up"}
       </button>
     </form>
   );

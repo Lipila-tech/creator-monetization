@@ -27,7 +27,7 @@ const AmountSelector = ({ onSelect }) => {
             <button
               key={amt}
               onClick={() => onSelect(amt)}
-              className="py-3 px-4 rounded-xl border-2 border-gray-100 hover:border-zed-green hover:bg-zed-green/5 font-bold text-white transition-all"
+              className="py-3 px-4 rounded-xl border-2 border-gray-100 hover:border-zed-green hover:bg-zed-green/5 hover:text-black font-bold text-white transition-all"
             >
               K{amt}
             </button>

@@ -5,10 +5,15 @@ import PaymentForm from "./PaymentForm";
 import PaymentStatus from "./PaymentStatus";
 import { paymentService } from "../../services/paymentService";
 
+const delay = (ms) => {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
 const SupportModal = ({ isOpen, onClose, creator }) => {
-  const [step, setStep] = useState("AMOUNT"); // AMOUNT | PHONE | PROCESSING | SUCCESS | ERROR
+  const [step, setStep] = useState("AMOUNT"); // AMOUNT | PHONE | PROCESSING | PROCESSING_COMPLETE | PENDING | SUCCESS | ERROR
   const [amount, setAmount] = useState(null);
   const [errorMsg, setErrorMsg] = useState("");
+  const [loading, setLoading] = useState(false);
 
   if (!isOpen) return null;
 
@@ -29,21 +34,40 @@ const SupportModal = ({ isOpen, onClose, creator }) => {
         phone,
         creator.user.email,
       );
-      setStep("SUCCESS");
     } catch (err) {
       setErrorMsg(err.message || "Payment failed. Please try again.");
       setStep("ERROR");
     }
   };
 
-  const handleManualConfirm = () => {
-    setStep("SUCCESS");
+  const handleVerifyStatus = async () => {
+
+    setLoading(true);
+    try {
+      // Assuming paymentService.checkTip exists and returns status
+      const response = await paymentService.checkTip(creator.walletId);
+
+      if (response.status === "COMPLETED") {
+        setStep("SUCCESS");
+      } else {
+        // If not completed yet, show the pending notice
+        setStep("PENDING");
+      }
+    } catch (err) {
+      setErrorMsg(
+        "We couldn't verify the payment status. It might still be processing.",
+      );
+      setStep("PENDING");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleRetry = () => {
     setStep("PHONE");
     setErrorMsg("");
   };
+
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 max-h-[90vh] flex flex-col">
@@ -63,7 +87,7 @@ const SupportModal = ({ isOpen, onClose, creator }) => {
             <X size={20} className="text-gray-500" />
           </button>
         </div>
-        
+
         <div className="p-6 overflow-y-auto">
           {step === "AMOUNT" && (
             <AmountSelector onSelect={handleAmountSelect} />
@@ -79,13 +103,15 @@ const SupportModal = ({ isOpen, onClose, creator }) => {
 
           {(step === "PROCESSING" ||
             step === "SUCCESS" ||
+            step === "PENDING" ||
             step === "ERROR") && (
             <PaymentStatus
               status={step}
               amount={amount}
               error={errorMsg}
+              isLoading={loading}
               onRetry={handleRetry}
-              onManualConfirm={handleManualConfirm}
+              onVerify={handleVerifyStatus}
               onClose={onClose}
             />
           )}

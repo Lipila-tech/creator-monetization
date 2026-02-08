@@ -31,4 +31,13 @@ export const paymentService = {
       throw error.response?.data || error.message;
     }
   },
+
+  // dummy status checks
+  checkTip: async (walletId) => {
+    try {
+      return "SUCCESS";
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
 };

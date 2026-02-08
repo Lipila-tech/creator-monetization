@@ -1,27 +1,35 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { memo } from 'react';
 
-const ProtectedRoute = ({ children }) => {
+// memo prevents unnecessary re-renders of the wrapper itself
+const ProtectedRoute = memo(({ children }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
 
-  // Wait for Auth Check to finish
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen bg-white">
+      <div 
+        className="flex justify-center items-center min-h-screen bg-white"
+        aria-busy="true"
+        aria-label="Loading authentication"
+      >
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-zed-green"></div>
       </div>
     );
   }
 
-  // If no user, redirect to Login
+  // Auth Redirect with state preservation
   if (!user) {
-    // redirect them back after login
+    //pass the full location object to preserve the 'from' path 
+    // for the LoginForm to use after successful sign-in.
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // If user exists, render the protected page
-  return children;
-};
+  // Render children
+  return <>{children}</>;
+});
+
+ProtectedRoute.displayName = 'ProtectedRoute';
 
 export default ProtectedRoute;

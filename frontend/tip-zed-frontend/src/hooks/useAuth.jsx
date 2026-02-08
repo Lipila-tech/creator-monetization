@@ -45,9 +45,10 @@ export const AuthProvider = ({ children }) => {
 
       // if user is not in local storage
       if (!getUser()) {
-        const responseUser = await authService.getProfile();
+        const { data: responseData } = await authService.getProfile();
 
-        if (responseUser.data) saveUser(responseUser.data);
+        if (responseData.status === "success")
+          saveUser(responseData.data);
       }
 
       return { success: true };
@@ -65,7 +66,7 @@ export const AuthProvider = ({ children }) => {
       const { accessToken, refreshToken, ...userData } = response.data;
 
       saveTokens(accessToken, refreshToken);
-      saveUser(userData)
+      saveUser(userData);
 
       return { success: true };
     } catch (error) {

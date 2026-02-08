@@ -73,7 +73,7 @@ api.interceptors.response.use(
       } catch (refreshError) {
         // If refresh fails (token expired), force logout
         localStorage.removeItem("accessToken");
-        window.location.href = "/login"; // Redirect to login
+        window.location.href = "/login";
 
         return Promise.reject(refreshError);
       }
