@@ -4,6 +4,8 @@ from apps.wallets.services.transaction_service import\
     WalletTransactionService as WalletTxnService
 from utils.exceptions import (
     InsufficientBalance, DuplicateTransaction, InvalidTransaction)
+
+
 class TestWalletService:
     """Test Single source of truth for all wallet money movements."""
 
@@ -26,7 +28,7 @@ class TestWalletService:
         user_factory.creator_profile.wallet.refresh_from_db()
         assert user_factory.creator_profile.wallet.balance == Decimal("18.00")
 
-    def test_cash_in_creates_transaction_and_updates_balance(self, user_factory):
+    def test_cash_in_creates_transaction_and_updates_wallet_balance(self, user_factory):
         tx = WalletTxnService.cash_in(
             wallet=user_factory.creator_profile.wallet,
             amount=Decimal("20.00"),
@@ -38,6 +40,20 @@ class TestWalletService:
         assert user_factory.creator_profile.wallet.balance == Decimal("18.00")
         assert tx.transaction_type == "CASH_IN"
         assert tx.status == "COMPLETED"
+
+
+    def test_cash_in_creates_a_transaction_with_deducted_fee(self, user_factory):
+        tx = WalletTxnService.cash_in(
+            wallet=user_factory.creator_profile.wallet,
+            amount=Decimal("20.00"),
+            payment=None,
+            reference="CASHIN-1",
+        )
+        
+        user_factory.creator_profile.wallet.refresh_from_db()
+        wallet_balance = user_factory.creator_profile.wallet.balance
+        assert wallet_balance == tx.amount
+        
 
     def test_payout_transaction_reduces_balance(self, user_factory):
         # First cash-in
@@ -96,7 +112,7 @@ class TestWalletService:
             payout_tx=payout_tx, success=True)
 
         user_factory.creator_profile.wallet.refresh_from_db()
-        # cashin(50 - 10%) - cashout(k30) - fee(k0)= 8.5
+        # cashin(50 - 10%) = 45 - cashout(30) = 15
         assert user_factory.creator_profile.wallet.balance == Decimal("15.00")
 
         payout_tx.refresh_from_db()
