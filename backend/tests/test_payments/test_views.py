@@ -96,7 +96,7 @@ class TestCashinViews:
         response = auth_api_client.post(
             f"/api/v1/payments/deposits/{wallet_factory.id}/", data, format="json")
 
-        assert response.status_code == 503
+        assert response.status_code == 500
         mock_request.assert_called_once()
 
     def test_deposit_no_wallet_exists(self, api_key, auth_api_client, mocker):

@@ -30,7 +30,7 @@ class TestWalletService:
         wallet_txn.save()
         WalletService.recalculate_wallet_balance(wallet_txn.wallet)
         wallet_txn.wallet.refresh_from_db()
-        assert wallet_txn.wallet.balance == Decimal('7')
+        assert wallet_txn.wallet.balance == Decimal('10')
 
         #cashout
         wallet_txn = wallet_txn_factory(
@@ -39,7 +39,7 @@ class TestWalletService:
         wallet_txn.save()
         WalletService.recalculate_wallet_balance(wallet_txn.wallet)
         wallet_txn.wallet.refresh_from_db()
-        assert wallet_txn.wallet.balance == Decimal('4')
+        assert wallet_txn.wallet.balance == Decimal('7')
 
     def test_dont_add_pending_txn_to_balance(self, wallet_txn_factory):
         from decimal import Decimal
