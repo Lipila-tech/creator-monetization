@@ -71,6 +71,12 @@ def api_client_obj(db):
     from tests.factories import APIClientFactory
     return APIClientFactory()
 
+@pytest.fixture
+def category_factory(db):
+    """Create Creator categories"""
+    from tests.factories import CreatorCategoryFactory
+    return CreatorCategoryFactory()
+
 
 @pytest.fixture
 def user_factory(db):

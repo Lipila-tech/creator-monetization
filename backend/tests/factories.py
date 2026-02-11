@@ -5,7 +5,7 @@ import factory
 from decimal import Decimal
 from django.contrib.auth import get_user_model
 from apps.customauth.models import APIClient
-from apps.creators.models import CreatorProfile
+from apps.creators.models import CreatorProfile, CreatorCategory
 from apps.payments.models import Payment
 from apps.wallets.models import (
     Wallet, WalletKYC, WalletPayoutAccount, WalletTransaction,
@@ -13,6 +13,18 @@ from apps.wallets.models import (
 
 User = get_user_model()
 
+
+class CreatorCategoryFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = CreatorCategory
+
+    name = factory.Sequence(lambda n: f"Category {n}")
+    slug = factory.LazyAttribute(lambda o: o.name.lower().replace(" ", "-"))
+    icon = "tag"
+    is_featured = False
+    country_code = "ZM"
+    is_active = True
+    sort_order = 100
 
 class UserFactory(factory.django.DjangoModelFactory):
     """Factory for creating test users."""

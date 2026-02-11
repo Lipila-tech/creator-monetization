@@ -11,7 +11,6 @@ from apps.payments.models import (
     SoftDeleteModel)
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from decimal import Decimal
 
 User = get_user_model()
 

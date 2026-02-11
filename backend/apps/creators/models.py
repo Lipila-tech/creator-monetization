@@ -1,8 +1,30 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.validators import URLValidator, MinValueValidator, MaxValueValidator
-
+from django.utils.text import slugify
 User = get_user_model()
+
+
+class CreatorCategory(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(unique=True, blank=True)
+    icon = models.CharField(max_length=50, blank=True)  # e.g. lucide icon name
+    is_featured = models.BooleanField(default=False)
+    country_code = models.CharField(max_length=2, default="ZM")  # Zambia-first
+    is_active = models.BooleanField(default=True)
+    sort_order = models.PositiveIntegerField(default=100)
+
+    class Meta:
+        ordering = ["sort_order", "name"]
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
 
 
 class CreatorProfile(models.Model):
@@ -31,7 +53,11 @@ class CreatorProfile(models.Model):
     verified = models.BooleanField(default=False, help_text='Verified creator badge')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    category = models.CharField(max_length=100, blank=True, null=True)
+    categories = models.ManyToManyField(
+        CreatorCategory,
+        blank=True,
+        related_name="creators"
+    )
 
     class Meta:
         db_table = 'creators_profile'
@@ -56,4 +82,4 @@ class CreatorProfile(models.Model):
     def is_banned(self):
         """Check if creator is banned."""
         return self.status == 'banned'
-
+    

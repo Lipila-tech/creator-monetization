@@ -1,4 +1,4 @@
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from utils.exceptions import WalletNotFound, WalletError
 
 
@@ -31,12 +31,12 @@ class WalletService:
             Decimal: The updated wallet balance.
         """
         try:
-            total = (
-                wallet.transactions.filter(status="COMPLETED").aggregate(
-                    total=Sum("amount")
-                )["total"]
-                or 0
+            query_filter = (
+                (Q(transaction_type="CASH_IN") | Q(transaction_type="PAYOUT")) &
+                Q(status="COMPLETED")
             )
+            total = (wallet.transactions.filter(query_filter).aggregate(
+                total=Sum("amount"))["total"] or 0)
         except AttributeError:
             raise WalletError("Wallet error")
 

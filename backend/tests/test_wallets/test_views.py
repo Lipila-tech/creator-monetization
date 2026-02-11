@@ -1,9 +1,10 @@
 import pytest
 from tests.factories import APIClientFactory, UserFactory, PaymentFactory
+
 @pytest.mark.django_db
 class TestWalletViews:
     """Tests for wallet views"""
-    
+
     def test_get_user_wallet_404(self, api_client):
         """Test getting a current users wallet with no wallet"""
         user = UserFactory(user_type="admin")
@@ -13,7 +14,6 @@ class TestWalletViews:
         response = api_client.get("/api/v1/wallets/me/")
         assert response.status_code == 404
         assert response.data["status"] == "NOT_FOUND"
-
 
     def test_get_user_wallet(self, api_client, user_factory, mocker):
         """Test getting current user's wallet"""
@@ -29,7 +29,8 @@ class TestWalletViews:
         assert "id" in data
         assert "balance" in data
         assert "is_active" in data
-        assert "currency" in data
+        assert "recent_transactions" in data
+        assert "cash_in_costs" in data
 
         # check that pawapay was not called no pending payments
         mock_pawapay.assert_not_called()
@@ -40,7 +41,7 @@ class TestWalletViews:
         client = APIClientFactory()
         api_client.credentials(HTTP_X_API_KEY=client.api_key)
         user = user_factory
-        payment  = PaymentFactory(
+        payment = PaymentFactory(
             wallet=user.creator_profile.wallet,
             status="pending",
         )
@@ -64,7 +65,6 @@ class TestWalletViews:
         payment.refresh_from_db()
         assert payment.status == "completed"
 
-
     def test_get_wallet_with_multiple_pending_payments(self, api_client, user_factory, mocker):
         """Test getting current user's wallet with multiple pending payments"""
         mock_pawapay = mocker.patch("apps.wallets.views.pawapay_request")
@@ -77,6 +77,7 @@ class TestWalletViews:
             status="pending",
         )
         # Mock pawapay to return completed for all payments
+
         def mock_pawapay_side_effect(method, endpoint, headers=None, payload=None):
             # deposit_id = payload.get("depositId")
             return (
@@ -105,7 +106,8 @@ class TestWalletViews:
         """Test getting current users tips"""
         client = APIClientFactory()
         api_client.credentials(HTTP_X_API_KEY=client.api_key)
-        api_client.force_authenticate(user=wallet_transaction_factory.wallet.creator.user)
+        api_client.force_authenticate(
+            user=wallet_transaction_factory.wallet.creator.user)
         response = api_client.get("/api/v1/wallets/transactions/")
         assert response.status_code == 200
         data = response.data.get("data")
@@ -117,7 +119,6 @@ class TestWalletViews:
         assert "status" in transaction
         assert "reference" in transaction
 
-
     def test_get_wallet_with_no_transactions(self, api_client, user_factory):
         """Test getting current user's wallet with no transactions"""
         client = APIClientFactory()
@@ -128,7 +129,6 @@ class TestWalletViews:
         data = response.data.get("data")
         assert data is not None
         assert data.get("recent_transactions") == []
-
 
     def test_get_wallet_kyc(self, api_client, user_factory):
         """Test getting current user's wallet KYC"""
@@ -143,7 +143,6 @@ class TestWalletViews:
         assert "bank_name" in data['data']
         assert isinstance(data['data']['wallet_id'], str)
 
-
     def test_update_wallet_kyc(self, api_client, user_factory):
         """Test updating current user's wallet KYC"""
         client = APIClientFactory()
@@ -157,7 +156,8 @@ class TestWalletViews:
             "bankAccountName": "Updated Account Name",
             "bankAccountNumber": "9876543210",
         }
-        response = api_client.put("/api/v1/wallets/kyc/", data=payload, format='json')
+        response = api_client.put(
+            "/api/v1/wallets/kyc/", data=payload, format='json')
         assert response.status_code == 200
         data = response.data.get("data")
         assert data is not None
@@ -165,4 +165,3 @@ class TestWalletViews:
         assert data["id_document_number"] == payload["idDocumentNumber"]
         assert data["account_type"] == payload["accountType"]
         assert data["bank_name"] == payload["bankName"]
-       

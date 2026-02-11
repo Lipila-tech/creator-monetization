@@ -68,8 +68,8 @@ class WalletTransactionService:
             raise DuplicateTransaction("Transaction already exists")
 
         fee = FeeService.calculate_cash_in_fee(amount)
-        net_amount = amount
-
+        net_amount = amount - fee
+        
         correlation_id = f"CASHIN-{uuid.uuid4()}"
 
         cashin_tx = WalletTransaction.objects.create(
