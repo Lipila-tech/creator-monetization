@@ -56,16 +56,6 @@ class UpdateCreatorProfileSerializer(serializers.ModelSerializer):
             "cover_image": {"required": False, "allow_null": True},
         }
 
-    # def validate(self, attrs):
-    #     """
-    #     Optional: enforce that only creators can edit creator wallet KYC.
-    #     """
-    #     request = self.context.get("request")
-    #     if request and request.user.is_authenticated:
-    #         profile = getattr(request.user, "creator_profile", None)
-    #         if profile and not profile.is_creator and "wallet_kyc" in attrs:
-    #             raise serializers.ValidationError("Only creators can update wallet KYC.")
-    #     return attrs
 
     @transaction.atomic
     def update(self, instance: CreatorProfile, validated_data):
@@ -90,7 +80,6 @@ class UpdateCreatorProfileSerializer(serializers.ModelSerializer):
         if user_updates:
             user = instance.user
             for k, v in user_updates.items():
-                # skip if your User doesn't have phone_number, etc.
                 if hasattr(user, k):
                     setattr(user, k, v)
             user.save()

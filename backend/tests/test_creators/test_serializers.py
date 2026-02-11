@@ -30,7 +30,6 @@ class TestUpdateCreatorProfileSerializer:
         assert serializer.is_valid()
 
         updated_profile = serializer.save()
-        import pdb; pdb.set_trace; breakpoint()
         assert updated_profile.categories.order_by('id').first().name == 'cat1'
         assert updated_profile.categories.order_by('id').last().name == 'cat2'
 
