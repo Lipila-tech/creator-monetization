@@ -465,3 +465,66 @@ class Payment(UUIDModel, TimeStampedModel, SoftDeleteModel):
         timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         random_str = secrets.token_hex(3).upper()
         return f"{prefix}-{timestamp}-{random_str}"
+
+
+class WebhookEventType(models.TextChoices):
+    DEPOSIT_INITIATED = "deposit.initiated"
+    DEPOSIT_ACCEPTED = "deposit.accepted"
+    DEPOSIT_COMPLETED = "deposit.completed"
+    DEPOSIT_FAILED = "deposit.failed"
+    DEPOSIT_CALLBACK_RECEIVED = "deposit.callback_received"
+
+
+class PaymentWebhookLog(UUIDModel, TimeStampedModel):
+    """Log webhook events from payment providers"""
+    provider = models.CharField(max_length=30, choices=PaymentProvider.choices)
+    event_type = models.CharField(max_length=200, db_index=True,
+                                  choices=WebhookEventType, default=WebhookEventType.DEPOSIT_ACCEPTED)
+    external_id = models.CharField(max_length=255, db_index=True, blank=True)
+
+    # Payload
+    raw_payload = models.TextField(help_text=_("Raw webhook payload"))
+    parsed_payload = models.JSONField(default=dict, blank=True)
+
+    # Headers
+    headers = models.JSONField(default=dict, blank=True)
+
+    # Processing status
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ('received', _('Received')),
+            ('processing', _('Processing')),
+            ('processed', _('Processed')),
+            ('failed', _('Failed')),
+            ('ignored', _('Ignored')),
+        ],
+        default='received'
+    )
+    error_message = models.TextField(blank=True)
+
+    # Related payment
+    payment = models.ForeignKey(
+        Payment,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='webhook_logs'
+    )
+
+    # Processing metadata
+    processed_at = models.DateTimeField(null=True, blank=True)
+    processing_time_ms = models.FloatField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = _("Payment Webhook Log")
+        verbose_name_plural = _("Payment Webhook Logs")
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['provider', 'event_type']),
+            models.Index(fields=['created_at', 'status']),
+            models.Index(fields=['payment', 'created_at']),
+        ]
+
+    def __str__(self):
+        return f"{self.provider} - {self.event_type} - {self.status}"
