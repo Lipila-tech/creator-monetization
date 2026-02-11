@@ -49,7 +49,7 @@ export const AuthProvider = ({ children }) => {
 
         if (responseData.status === "success") {
           saveUser(responseData.data);
-          return { success: true, user };
+          return { success: true, user: responseData.data };
         }
       } else {
         return { success: true, user: getUser() };
@@ -107,7 +107,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout, update }}>
+    <AuthContext.Provider
+      value={{ user, token, login, register, logout, update }}
+    >
       {children}
     </AuthContext.Provider>
   );

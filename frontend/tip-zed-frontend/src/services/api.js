@@ -1,4 +1,5 @@
 import axios from "axios";
+import rateLimit from "axios-rate-limit";
 
 // Setup Constants (Fixed for Vite)
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
@@ -6,14 +7,37 @@ const TIMEOUT = Number(import.meta.env.VITE_API_TIMEOUT) || 15000;
 const API_KEY = import.meta.env.VITE_API_CLIENT_KEY || "";
 
 // Create Axios Instance
-const api = axios.create({
+const api = rateLimit(
+  axios.create({
+    baseURL: BASE_URL,
+    timeout: TIMEOUT,
+    headers: {
+      "X-API-KEY": API_KEY,
+      "Content-Type": "application/json",
+    },
+  }),
+  {
+    maxRequests: 5,
+    perMilliseconds: 1000,
+  },
+);
+
+const refreshApi = axios.create({
   baseURL: BASE_URL,
   timeout: TIMEOUT,
   headers: {
-    "X-API-KEY": API_KEY,
     "Content-Type": "application/json",
+    "X-API-KEY": API_KEY,
   },
 });
+
+let isRefreshing = false;
+let refreshQueue = [];
+
+const processQueue = (token) => {
+  refreshQueue.forEach((cb) => cb(token));
+  refreshQueue = [];
+};
 
 // Request Interceptor (Attach Token)
 api.interceptors.request.use(
@@ -46,36 +70,39 @@ api.interceptors.response.use(
 
     // Check if error is 401 (Unauthorized) and we haven't retried yet
     if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true; // Mark as retried to prevent infinite loops
+      originalRequest._retry = true;
+
+      if (isRefreshing) {
+        return new Promise((resolve) => {
+          refreshQueue.push((token) => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            resolve(api(originalRequest));
+          });
+        });
+      }
+
+      isRefreshing = true;
 
       try {
         const refreshToken = localStorage.getItem("refreshToken");
 
-        if (!refreshToken) {
-          throw new Error("No refresh token available");
-        }
-
-        // Call backend to get a new access token
-        const response = await api.post(`${BASE_URL}/auth/token/refresh/`, {
+        const { data } = await refreshApi.post("/auth/token/refresh/", {
           refresh: refreshToken,
         });
 
-        const newAccessToken = response.data.access;
+        const newToken = data.accessToken;
+        localStorage.setItem("accessToken", newToken);
 
-        // Save new token to storage
-        localStorage.setItem("accessToken", newAccessToken);
+        processQueue(newToken);
 
-        // Update the header for the failed request
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-
-        // Retry the original request with the new token
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return api(originalRequest);
-      } catch (refreshError) {
-        // If refresh fails (token expired), force logout
-        localStorage.removeItem("accessToken");
+      } catch (err) {
+        localStorage.clear();
         window.location.href = "/login";
-
-        return Promise.reject(refreshError);
+        return Promise.reject(err);
+      } finally {
+        isRefreshing = false;
       }
     }
 
