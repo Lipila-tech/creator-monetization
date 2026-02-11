@@ -104,6 +104,7 @@ class UpdateCreatorProfileSerializer(serializers.ModelSerializer):
             kyc, _ = WalletKYC.objects.get_or_create(wallet=wallet)
             for attr, value in wallet_kyc_data.items():
                 setattr(kyc, attr, value)
+            
             kyc.save()
 
         return instance
