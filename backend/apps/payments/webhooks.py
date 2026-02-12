@@ -111,6 +111,8 @@ class PaymentStatusAPIView(APIView):
     permission_classes = [RequireAPIKey, AllowAny]
 
     @extend_schema(
+        operation_id="retrieve_payment_status",
+        summary="Retrieve Payment Status",
         description="Get payment status by deposit ID",
         parameters=[
             {
