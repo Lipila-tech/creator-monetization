@@ -5,16 +5,168 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 from decimal import Decimal
 from apps.payments.models import PaymentWebhookLog
-from apps.wallets.models import Wallet, WalletTransaction
-from tests.factories import PaymentFactory
+from apps.wallets.models import WalletTransaction
 
 User = get_user_model()
 
 
 @pytest.mark.django_db
+class TestPaymentStatusAPIView:
+    def test_get_payment_status_pending(
+        self, auth_api_client, payment_factory, mocker
+    ):
+        """Test retrieving payment status with no webhook log"""
+        mock_resend = mocker.patch(
+            "apps.payments.webhooks.resend_callback",
+            return_value=({"status": "COMPLETED"}, 200),
+        )
+        response = auth_api_client.get(
+            reverse("payments:payment_status", args=[payment_factory.id]), format="json"
+        )
+        assert response.status_code == 200
+        assert response.data["status"] == "completed"
+
+        mock_resend.assert_called_once_with(str(payment_factory.id))
+
+    
+    def test_get_payment_status_processing(
+        self, auth_api_client, payment_factory, mocker
+    ):
+        """Test retrieving payment status with no webhook log and processing status"""
+        payment_factory.status = "processing"
+        payment_factory.save()
+
+        mock_resend = mocker.patch(
+            "apps.payments.webhooks.resend_callback",
+            return_value=({"status": "FAILED"}, 200),
+        )
+        response = auth_api_client.get(
+            reverse("payments:payment_status", args=[payment_factory.id]), format="json"
+        )
+        assert response.status_code == 200
+        assert response.data["status"] == "failed"
+
+        mock_resend.assert_called_once_with(str(payment_factory.id)
+    )
+
+    def test_get_payment_status_in_reconciliation(
+        self, auth_api_client, payment_factory, mocker
+    ):
+        """Test retrieving payment status with no webhook log and in_reconciliation status"""
+        payment_factory.status = "in_reconciliation"
+        payment_factory.save()
+
+        mock_resend = mocker.patch(
+            "apps.payments.webhooks.resend_callback",
+            return_value=({"status": "COMPLETED"}, 200),
+        )
+        response = auth_api_client.get(
+            reverse("payments:payment_status", args=[payment_factory.id]), format="json"
+        )
+        assert response.status_code == 200
+        assert response.data["status"] == "completed"
+
+        mock_resend.assert_called_once_with(str(payment_factory.id)
+    )
+
+    def test_get_payment_status_final_completed(
+        self, auth_api_client, payment_factory, mocker
+    ):
+        """Test retrieving payment status with existing webhook log"""
+        mock_resend = mocker.patch(
+            "apps.payments.webhooks.resend_callback",
+            return_value=({"status": "COMPLETED"}, 200),
+        )
+        PaymentWebhookLog.objects.create(
+            payment=payment_factory,
+            provider=payment_factory.provider,
+            event_type="deposit.completed",
+            external_id="EXT-123",
+            parsed_payload={"status": "COMPLETED"},
+        )
+
+        payment_factory.status = "completed"
+        payment_factory.save()
+
+        response = auth_api_client.get(
+            reverse("payments:payment_status", args=[payment_factory.id]), format="json"
+        )
+        assert response.status_code == 200
+        assert response.data["status"] == "completed"
+
+        mock_resend.assert_not_called()
+
+    def test_get_payment_status_with_final_pending(
+        self, auth_api_client, payment_factory, mocker
+    ):
+        """Test retrieving payment status with existing webhook log but pending status"""
+        mock_resend = mocker.patch(
+            "apps.payments.webhooks.resend_callback",
+            return_value=({"status": "FAILED"}, 200),
+        )
+        PaymentWebhookLog.objects.create(
+            payment=payment_factory,
+            provider=payment_factory.provider,
+            event_type="deposit.pending",
+            external_id="EXT-123",
+            parsed_payload={"status": "PENDING"},
+        )
+
+        payment_factory.status = "PENDING"
+        payment_factory.save()
+
+        request = auth_api_client.get(
+            reverse("payments:payment_status", args=[payment_factory.id]), format="json"
+        )
+        assert request.status_code == 200
+        assert request.data["status"] == "failed"
+        mock_resend.assert_called_once_with(str(payment_factory.id))
+
+    def test_get_payment_status_final_failed(
+        self, auth_api_client, payment_factory, mocker
+    ):
+        mock_resend = mocker.patch(
+            "apps.payments.webhooks.resend_callback",
+            return_value=({"status": "COMPLETED"}, 200),
+        )
+
+        payment_factory.status = "failed"
+        payment_factory.save()
+
+        response = auth_api_client.get(
+            reverse("payments:payment_status", args=[payment_factory.id]), format="json"
+        )
+        assert response.status_code == 200
+        assert response.data["status"] == "failed"
+
+        mock_resend.assert_not_called()
+
+    def test_get_payment_status_final_rejected(
+        self, auth_api_client, payment_factory, mocker
+    ):
+        mock_resend = mocker.patch(
+            "apps.payments.webhooks.resend_callback",
+            return_value=({"status": "COMPLETED"}, 200),
+        )
+
+        payment_factory.status = "rejected"
+        payment_factory.save()
+
+        response = auth_api_client.get(
+            reverse("payments:payment_status", args=[payment_factory.id]), format="json"
+        )
+        assert response.status_code == 200
+        assert response.data["status"] == "rejected"
+
+        mock_resend.assert_not_called()
+
+
+@pytest.mark.django_db
 class TestPaymentWebhookView:
 
-    def test_webhook_credits_wallet_when_payment_is_completed(self, api_client, payment_factory):
+    def test_webhook_credits_wallet_when_payment_is_completed(
+        self, api_client, payment_factory
+    ):
         """Test that a completed deposit callback credits the wallet
         and records transactions"""
         wallet = payment_factory.wallet
@@ -75,7 +227,9 @@ class TestPaymentWebhookView:
         assert cash_in_tx is not None
         assert cash_in_tx.payment == payment_factory
 
-    def test_webhook_doesnt_credit_wallet_when_payment_is_pending(self, api_client, user_factory, payment_factory):
+    def test_webhook_doesnt_credit_wallet_when_payment_is_pending(
+        self, api_client, user_factory, payment_factory
+    ):
         wallet = user_factory.creator_profile.wallet
         payload = {
             "depositId": str(payment_factory.id),
@@ -94,7 +248,9 @@ class TestPaymentWebhookView:
         assert wallet.balance == Decimal("0.00")
         assert not WalletTransaction.objects.exists()
 
-    def test_webhook_updates_payment_with_final_failed_status(self, api_client, payment_factory):      
+    def test_webhook_updates_payment_with_final_failed_status(
+        self, api_client, payment_factory
+    ):
         payload = {
             "depositId": str(payment_factory.id),
             "status": "FAILED",
@@ -141,7 +297,7 @@ class TestPaymentWebhookView:
         )
 
     def test_webhook_is_idempotent(self, api_client, payment_factory):
-        """Check the endpoint handles duplicate requests correctly"""        
+        """Check the endpoint handles duplicate requests correctly"""
         payload = {
             "depositId": str(payment_factory.id),
             "status": "COMPLETED",
@@ -192,10 +348,12 @@ class TestPaymentWebhookView:
         response = api_client.get(reverse("payments:webhook"))
         assert response.status_code == 405 or response.status_code == 400
 
-    def test_rejected_payment_does_not_credit_wallet(self, api_client, user_factory, payment_factory):
+    def test_rejected_payment_does_not_credit_wallet(
+        self, api_client, user_factory, payment_factory
+    ):
         """Test that rejected deposits don't credit wallet"""
         wallet = user_factory.creator_profile.wallet
-     
+
         payload = {
             "depositId": str(payment_factory.id),
             "status": "REJECTED",
@@ -213,7 +371,6 @@ class TestPaymentWebhookView:
         assert wallet.balance == Decimal("0.00")
         payment_factory.refresh_from_db()
         assert payment_factory.status == "rejected"
-
 
     def test_webhook_handles_callback_with_invalid_json(self, api_client):
         """Test callback with invalid JSON"""
@@ -292,7 +449,9 @@ class TestPaymentWebhookView:
             == "MTN_MOMO_ZMB"
         )
 
-    def test_multiple_callbacks_same_payment(self, api_client, user_factory, payment_factory):
+    def test_multiple_callbacks_same_payment(
+        self, api_client, user_factory, payment_factory
+    ):
         """Test multiple callbacks for same payment with different statuses"""
         wallet = user_factory.creator_profile.wallet
         payment_factory.status = "accepted"
@@ -313,7 +472,9 @@ class TestPaymentWebhookView:
         assert response.status_code == 200
 
         payment_factory.refresh_from_db()
-        assert payment_factory.status == "accepted" # status should remain accepted, not overwritten by pending
+        assert (
+            payment_factory.status == "accepted"
+        )  # status should remain accepted, not overwritten by pending
         wallet.refresh_from_db()
         assert wallet.balance == Decimal("0.00")
 
@@ -333,11 +494,14 @@ class TestPaymentWebhookView:
         payment_factory.refresh_from_db()
         assert payment_factory.status == "completed"
         wallet.refresh_from_db()
-        assert wallet.balance == Decimal("90.00") # assuming 10% fee on 100 amount
+        assert wallet.balance == Decimal("90.00")  # assuming 10% fee on 100 amount
 
-    def test_callback_with_large_amount(self, api_client, user_factory, payment_factory):
+    def test_callback_with_large_amount(
+        self, api_client, user_factory, payment_factory
+    ):
         """Test callback with large payment amount"""
         from apps.payments.services.fee_service import FeeService
+
         wallet = user_factory.creator_profile.wallet
         payment_factory.amount = Decimal("999999.99")
         payment_factory.save()
@@ -360,9 +524,11 @@ class TestPaymentWebhookView:
         expected_balance = payment_factory.amount - fee
         assert wallet.balance == expected_balance
 
-    def test_callback_with_special_characters_in_message(self, api_client, payment_factory):
+    def test_callback_with_special_characters_in_message(
+        self, api_client, payment_factory
+    ):
         """Test callback with special characters in messages"""
-               
+
         payload = {
             "depositId": str(payment_factory.id),
             "status": "COMPLETED",
@@ -379,4 +545,6 @@ class TestPaymentWebhookView:
 
         webhook = PaymentWebhookLog.objects.first()
         assert webhook is not None
-        assert "Payment to creator #123" in webhook.parsed_payload.get("customerMessage", "")
+        assert "Payment to creator #123" in webhook.parsed_payload.get(
+            "customerMessage", ""
+        )

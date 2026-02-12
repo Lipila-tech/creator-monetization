@@ -4,9 +4,9 @@ from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
 from apps.payments.serializers import PaymentSerializer
 from apps.wallets.models import Wallet
+from rest_framework.permissions import AllowAny
 from utils.authentication import RequireAPIKey
 from utils.external_requests import pawapay_request
 from drf_spectacular.utils import extend_schema
