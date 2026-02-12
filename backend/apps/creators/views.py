@@ -13,11 +13,12 @@ from utils.authentication import RequireAPIKey
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-
+from rest_framework.parsers import MultiPartParser, FormParser
 
 class UpdateProfileView(APIView):
     permission_classes = [RequireAPIKey, IsAuthenticated]
     serializer_class = UpdateCreatorProfileSerializer
+    parser_classes = [MultiPartParser, FormParser]
 
     @extend_schema(
         operation_id="retrieve_full_profile",
