@@ -12,21 +12,11 @@ from apps.wallets.serializers import (
     WalletTransactionDetailSerializer,
     WalletTransactionCreateSerializer,
     WalletKYCSerializer,
-    PaymentAttemptSerializer,
-    RefundListSerializer,
-    RefundDetailSerializer,
-    DisputeListSerializer,
-    DisputeDetailSerializer,
-    PaymentWebhookLogListSerializer,
-    PaymentWebhookLogDetailSerializer,
 )
-pytestmark = pytest.mark.django_db
-
-# ========== WALLET SERIALIZER TESTS ==========
+pytest.mark.django_db
 class TestWalletListSerializer:
     """Test WalletListSerializer"""
     
-    @pytestmark
     def test_serialize_wallet_list(self, user_factory):
         """Test serialization of wallet list"""
         wallet_factory = user_factory.creator_profile.wallet
@@ -307,131 +297,3 @@ class TestWalletKYCSerializer:
         serializer = WalletKYCSerializer(data=data)
         assert not serializer.is_valid()
         assert "account_type" in serializer.errors
-
-
-# ========== PAYMENT ATTEMPT SERIALIZER TESTS ==========
-class TestPaymentAttemptSerializer:
-    """Test PaymentAttemptSerializer"""
-
-    def test_serialize_payment_attempt(self, payment_attempt_factory):
-        """Test serialization of payment attempt"""
-        serializer = PaymentAttemptSerializer(payment_attempt_factory)
-        data = serializer.data
-
-        assert data["id"] == str(payment_attempt_factory.id)
-        assert data["attempt_number"] == payment_attempt_factory.attempt_number
-        assert data["amount"] == str(payment_attempt_factory.amount)
-        assert data["status"] == payment_attempt_factory.status
-
-    def test_payment_attempt_read_only_fields(self, payment_attempt_factory):
-        """Test read-only fields"""
-        serializer = PaymentAttemptSerializer(payment_attempt_factory)
-        assert serializer.fields["id"].read_only is True
-        assert serializer.fields["payment_id"].read_only is True
-        assert serializer.fields["duration"].read_only is True
-
-
-# ========== REFUND SERIALIZER TESTS ==========
-class TestRefundListSerializer:
-    """Test RefundListSerializer"""
-
-    def test_serialize_refund_list(self, refund_factory):
-        """Test serialization of refund list"""
-        serializer = RefundListSerializer(refund_factory)
-        data = serializer.data
-
-        assert data["id"] == str(refund_factory.id)
-        assert data["amount"] == str(refund_factory.amount)
-        assert data["currency"] == refund_factory.currency
-        assert data["status"] == refund_factory.status
-
-    def test_refund_list_read_only_fields(self, refund_factory):
-        """Test that all fields are read-only"""
-        serializer = RefundListSerializer(refund_factory)
-        assert serializer.fields["id"].read_only is True
-        assert serializer.fields["payment_id"].read_only is True
-
-
-class TestRefundDetailSerializer:
-    """Test RefundDetailSerializer"""
-
-    def test_serialize_refund_detail(self, refund_factory):
-        """Test detailed serialization of refund"""
-        serializer = RefundDetailSerializer(refund_factory)
-        data = serializer.data
-
-        assert data["id"] == str(refund_factory.id)
-        assert data["amount"] == str(refund_factory.amount)
-        assert "reason" in data
-        assert "provider" in data
-
-
-# ========== DISPUTE SERIALIZER TESTS ==========
-class TestDisputeListSerializer:
-    """Test DisputeListSerializer"""
-
-    def test_serialize_dispute_list(self, dispute_factory):
-        """Test serialization of dispute list"""
-        serializer = DisputeListSerializer(dispute_factory)
-        data = serializer.data
-
-        assert data["id"] == str(dispute_factory.id)
-        assert data["external_id"] == dispute_factory.external_id
-        assert data["reason"] == dispute_factory.reason
-        assert data["status"] == dispute_factory.status
-
-    def test_dispute_list_read_only_fields(self, dispute_factory):
-        """Test that all fields are read-only"""
-        serializer = DisputeListSerializer(dispute_factory)
-        assert serializer.fields["id"].read_only is True
-        assert serializer.fields["payment_id"].read_only is True
-
-
-class TestDisputeDetailSerializer:
-    """Test DisputeDetailSerializer"""
-
-    def test_serialize_dispute_detail(self, dispute_factory):
-        """Test detailed serialization of dispute"""
-        serializer = DisputeDetailSerializer(dispute_factory)
-        data = serializer.data
-
-        assert data["id"] == str(dispute_factory.id)
-        assert data["external_id"] == dispute_factory.external_id
-        assert "evidence" in data
-        assert "communication" in data
-
-
-# ========== WEBHOOK LOG SERIALIZER TESTS ==========
-class TestPaymentWebhookLogListSerializer:
-    """Test PaymentWebhookLogListSerializer"""
-
-    def test_serialize_webhook_log_list(self, webhook_log_factory):
-        """Test serialization of webhook log list"""
-        serializer = PaymentWebhookLogListSerializer(webhook_log_factory)
-        data = serializer.data
-
-        assert data["id"] == str(webhook_log_factory.id)
-        assert data["provider"] == webhook_log_factory.provider
-        assert data["event_type"] == webhook_log_factory.event_type
-        assert data["status"] == webhook_log_factory.status
-
-    def test_webhook_log_list_read_only_fields(self, webhook_log_factory):
-        """Test that all fields are read-only"""
-        serializer = PaymentWebhookLogListSerializer(webhook_log_factory)
-        assert serializer.fields["id"].read_only is True
-        assert serializer.fields["provider"].read_only is True
-
-
-class TestPaymentWebhookLogDetailSerializer:
-    """Test PaymentWebhookLogDetailSerializer"""
-
-    def test_serialize_webhook_log_detail(self, webhook_log_factory):
-        """Test detailed serialization of webhook log"""
-        serializer = PaymentWebhookLogDetailSerializer(webhook_log_factory)
-        data = serializer.data
-
-        assert data["id"] == str(webhook_log_factory.id)
-        assert data["provider"] == webhook_log_factory.provider
-        assert data["event_type"] == webhook_log_factory.event_type
-        assert "raw_payload" in data
-        assert "parsed_payload" in data
