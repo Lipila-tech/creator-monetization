@@ -5,7 +5,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from apps.creators.models import CreatorProfile
 from apps.creators.serializers import (
     CreatorPublicSerializer, CreatorListSerializer,
-    UpdateCreatorProfileSerializer, CreatorCategorySerializer, WalletKYCSerializer)
+    UpdateCreatorProfileSerializer, WalletKYCSerializer)
 from drf_spectacular.utils import extend_schema
 from utils import serializers as helpers
 from utils.authentication import RequireAPIKey
