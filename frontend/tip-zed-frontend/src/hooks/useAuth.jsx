@@ -96,17 +96,41 @@ export const AuthProvider = ({ children }) => {
       const response = await creatorService.updateCreator(formData);
 
       if (response.success) {
-        saveUser({ ...user, ...formData });
+        // Extract data from FormData
+        const updatedUserData = {
+          ...user,
+          firstName: formData.get("firstName"),
+          lastName: formData.get("lastName"),
+          bio: formData.get("bio") || user.bio,
+        };
 
-        return { success: true, user };
+        // Update profile image URL if returned in response
+        if (response.data?.profileImage) {
+          updatedUserData.profileImage = response.data.profileImage;
+        }
+
+        // Update cover image URL if returned in response
+        if (response.data?.coverImage) {
+          updatedUserData.coverImage = response.data.coverImage;
+        }
+
+        saveUser(updatedUserData);
+
+        console.log(updatedUserData);
+
+        return {
+          success: true,
+          user: updatedUserData,
+          data: response.data, // Pass through any response data
+        };
       }
 
-      return  {success: false, error: response.error}
+      return { success: false, error: response.error };
     } catch (error) {
       console.log(error);
       return {
         success: false,
-        error: error.response?.data?.message || "RProfile Update failed",
+        error: error.response?.data?.message || "Profile Update failed",
       };
     }
   };

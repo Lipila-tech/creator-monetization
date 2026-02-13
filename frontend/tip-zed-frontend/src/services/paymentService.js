@@ -2,13 +2,24 @@ import api from "./api";
 
 export const paymentService = {
   /**
-   * Simulates sending a tip to a creator.
-   * @param {number} walletId - The ID of the creator receiving the tip
-   * @param {number} ispProvider - The selected provider ("MTN_MOMO_ZMB" "AIRTEL_OAPI_ZMB" "ZAMTEL_ZMB")
-   * @param {number} amount - The amount in ZMW
-   * @param {string} currency - The currency code (e.g., "ZMW")
-   * @param {string} patronPhone - The user's mobile number
-   * @param {string} patronEmail -
+   * Initiates a mobile money tip/payment to a creator.
+   * @param {number|string} walletId The ID of the creator's wallet that will receive the tip.
+   * @param {string} ispProvider The mobile money provider identifier.
+   *  Supported values:
+   *  - "MTN_MOMO_ZMB"
+   *  - "AIRTEL_OAPI_ZMB"
+   *  - "ZAMTEL_ZMB"
+   * @param {number} amount The amount to be tipped (in ZMW).
+   * @param {string} patronPhone The supporter’s mobile number (MSISDN format).
+   * @param {string} patronEmail The supporter’s email address.
+   * @param {string} [patronMessage=""] Optional message attached to the tip.
+   *
+   * @returns {Promise<{
+   *   success: boolean,
+   *   data?: any,
+   *   message?: string
+   * }>} Resolves with a success flag and payment data if the request is accepted,
+   *  otherwise resolves with an error message.
    */
   sendTip: async (
     walletId,
@@ -26,20 +37,53 @@ export const paymentService = {
         patronEmail,
         patronMessage,
       });
-      return response.data;
+
+      if (response.status === "accepted" || response.status === "success") {
+        return {
+          success: true,
+          data: response.data,
+        };
+      }
+
+      throw new Error(response.message);
     } catch (error) {
-      throw error.response?.data || error.message;
+      return {
+        success: false,
+        message:
+          error.response?.data ||
+          error.message ||
+          "Failed to initiate payment.",
+      };
     }
   },
 
-  // dummy status checks
-  checkTip: async (walletId) => {
+  /**
+   * Checks the status of an existing tip/payment.
+   * @param {number|string} paymentId The unique ID of the payment transaction.
+   *
+   * @returns {Promise<{
+   *   success: boolean,
+   *   data?: any
+   * }>} Resolves with the latest payment status and metadata.
+   *
+   * @throws {string}
+   *  Throws an error message if the status check fails.
+   */
+  checkTip: async (paymentId) => {
     try {
-    console.log(walletId);
+      const response = await api.get(`/payments/status/${paymentId}/`);
 
-      return "SUCCESS";
+      return {
+        success: response.status,
+      };
+
+      throw new Error(response.message);
     } catch (error) {
-      throw error.response?.data || error.message;
+      throw (
+        error.response?.data ||
+        error.message ||
+        "Failed to check payment status."
+      );
     }
   },
 };

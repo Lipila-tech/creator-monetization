@@ -10,15 +10,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 
-const convertToBase64 = (file) => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = (error) => reject(error);
-  });
-};
-
 const EditProfile = () => {
   const navigate = useNavigate();
   const { user, update } = useAuth();
@@ -30,8 +21,6 @@ const EditProfile = () => {
   const [formData, setFormData] = useState({
     fullName: `${user?.firstName || ""} ${user?.lastName || ""}`.trim(),
     bio: user?.bio || "",
-    profileImage: user?.profileImage || null,
-    coverImage: user?.coverImage || null,
   });
 
   const [pendingFiles, setPendingFiles] = useState({
@@ -39,8 +28,7 @@ const EditProfile = () => {
     cover: null,
   });
 
-
-  // Preview State- to show new images before upload
+  // Preview State - to show new images before upload
   const [previews, setPreviews] = useState({
     profile: user?.profileImage || null,
     cover: user?.coverImage || null,
@@ -60,7 +48,7 @@ const EditProfile = () => {
         URL.revokeObjectURL(previews[type]);
       }
 
-      // store the file for later upload
+      // Store the file for FormData
       setPendingFiles((prev) => ({ ...prev, [type]: file }));
 
       // Generate Local Preview URL
@@ -85,47 +73,43 @@ const EditProfile = () => {
 
       // Split full name
       const nameParts = formData.fullName.trim().split(/\s+/);
-      const cleanData = {
-        firstName: nameParts[0],
-        lastName: nameParts.slice(1).join(" ") || "",
-      };
-
-      // Add bio if provided
+      
+      // Create FormData object -what DRF MultiPartParser expects
+      const formDataToSend = new FormData();
+      
+      // Add text fields
+      formDataToSend.append('firstName', nameParts[0]);
+      formDataToSend.append('lastName', nameParts.slice(1).join(" ") || "");
+      
       if (formData.bio?.trim()) {
-        cleanData.bio = formData.bio.trim();
+        formDataToSend.append('bio', formData.bio.trim());
       }
-
-      // convert profile image to Base64 if there's a pending file
+      
+      // IMPORTANT: Append files directly - NO Base64 conversion!
       if (pendingFiles.profile) {
-        try {
-          const profileImageBase64 = await convertToBase64(
-            pendingFiles.profile,
-          );
-          cleanData.profileImage = profileImageBase64; // Send Base64 string
-        } catch (uploadError) {
-          console.log(uploadError);
-          throw new Error("Failed to process profile image. Please try again.");
-        }
+        formDataToSend.append('profileImage', pendingFiles.profile);
       }
-
-      //convert cover image to Base64 if there's a pending file
+      
       if (pendingFiles.cover) {
-        try {
-          const coverImageBase64 = await convertToBase64(pendingFiles.cover);
-          cleanData.coverImage = coverImageBase64; // Send Base64 string
-        } catch (uploadError) {
-          console.log(uploadError);
-          throw new Error("Failed to process cover image. Please try again.");
-        }
+        formDataToSend.append('coverImage', pendingFiles.cover);
       }
 
-      // Send all data as JSON with Base64 strings
-      const result = await update(cleanData);
+      // Send FormData - DO NOT set Content-Type header, let browser set it with boundary
+      const result = await update(formDataToSend);
 
       if (result.success) {
         setSuccess(true);
         // Clear pending files
         setPendingFiles({ profile: null, cover: null });
+        
+        // Update user data with new image URLs from response
+        if (result.data?.profileImage) {
+          setPreviews(prev => ({ ...prev, profile: result.data.profileImage }));
+        }
+        if (result.data?.coverImage) {
+          setPreviews(prev => ({ ...prev, cover: result.data.coverImage }));
+        }
+        
         // Redirect after successful update
         setTimeout(() => navigate("/creator-dashboard"), 1500);
       } else {
@@ -141,8 +125,8 @@ const EditProfile = () => {
   const isEmpty = {
     fullName: !formData.fullName?.trim(),
     bio: !formData.bio?.trim(),
-    profileImage: !formData.profileImage && !user?.profileImage,
-    coverImage: !formData.coverImage && !user?.coverImage,
+    profileImage: !previews.profile && !user?.profileImage,
+    coverImage: !previews.cover && !user?.coverImage,
   };
 
   const hasMissingFields = Object.values(isEmpty).some(Boolean);
@@ -191,7 +175,7 @@ const EditProfile = () => {
             <label className="absolute inset-0 flex items-center justify-center cursor-pointer bg-black/0 group-hover:bg-black/20 transition-all">
               <div className="bg-white/90 backdrop-blur-sm text-gray-700 px-4 py-2 rounded-full font-medium shadow-lg flex items-center gap-2 hover:bg-white hover:text-zed-green transition-colors">
                 <Camera size={18} />
-                <span>Change Cover</span>
+                <span>{previews.cover ? "Change Cover" : "Add Cover"}</span>
               </div>
               <input
                 type="file"
@@ -240,13 +224,18 @@ const EditProfile = () => {
                   />
                 </label>
               </div>
+              {pendingFiles.profile && (
+                <span className="absolute -bottom-6 left-0 text-xs text-blue-600 font-medium">
+                  New photo ready
+                </span>
+              )}
             </div>
 
             {/* TEXT FIELDS */}
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Display Name
+                  Display Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"

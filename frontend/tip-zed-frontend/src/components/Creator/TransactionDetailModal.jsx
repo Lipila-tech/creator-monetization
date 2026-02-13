@@ -8,6 +8,7 @@ import {
   Hash,
   CreditCard,
 } from "lucide-react";
+import { formatTransactionType } from "./Transactions";
 
 const TransactionDetailModal = ({ transaction, onClose }) => {
   if (!transaction) return null;
@@ -122,9 +123,7 @@ const TransactionDetailModal = ({ transaction, onClose }) => {
               <span className="text-sm">Provider</span>
             </div>
             <span className="text-sm font-semibold text-gray-900">
-              {transaction.provider ||
-                inferProviderFromReference(transaction.reference) ||
-                "Mobile Money"}
+              {transaction.provider || "Mobile Money"}
             </span>
           </div>
 
@@ -189,28 +188,10 @@ const TransactionDetailModal = ({ transaction, onClose }) => {
   );
 };
 
-// Helper functions
-const formatTransactionType = (type) => {
-  if (!type) return "Unknown";
-  return type
-    .toLowerCase()
-    .split("_")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-};
-
+// for future use - when seeing supporter is a supported feature
 const extractSupporterFromReference = (reference) => {
   if (!reference) return null;
-  // This is a placeholder - adjust based on your reference format
   // Example: "PAY-20260212001022-82CE02" might contain supporter info
-  return null;
-};
-
-const inferProviderFromReference = (reference) => {
-  if (!reference) return null;
-  if (reference.includes("PAY")) return "Mobile Money";
-  if (reference.includes("CARD")) return "Card Payment";
-  if (reference.includes("BANK")) return "Bank Transfer";
   return null;
 };
 

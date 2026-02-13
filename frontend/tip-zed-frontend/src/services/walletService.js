@@ -1,8 +1,15 @@
 import api from "./api";
 
 export const walletService = {
+  /**
+   * Retrieves the authenticated user’s wallet information.
+   * @param {number} [page=1] The page number for paginated wallet data.
+   *
+   * @returns {Promise<any>} Resolves with the user’s wallet data for the given page.
+   *
+   * @throws {{ message: string }} Throws an error object if the request fails.
+   */
   getWalletData: async (page = 1) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
     try {
       const response = await api.get(`/wallets/me?page=${page}`);
       return response.data.data;
@@ -11,8 +18,15 @@ export const walletService = {
     }
   },
 
+  /**
+   * Retrieves the authenticated user’s wallet transaction history.
+   * @param {number} [page=1] The page number for paginated transaction records.
+   *
+   * @returns {Promise<any>} Resolves with a paginated list of wallet transactions.
+   *
+   * @throws {{ message: string }} Throws an error object if the request fails.
+   */
   getWalletTxnData: async (page = 1) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
     try {
       const response = await api.get(`/wallets/transactions?page=${page}`);
       return response.data;

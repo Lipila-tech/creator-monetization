@@ -229,7 +229,7 @@ const mapTransactionType = (type) => {
   return typeMap[type] || type.toLowerCase();
 };
 
-/* --- Sub Components --- */
+/*Sub Components for readability */
 
 const TransactionRow = ({ txn, currency, onClick }) => {
   const isNegative =
@@ -308,7 +308,7 @@ const TransactionRow = ({ txn, currency, onClick }) => {
 };
 
 // Helper to format transaction type for display
-const formatTransactionType = (type) => {
+export const formatTransactionType = (type) => {
   if (!type) return "Unknown";
   return type
     .toLowerCase()
