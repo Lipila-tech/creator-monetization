@@ -41,6 +41,8 @@ const CreatorProfile = () => {
         const response = await creatorService.getCreatorBySlug(slug);
         if (response.status === "success") {
           setCreator(response.data);
+        } else {
+          throw new Error("Failed to fetch");
         }
       } catch (err) {
         console.error(err);

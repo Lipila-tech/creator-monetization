@@ -229,7 +229,7 @@ const mapTransactionType = (type) => {
   return typeMap[type] || type.toLowerCase();
 };
 
-/* --- Sub Components --- */
+/*Sub Components for readability */
 
 const TransactionRow = ({ txn, currency, onClick }) => {
   const isNegative =
