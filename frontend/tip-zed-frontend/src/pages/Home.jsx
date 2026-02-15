@@ -10,7 +10,6 @@ import { Link } from "react-router-dom";
 
 const Home = () => {
   return (
-    // Added pb-24 to account for the sticky mobile CTA
     <div className="min-h-screen bg-gray-50 pb-24 md:pb-0 font-sans">
       
       {/*  HERO SECTION */}
@@ -28,7 +27,7 @@ const Home = () => {
           {/* CTAs */}
           <div className="flex flex-col md:flex-row items-center justify-center gap-5">
             <Link
-              to="#"
+              to="/login"
               className="w-full md:w-auto bg-zed-green text-white px-8 py-4 rounded-xl hover:bg-green-600 transition-all font-bold text-lg shadow-[0_4px_14px_0_rgba(0,255,100,0.39)] active:scale-95"
             >
               Start as a Creator
@@ -238,23 +237,13 @@ const Home = () => {
             Start earning from your audience
           </h2>
           <Link
-            to="#"
+            to="/register"
             className="block w-full md:inline-block md:w-auto bg-white text-zed-green px-10 py-5 rounded-2xl hover:bg-gray-50 transition-all font-bold text-xl shadow-xl active:scale-95"
           >
             Create your creator page
           </Link>
         </div>
       </section>
-
-      {/* STICKY MOBILE CTA (Always Visible on smaller screens) */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur-md border-t border-gray-200 z-50 md:hidden shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
-        <Link
-          to="#"
-          className="flex w-full bg-zed-green text-white items-center justify-center py-4 rounded-xl font-bold text-lg shadow-lg active:scale-95 transition-transform"
-        >
-          Start as a Creator
-        </Link>
-      </div>
 
     </div>
   );
