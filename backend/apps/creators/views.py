@@ -52,8 +52,6 @@ class UpdateProfileView(APIView):
             'first_name': request.user.first_name,
             'last_name': request.user.last_name,
             'phone_number': request.user.phone_number,
-            'wallet_kyc': WalletKYCSerializer(
-                request.user.creator_profile.wallet.kyc).data
         })
         return Response(
             {"status": "success", "data": profile_data},

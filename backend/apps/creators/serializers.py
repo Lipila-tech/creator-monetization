@@ -24,11 +24,8 @@ class UpdateCreatorProfileSerializer(serializers.ModelSerializer):
         many=True,
         required=False,
     )
-    profile_image = serializers.ImageField(max_length=None, use_url=True)
-    cover_image = serializers.ImageField(max_length=None, use_url=True)
-
-    # --- Wallet KYC (nested) ---
-    wallet_kyc = WalletKYCSerializer(required=False)
+    profile_image = serializers.ImageField(use_url=True, allow_null=True)
+    cover_image = serializers.ImageField(use_url=True, allow_null=True)
 
     class Meta:
         model = CreatorProfile
@@ -44,18 +41,12 @@ class UpdateCreatorProfileSerializer(serializers.ModelSerializer):
             "last_name",
             "email",
             "phone_number",
-
             # M2M
             "category_slugs",
-
-            # KYC
-            "wallet_kyc",
         ]
         extra_kwargs = {
             "bio": {"required": False, "allow_null": True, "allow_blank": True},
             "website": {"required": False, "allow_null": True, "allow_blank": True},
-            "profile_image": {"required": False, "allow_null": True},
-            "cover_image": {"required": False, "allow_null": True},
         }
 
 
@@ -66,12 +57,10 @@ class UpdateCreatorProfileSerializer(serializers.ModelSerializer):
         1) User fields
         2) Profile fields
         3) M2M categories
-        4) WalletKYC
         """
         # --- pop nested parts ---
         categories = validated_data.pop("categories", None)  # via source="categories"
-        wallet_kyc_data = validated_data.pop("wallet_kyc", None)
-
+        
         # --- update User fields (1:1) ---
         user_field_names = ["first_name", "last_name", "email", "phone_number"]
         user_updates = {}
@@ -85,7 +74,6 @@ class UpdateCreatorProfileSerializer(serializers.ModelSerializer):
                 if hasattr(user, k):
                     setattr(user, k, v)
             user.save()
-
         # --- update profile fields ---
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
@@ -94,20 +82,6 @@ class UpdateCreatorProfileSerializer(serializers.ModelSerializer):
         # --- update categories (M2M) ---
         if categories is not None:
             instance.categories.set(categories)
-
-        # --- update Wallet KYC (1:1 with Wallet) ---
-        if wallet_kyc_data is not None:
-            # Only creators have wallets
-            try:
-                wallet = instance.wallet
-            except Wallet.DoesNotExist:
-                raise serializers.ValidationError("Wallet not found for this creator.")
-
-            kyc, _ = WalletKYC.objects.get_or_create(wallet=wallet)
-            for attr, value in wallet_kyc_data.items():
-                setattr(kyc, attr, value)
-            
-            kyc.save()
 
         return instance
 

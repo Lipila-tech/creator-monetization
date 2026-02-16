@@ -1,6 +1,6 @@
 import pytest
 from celery.exceptions import Retry
-from apps.wallets.tasks import (
+from apps.payments.tasks import (
     resend_deposit_callback,
     resend_pending_deposits,
 )
