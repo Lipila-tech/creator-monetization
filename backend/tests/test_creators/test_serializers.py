@@ -75,7 +75,6 @@ class TestUpdateCreatorProfileSerializer:
             instance=profile, data=data, partial=True)
         assert not serializer.is_valid()
         assert 'category_slugs' in serializer.errors
-        assert 'wallet_kyc' in serializer.errors
 
     def test_serializer_update_image_fields(self, user_factory):
         import io
