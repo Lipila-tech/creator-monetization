@@ -20,7 +20,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 SECRET_KEY = env('SECRET_KEY')
 
 # False if not in os.environ because of casting above
-DEBUG = env('DEBUG')
+DEBUG = False
 
 ALLOWED_HOSTS = env('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
