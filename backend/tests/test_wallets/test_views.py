@@ -1,10 +1,87 @@
 import pytest
-from tests.factories import APIClientFactory, UserFactory, PaymentFactory
+from tests.factories import (
+    APIClientFactory,
+    UserFactory,
+    PaymentFactory
+    )
+
 
 @pytest.mark.django_db
-class TestWalletViews:
-    """Tests for wallet views"""
+class TestWalletPayoutAccountView:
+    """Tests for wallet payout account views"""
 
+    def test_only_authorized_frontends_can_access_wallet_payout_account(self, api_client):
+        """Test that only authenticated users can access wallet payout account view"""
+        response = api_client.get("/api/v1/wallets/payout-account/")
+        assert response.status_code == 401
+
+    def test_only_authenticated_users_can_access_wallet_payout_account(self, auth_api_client):
+        """Test that only authenticated users can access wallet payout account view"""
+
+        response = auth_api_client.get("/api/v1/wallets/payout-account/")
+        assert response.status_code == 401
+
+    def test_get_wallet_payout_account(self, auth_api_client, payout_account_factory):
+        """Test getting current user's wallet payout account"""
+        auth_api_client.force_authenticate(
+            user=payout_account_factory.wallet.creator.user)
+        response = auth_api_client.get("/api/v1/wallets/payout-account/")
+        assert response.status_code == 200
+        data = response.data.get("data")
+        assert data is not None
+        assert "account_name" in data
+        assert "provider" in data
+        assert "phone_number" in data
+        assert "verified" in data
+
+    def test_get_wallet_payout_account_no_account(self, auth_api_client, user_factory):
+        """Test getting current user's wallet payout account with no account"""
+        user_wallet = user_factory.creator_profile.wallet
+        user_wallet.payout_account.delete()
+        user_wallet.refresh_from_db()
+        auth_api_client.force_authenticate(user=user_factory)
+        response = auth_api_client.get("/api/v1/wallets/payout-account/")
+        assert response.status_code == 404
+        assert response.data["status"] == "failed"
+
+    def test_update_wallet_payout_account(self, auth_api_client, payout_account_factory):
+        """Test updating current user's wallet payout account"""
+        auth_api_client.force_authenticate(
+            user=payout_account_factory.wallet.creator.user)
+        payload = {
+            "accountName": "Updated Creator",
+            "phoneNumber": "260964332222",
+            "provider": "MTN_MOMO_ZMB",
+        }
+        response = auth_api_client.put(
+            "/api/v1/wallets/payout-account/", data=payload, format='json')
+        assert response.status_code == 200
+        data = response.data.get("data")
+        assert data is not None
+        assert data['account_name'] == payload["accountName"]
+        assert data['phone_number'] == payload["phoneNumber"]
+        assert data['provider'] == payload["provider"]
+        assert data['verified'] is False
+
+    def test_update_wallet_payout_account_invalid_provider(self, auth_api_client, payout_account_factory):
+        """Test updating current user's wallet payout account with invalid provider"""
+        auth_api_client.force_authenticate(
+            user=payout_account_factory.wallet.creator.user)
+        payload = {
+            "accountName": "Updated Bank",
+            "phoneNumber": "260964332222",
+            "provider": "INVALID_PROVIDER",
+        }
+        response = auth_api_client.put(
+            "/api/v1/wallets/payout-account/", data=payload, format='json')
+        assert response.status_code == 400
+        assert response.data["status"] == "failed"
+        assert "provider" in response.data["errors"]
+        
+
+@pytest.mark.django_db
+class TestWalletDetailsViews:
+    """Tests for wallet views"""
     def test_get_user_wallet_404(self, api_client):
         """Test getting a current users wallet with no wallet"""
         user = UserFactory(user_type="admin")
@@ -130,6 +207,11 @@ class TestWalletViews:
         assert data is not None
         assert data.get("recent_transactions") == []
 
+
+@pytest.mark.django_db
+class TestWalletKycView:
+    """Tests for wallet KYC view"""
+
     def test_get_wallet_kyc(self, api_client, user_factory):
         """Test getting current user's wallet KYC"""
         client = APIClientFactory()
@@ -142,6 +224,7 @@ class TestWalletViews:
         assert "id_document_number" in data['data']
         assert "bank_name" in data['data']
         assert isinstance(data['data']['wallet_id'], str)
+
 
     def test_update_wallet_kyc(self, api_client, user_factory):
         """Test updating current user's wallet KYC"""

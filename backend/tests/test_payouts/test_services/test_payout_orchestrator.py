@@ -6,6 +6,8 @@ from utils.exceptions import InsufficientBalance, InvalidTransaction
 from apps.wallets.services.transaction_service import\
     WalletTransactionService as WalletTxnService
 from apps.wallets.models import WalletTransaction
+
+
 class TestPayoutOrchestratorTest:
 
     def test_staff_cannot_initiate_payout_unverified_kyc(self, staff_user, user_factory):

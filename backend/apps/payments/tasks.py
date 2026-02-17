@@ -1,7 +1,5 @@
 from celery import shared_task
 from apps.payments.models import Payment
-from apps.wallets.models import Wallet
-from apps.payments.services.payout_orchestrator import PayoutOrchestrator
 from apps.payments.webhooks import resend_callback
 
 
@@ -13,7 +11,7 @@ def resend_deposit_callback(self, payment_id):
         if not payment:
             return "No Payment Found"
 
-        data, code = resend_callback(payment.id)
+        data, code = resend_callback(str(payment.id))
 
         if code != 200:
             raise Exception("Retry")

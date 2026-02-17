@@ -141,10 +141,12 @@ export const AuthProvider = ({ children }) => {
       }
 
       return { success: false, error: response.error };
+      return { success: false, error: response.error };
     } catch (error) {
       console.log(error);
       return {
         success: false,
+        error: error.response?.data?.message || "Profile Update failed",
         error: error.response?.data?.message || "Profile Update failed",
       };
     }

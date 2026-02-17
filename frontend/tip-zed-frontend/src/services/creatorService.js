@@ -52,7 +52,7 @@ export const creatorService = {
    */
   updateCreator: async (userData) => {
     try {
-      const response = await api.put("/creators/profile/me", userData);
+      const response = await api.putForm("/creators/profile/me", userData);
 
       return {
         success: true,

@@ -29,6 +29,7 @@ const EditProfile = () => {
   });
 
   // Preview State - to show new images before upload
+  // Preview State - to show new images before upload
   const [previews, setPreviews] = useState({
     profile: user?.profileImage || null,
     cover: user?.coverImage || null,
@@ -48,6 +49,7 @@ const EditProfile = () => {
         URL.revokeObjectURL(previews[type]);
       }
 
+      // Store the file for FormData
       // Store the file for FormData
       setPendingFiles((prev) => ({ ...prev, [type]: file }));
 
@@ -128,6 +130,8 @@ const EditProfile = () => {
   const isEmpty = {
     fullName: !formData.fullName?.trim(),
     bio: !formData.bio?.trim(),
+    profileImage: !previews.profile && !user?.profileImage,
+    coverImage: !previews.cover && !user?.coverImage,
     profileImage: !previews.profile && !user?.profileImage,
     coverImage: !previews.cover && !user?.coverImage,
   };

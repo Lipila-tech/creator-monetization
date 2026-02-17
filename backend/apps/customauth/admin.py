@@ -34,7 +34,7 @@ class WalletTransactionAdmin(admin.ModelAdmin):
             and obj.transaction_type == "PAYOUT"
             and obj.status == "PENDING"
         ):
-            url = reverse("lipila:finalise_wallet_payout", args=[obj.id])
+            url = reverse("payouts:finalise_wallet_payout", args=[obj.id])
             return format_html('<a class="button" href="{}">Confirm</a>', url)
         return "-"
 
@@ -42,7 +42,7 @@ class WalletTransactionAdmin(admin.ModelAdmin):
 
 
 class WalletAdmin(admin.ModelAdmin):
-    list_display = ("id", "creator", "balance", "trigger_payout")
+    list_display = ("id", "creator", "balance", "kyc_verified", "trigger_payout")
 
     readonly_fields = ("balance",)
 
@@ -54,7 +54,7 @@ class WalletAdmin(admin.ModelAdmin):
 
     def trigger_payout(self, obj):
         if obj.balance > 0:
-            url = reverse("lipila:trigger_wallet_payout", args=[obj.id])
+            url = reverse("payouts:trigger_wallet_payout", args=[obj.id])
             return format_html('<a class="button" href="{}">Payout</a>', url)
         return "-"
 

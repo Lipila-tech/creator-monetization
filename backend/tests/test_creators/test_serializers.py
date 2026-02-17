@@ -32,41 +32,13 @@ class TestUpdateCreatorProfileSerializer:
         updated_profile = serializer.save()
         assert updated_profile.categories.order_by('id').first().name == 'cat1'
         assert updated_profile.categories.order_by('id').last().name == 'cat2'
-
-    def test_serializer_update_all_wallet_fields(self, user_factory):
-        from apps.wallets.models import WalletKYC
-        data = {
-            'wallet_kyc': {
-                "id_document_type": "NRC",
-                "id_document_number": "123456",
-                "account_type": "BANK",
-                "bank_name": "Standard Chartered",
-                "bank_account_name": "John Doe",
-                "bank_account_number": "1234567890",
-            }
-        }
-        profile = user_factory.creator_profile
-
-        serializer = UpdateCreatorProfileSerializer(
-            instance=profile, data=data, partial=True)
-        
-        assert serializer.is_valid()
-
-        updated_profile = serializer.save()
-        wallet = updated_profile.wallet
-
-        wallet_kyc = WalletKYC.objects.get(wallet=wallet)
-
-        assert wallet_kyc.bank_name == "Standard Chartered"
-        assert wallet_kyc.bank_account_name  =="John Doe"
-        assert wallet_kyc.bank_account_number == "1234567890"
-
+    
 
     def test_serializer_update_valid_fields(self, user_factory):
         data = {
             'first_name': 'test', 'last_name': 'surname', 'bio': '',
             'phone_number': '', 'profile_image': None,
-            'cover_image': None, 'website': '', 'category_slugs': [], 'wallet_kyc': {}
+            'cover_image': None, 'website': '', 'category_slugs': []
         }
         profile = user_factory.creator_profile
 
@@ -95,7 +67,7 @@ class TestUpdateCreatorProfileSerializer:
 
     def test_serializer_fails_update_invalid_fields(self, user_factory):
         data = {
-            'first_name': 'test', 'category_slugs': '', 'wallet_kyc': ''
+            'first_name': 'test', 'category_slugs': ''
         }
         profile = user_factory.creator_profile
 
@@ -103,7 +75,6 @@ class TestUpdateCreatorProfileSerializer:
             instance=profile, data=data, partial=True)
         assert not serializer.is_valid()
         assert 'category_slugs' in serializer.errors
-        assert 'wallet_kyc' in serializer.errors
 
     def test_serializer_update_image_fields(self, user_factory):
         import io

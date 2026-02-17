@@ -104,8 +104,8 @@ def wallet_factory(user_factory):
 @pytest.fixture
 def payout_account_factory(user_factory):
     """Create a test payout account"""
-    from tests.factories import WalletPayoutAccountFactory
-    return WalletPayoutAccountFactory(wallet=user_factory.creator_profile.wallet)
+    wallet = user_factory.creator_profile.wallet
+    return wallet.payout_account
 
 @pytest.fixture
 def wallet_txn_factory(user_factory, payment_factory):
