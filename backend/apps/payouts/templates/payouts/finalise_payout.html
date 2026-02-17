@@ -1,0 +1,38 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+{% load custom_filters %}
+{% block title %} Finalise Payout {% endblock%}
+{% block content %}
+<h1>Finalise Wallet Payout</h1>
+
+<p>You are about to <strong>finalise and execute</strong> the following payout:</p>
+
+<ul>
+    <li><strong>Wallet:</strong> {{ wallet.id }}</li>
+    <li><strong>User:</strong> {{ wallet.creator }}</li>
+    <li><strong>Payout Reference:</strong> {{ payout_tx.reference }}</li>
+    <li><strong>Amount:</strong> {{ wallet.currency}} {{ payout_tx.amount|absolute}}</li>
+</ul>
+
+<p> The payout will be sent to the following payout account:</p>
+<ul>
+    <li><strong>Account Type:</strong> {{ payout_account.account_name }}</li>
+    <li><strong>Account Number:</strong> {{ payout_account.phone_number }}</li>
+    <li><strong>Bank Name:</strong> {{ payout_account.provider }}</li>
+</ul>
+
+<p style="color: red; font-weight: bold;">
+    This will send money to the provider.
+    This action is irreversible.
+</p>
+
+<form method="post">
+    {% csrf_token %}
+    <div style="margin-top: 20px;">
+        <input type="submit" class="default" value="Yes, finalise payout">
+        <a href="{{ wallet_change_url }}" class="button cancel-link">
+            Cancel
+        </a>
+    </div>
+</form>
+{% endblock %}

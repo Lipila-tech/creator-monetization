@@ -51,7 +51,7 @@ class WalletDetailSerializer(serializers.ModelSerializer):
     transaction_count = serializers.SerializerMethodField()
     total_incoming = serializers.SerializerMethodField()
     total_outgoing = serializers.SerializerMethodField()
-     # explicitly convert Decimal to string for JSON serialization
+    # explicitly convert Decimal to string for JSON serialization
     balance = serializers.SerializerMethodField()
 
     def get_balance(self, obj):
@@ -121,9 +121,6 @@ class WalletUpdateSerializer(serializers.ModelSerializer):
 class WalletPayoutAccountSerializer(serializers.ModelSerializer):
     """Serializer for wallet payout account"""
 
-    provider_display = serializers.CharField(
-        source="get_provider_display", read_only=True
-    )
     wallet_id = serializers.PrimaryKeyRelatedField(
         source="wallet", read_only=True
     )
@@ -134,12 +131,13 @@ class WalletPayoutAccountSerializer(serializers.ModelSerializer):
             "id",
             "wallet_id",
             "provider",
-            "provider_display",
             "phone_number",
+            "account_name",
+            "updated_at",
             "verified",
             "created_at",
         ]
-        read_only_fields = ["id", "wallet_id", "verified", "created_at"]
+        read_only_fields = ["id", "wallet_id", "verified", "created_at", "updated_at"]
 
     def validate_provider(self, value):
         """Validate provider choice"""
@@ -151,43 +149,30 @@ class WalletPayoutAccountSerializer(serializers.ModelSerializer):
         return value
 
     def validate_phone_number(self, value):
-        """Validate phone number format"""
+        """
+        Validate phone number format should be zambian format
+        (10 digits, starting with 260)
+        """
         if not value or len(value) < 10:
             raise serializers.ValidationError(
                 "Phone number must be at least 10 digits"
             )
-        return value
-
-
-class WalletPayoutAccountCreateSerializer(serializers.ModelSerializer):
-    """Serializer for creating payout account"""
-
-    class Meta:
-        model = WalletPayoutAccount
-        fields = ["provider", "phone_number"]
-
-    def validate_provider(self, value):
-        """Validate provider choice"""
-        valid_providers = [p[0] for p in WalletPayoutAccount.PROVIDER_CHOICES]
-        if value not in valid_providers:
+        if not value.startswith("260"):
             raise serializers.ValidationError(
-                f"Provider must be one of {valid_providers}"
+                "Phone number must start with 260"
             )
         return value
 
-    def validate_phone_number(self, value):
-        """Validate phone number format"""
-        if not value or len(value) < 10:
-            raise serializers.ValidationError(
-                "Phone number must be at least 10 digits"
-            )
-        # Remove non-digit characters for validation
-        digits_only = "".join(c for c in value if c.isdigit())
-        if len(digits_only) < 10:
-            raise serializers.ValidationError(
-                "Phone number must contain at least 10 digits"
-            )
-        return value
+    def update(self, instance, validated_data):
+        """
+        Override update to prevent changes to wallet and provider fields
+        after creation. Only allow updating provider, phone number and account name.
+        """
+        instance.phone_number = validated_data.get("phone_number", instance.phone_number)
+        instance.account_name = validated_data.get("account_name", instance.account_name)
+        instance.provider = validated_data.get("provider", instance.provider)
+        instance.save()
+        return instance
 
 
 # ========== WALLET TRANSACTION SERIALIZERS ==========

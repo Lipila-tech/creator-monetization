@@ -4,12 +4,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
-from apps.wallets.models import WalletTransaction, WalletKYC
+from apps.wallets.models import WalletTransaction, WalletKYC, WalletPayoutAccount
 from apps.payments.models import Payment
 from apps.wallets.serializers import (
     WalletDetailSerializer,
     WalletTransactionListSerializer,
-    WalletKYCSerializer
+    WalletKYCSerializer,
+    WalletPayoutAccountSerializer,
 )
 from utils.external_requests import pawapay_request
 from apps.wallets.services.transaction_service import WalletTransactionService
@@ -18,6 +19,96 @@ from utils.exceptions import DuplicateTransaction, WalletNotFound
 from utils.authentication import RequireAPIKey
 from drf_spectacular.utils import extend_schema
 from utils import serializers as helpers
+
+
+class WalletPayoutAccountView(APIView):
+    permission_classes = [RequireAPIKey, IsAuthenticated]
+    serializer_class = WalletPayoutAccountSerializer
+    @extend_schema(
+        operation_id="retrieve_wallet_payout_account",
+        summary="Retrieve Wallet Payout Account",
+        responses={
+            200: helpers.SuccessResponseSerializer,
+            400: helpers.ValidationErrorSerializer,
+            401: helpers.UnauthorizedErrorSerializer,
+            403: helpers.ForbiddenErrorSerializer,
+            404: helpers.NotFoundErrorSerializer,
+            409: helpers.ConflictErrorSerializer,
+            429: helpers.RateLimitErrorSerializer,
+            500: helpers.ServerErrorSerializer,
+        }
+    )
+    def get(self, request):
+        """
+        Retrieve the authenticated creator's wallet payout account details.
+
+        Returns the payout account information linked to the creator's wallet,
+        including provider, account name, phone number, and verification status.
+
+        Authentication
+        --------------
+        Requires authentication (creator).
+        """
+        try:
+            wallet = WalletService.get_wallet_for_user(request.user)
+            payout_account = WalletPayoutAccount.objects.get(wallet=wallet)
+        except (WalletNotFound, WalletPayoutAccount.DoesNotExist):
+            return Response(
+                {"status":"failed", "error": "User does not have a payout account"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = WalletPayoutAccountSerializer(payout_account)
+        return Response(
+            {"status": "success", "data": serializer.data},
+            status=status.HTTP_200_OK
+        )
+
+    @extend_schema(
+            operation_id="update_wallet_payout_account",
+            summary="Update Wallet Payout Account",
+            responses={
+                200: helpers.SuccessResponseSerializer,
+                400: helpers.ValidationErrorSerializer,
+                401: helpers.UnauthorizedErrorSerializer,
+                403: helpers.ForbiddenErrorSerializer,
+                404: helpers.NotFoundErrorSerializer,
+                409: helpers.ConflictErrorSerializer,
+                429: helpers.RateLimitErrorSerializer,
+                500: helpers.ServerErrorSerializer,
+            }
+        )
+    def put(self, request):
+        """
+        Update the authenticated creator's wallet payout account details.
+
+        Updates the payout account information linked to the creator's wallet.
+
+        Authentication
+        --------------
+        Requires authentication (creator).
+        """
+        try:
+            wallet = WalletService.get_wallet_for_user(request.user)
+            payout_account = WalletPayoutAccount.objects.get(wallet=wallet)
+        except (WalletNotFound, WalletPayoutAccount.DoesNotExist):
+            return Response(
+                {"status":"failed","error": "User does not have a payout account"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = WalletPayoutAccountSerializer(payout_account, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"status": "success", "data": serializer.data},
+                status=status.HTTP_200_OK
+            )
+        return Response(
+            {"status": "failed", "errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
 
 class WalletListView(APIView):
     permission_classes = [RequireAPIKey, IsAuthenticated]

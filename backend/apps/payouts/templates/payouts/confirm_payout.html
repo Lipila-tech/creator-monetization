@@ -1,0 +1,35 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+{% block title %} Initialize Payout {% endblock%}
+{% block content %}
+<h1>Initialize Wallet Payout</h1>
+
+<p>You are about to initiate a payout for the following wallet:</p>
+
+<ul>
+    <li><strong>Wallet ID:</strong> {{ wallet.id }}</li>
+    <li><strong>User:</strong> {{ wallet.creator }}</li>
+    <li><strong>Balance:</strong> {{ wallet.balance }}</li>
+</ul>
+
+<p> The payout will be sent to the following payout account:</p>
+<ul>
+    <li><strong>Account Type:</strong> {{ payout_account.account_name }}</li>
+    <li><strong>Account Number:</strong> {{ payout_account.phone_number }}</li>
+    <li><strong>Bank Name:</strong> {{ payout_account.provider }}</li>
+</ul>
+
+<p style="color: red; font-weight: bold;">
+    This action is irreversible.
+</p>
+
+<form method="post">
+    {% csrf_token %}
+    <div style="margin-top: 20px;">
+        <input type="submit" class="default" value="Yes, initiate payout">
+        <a href="{{ change_url }}" class="button cancel-link">
+            Cancel
+        </a>
+    </div>
+</form>
+{% endblock %}

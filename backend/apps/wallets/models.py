@@ -56,12 +56,12 @@ class WalletPayoutAccount(models.Model):
     )
 
     provider = models.CharField(max_length=50, choices=PROVIDER_CHOICES)
-
+    account_name = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=20)
-
     verified = models.BooleanField(default=False)
-
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
 
 
 class WalletTransaction(UUIDModel):
