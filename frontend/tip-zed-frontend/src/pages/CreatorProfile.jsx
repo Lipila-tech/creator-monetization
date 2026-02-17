@@ -8,9 +8,10 @@ import {
   Star,
   Share2,
 } from "lucide-react";
-import { useParams, useNavigate } from "react-router-dom";
-import { creatorService } from "../services/creatorService";
-import SupportModal from "../components/Payment/SupportModal";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { creatorService } from "@/services/creatorService";
+import SupportModal from "@/components/Payment/SupportModal";
+import { useAuth } from "@/hooks/useAuth";
 
 const getName = (creator) =>
   `${creator?.user?.firstName || ""} ${creator?.user?.lastName || ""}`.trim() ||
@@ -21,11 +22,18 @@ const CreatorProfile = () => {
   const [isSupportOpen, setIsSupportOpen] = useState(false);
   const { slug } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const location = useLocation();
 
   const [creator, setCreator] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [toast, setToast] = useState({ show: false, message: "" });
+
+  const handleSupport = () => {
+    if (user) setIsSupportOpen(true);
+    else navigate("/login", { state: { from: location } });
+  };
 
   useEffect(() => {
     const fetchCreator = async () => {
@@ -33,6 +41,8 @@ const CreatorProfile = () => {
         const response = await creatorService.getCreatorBySlug(slug);
         if (response.status === "success") {
           setCreator(response.data);
+        } else {
+          throw new Error("Failed to fetch");
         }
       } catch (err) {
         console.error(err);
@@ -173,7 +183,7 @@ const CreatorProfile = () => {
 
   const showToast = (message) => {
     setToast({ show: true, message });
-    setTimeout(() => setToast({ show: false, message: "" }), 3000); // Hide after 3 seconds
+    setTimeout(() => setToast({ show: false, message: "" }), 3000);
   };
 
   return (
@@ -308,7 +318,7 @@ const CreatorProfile = () => {
                 </p>
 
                 <button
-                  onClick={() => setIsSupportOpen(true)}
+                  onClick={handleSupport}
                   className="w-full bg-zed-green text-white py-4 rounded-2xl font-black text-lg shadow-lg shadow-green-200 hover:bg-green-600 hover:-translate-y-1 transition-all active:scale-95"
                 >
                   Send a Tip
@@ -366,4 +376,3 @@ const CreatorProfile = () => {
 };
 
 export default CreatorProfile;
-

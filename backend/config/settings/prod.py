@@ -34,7 +34,7 @@ CORS_ALLOW_HEADERS = (
     "x-api-key",  # Allow the custom header
 )
 
-CSRF_TRUSTED_ORIGIN = ['https://123f-41-216-82-30.ngrok-free.app', 'http://172.17.0.1']
+CSRF_TRUSTED_ORIGINS = env('CSRF_TRUSTED_ORIGINS', default='http://localhost:5173').split(',')
 # Application definition
 
 INSTALLED_APPS = [

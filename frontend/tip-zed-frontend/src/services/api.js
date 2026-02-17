@@ -14,6 +14,7 @@ const api = rateLimit(
     headers: {
       "X-API-KEY": API_KEY,
       "Content-Type": "application/json",
+      'Accept': 'application/json',
     },
   }),
   {

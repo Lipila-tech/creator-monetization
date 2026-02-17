@@ -1,5 +1,6 @@
 import { createContext, useContext, useState } from "react";
-import authService from "@/services/authService";
+import { creatorService } from "@/services/creatorService";
+import { authService } from "@/services/authService";
 
 const AuthContext = createContext(null);
 
@@ -70,9 +71,9 @@ export const AuthProvider = ({ children }) => {
       const { accessToken, refreshToken, ...userData } = response.data;
 
       saveTokens(accessToken, refreshToken);
-      saveUser(userData);
+      saveUser(userData.user);
 
-      return { success: true, user: userData };
+      return { success: true, user: userData.user };
     } catch (error) {
       return {
         success: false,
@@ -92,16 +93,44 @@ export const AuthProvider = ({ children }) => {
 
   const update = async (formData) => {
     try {
-      const response = await authService.updateProfile(formData);
-      const { ...userData } = response.data;
+      const response = await creatorService.updateCreator(formData);
 
-      saveUser({ ...user, ...userData });
+      if (response.success) {
+        // Extract data from FormData
+        const updatedUserData = {
+          ...user,
+          firstName: formData.get("firstName"),
+          lastName: formData.get("lastName"),
+          bio: formData.get("bio") || user.bio,
+        };
 
-      return { success: true, user };
+        // Update profile image URL if returned in response
+        if (response.data?.profileImage) {
+          updatedUserData.profileImage = response.data.profileImage;
+        }
+
+        // Update cover image URL if returned in response
+        if (response.data?.coverImage) {
+          updatedUserData.coverImage = response.data.coverImage;
+        }
+
+        saveUser(updatedUserData);
+
+        console.log(updatedUserData);
+
+        return {
+          success: true,
+          user: updatedUserData,
+          data: response.data, // Pass through any response data
+        };
+      }
+
+      return { success: false, error: response.error };
     } catch (error) {
+      console.log(error);
       return {
         success: false,
-        error: error.response?.data?.message || "Registration failed",
+        error: error.response?.data?.message || "Profile Update failed",
       };
     }
   };

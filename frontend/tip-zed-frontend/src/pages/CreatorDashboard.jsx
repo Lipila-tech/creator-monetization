@@ -34,6 +34,7 @@ const CreatorDashboard = () => {
   const isDataView = isOverview || isTransactionsView;
 
   const [walletData, setWalletData] = useState(null);
+  const [hasWalletData, setHasWalletData] = useState(false);
   const [txnData, setTxnData] = useState(null);
   const [loading, setLoading] = useState(isDataView); // Only start as loading if we need data
   const [error, setError] = useState(null);
@@ -61,7 +62,7 @@ const CreatorDashboard = () => {
         // OPTIMIZATION: Logic for Wallet Data (Overview Data)
         // We always need it for Overview.
         // For Transactions, we only need it for the Header. If we already have it, don't re-fetch.
-        const shouldFetchWalletData = isOverview || (isTransactionsView && !walletData);
+        const shouldFetchWalletData = isOverview || (isTransactionsView && hasWalletData);
 
         if (shouldFetchWalletData) {
            promises.push(walletService.getWalletData()); // Assuming stats don't need pagination
@@ -78,6 +79,7 @@ const CreatorDashboard = () => {
         // Only update walletData if we actually fetched a new one
         if (walletRes) {
           setWalletData(walletRes);
+          setHasWalletData(true);
         }
         setTxnData(txnRes);
 
@@ -97,7 +99,7 @@ const CreatorDashboard = () => {
 
     // Dependencies:
     // We re-run if the view mode changes or the page changes.
-  }, [page, isOverview, isTransactionsView, isDataView, walletData]);
+  }, [page, isOverview, isTransactionsView, isDataView, hasWalletData]);
 
   const { missingSteps, showOnboarding, completionPercentage } =
     useCreatorOnboarding(user, walletData);
@@ -266,5 +268,4 @@ const CreatorDashboard = () => {
     </DashboardLayout>
   );
 };
-
 export default CreatorDashboard;

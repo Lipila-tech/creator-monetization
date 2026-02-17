@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Search,
   Music,
@@ -44,10 +44,23 @@ const CreatorCatalog = () => {
   }, []);
 
   const filteredCreators = useMemo(() => {
-    return creators.filter((c) =>
-      getCreatorName(c).toLowerCase().includes(searchTerm.toLowerCase()),
-    );
-  }, [creators, searchTerm]);
+    return creators.filter((c) => {
+      // match the search term
+      const matchSearch = getCreatorName(c)
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+
+      // match the categories of the creator
+      const matchCategory =
+        selectedCategory === "All" ||
+        c.categories.find((cat) =>
+          cat.toLowerCase().includes(selectedCategory.toLowerCase()),
+        );
+
+      [].fin;
+      return matchSearch && matchCategory;
+    });
+  }, [creators, searchTerm, selectedCategory]);
 
   // Skeleton loader component
   const SkeletonLoader = () => (

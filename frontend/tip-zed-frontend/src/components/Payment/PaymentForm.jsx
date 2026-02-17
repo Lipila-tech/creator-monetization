@@ -108,9 +108,9 @@ const PaymentForm = ({ amount, onSubmit, onBack }) => {
 
                 // Mapping brand colors for the active state
                 const brandColors = {
-                  mtn: "bg-[#FFCC00] border-[#FFCC00]", // MTN Yellow
-                  airtel: "bg-[#FF0000] border-[#FF0000]", // Airtel Red
-                  zamtel: "bg-[#009639] border-[#009639]", // Zamtel Green
+                  MTN_MOMO_ZMB: "bg-[#FFCC00] border-[#FFCC00]", // MTN Yellow
+                  AIRTEL_OAPI_ZMB: "bg-[#FF0000] border-[#FF0000]", // Airtel Red
+                  ZAMTEL_ZMB: "bg-[#009639] border-[#009639]", // Zamtel Green
                 };
 
                 return (

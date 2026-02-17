@@ -5,7 +5,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from apps.creators.models import CreatorProfile
 from apps.creators.serializers import (
     CreatorPublicSerializer, CreatorListSerializer,
-    UpdateCreatorProfileSerializer, CreatorCategorySerializer, WalletKYCSerializer)
+    UpdateCreatorProfileSerializer, WalletKYCSerializer)
 from drf_spectacular.utils import extend_schema
 from utils import serializers as helpers
 from utils.authentication import RequireAPIKey
@@ -13,11 +13,12 @@ from utils.authentication import RequireAPIKey
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-
+from rest_framework.parsers import MultiPartParser, FormParser
 
 class UpdateProfileView(APIView):
     permission_classes = [RequireAPIKey, IsAuthenticated]
     serializer_class = UpdateCreatorProfileSerializer
+    parser_classes = (MultiPartParser, FormParser)
 
     @extend_schema(
         operation_id="retrieve_full_profile",
@@ -51,8 +52,6 @@ class UpdateProfileView(APIView):
             'first_name': request.user.first_name,
             'last_name': request.user.last_name,
             'phone_number': request.user.phone_number,
-            'wallet_kyc': WalletKYCSerializer(
-                request.user.creator_profile.wallet.kyc).data
         })
         return Response(
             {"status": "success", "data": profile_data},

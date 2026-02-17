@@ -5,11 +5,37 @@ import PaymentForm from "./PaymentForm";
 import PaymentStatus from "./PaymentStatus";
 import { paymentService } from "../../services/paymentService";
 
+const STATUS_MAPPINGS = {
+  SUCCESS: ["COMPLETED", "PAID"],
+  PROCESSING: [
+    "ACCEPTED",
+    "PENDING",
+    "PROCESSING",
+    "CAPTURED",
+    "SUBMITTED",
+    "REQUIRES_ACTION",
+    "REQUIRES_CONFIRMATION",
+    "PARTIALLY_CAPTURED",
+    "SUBMITTED",
+    "IN_RECONCILIATION",
+  ],
+  ERROR: [
+    "REFUNDED",
+    "PARTIALLY_REFUNDED",
+    "FAILED",
+    "REJECTED",
+    "DISPUTED",
+    "EXPIRED",
+    "CANCELLED",
+  ],
+};
+
 const SupportModal = ({ isOpen, onClose, creator }) => {
-  const [step, setStep] = useState("AMOUNT"); // AMOUNT | PHONE | PROCESSING | PROCESSING_COMPLETE | PENDING | SUCCESS | ERROR
+  const [step, setStep] = useState("AMOUNT"); // AMOUNT | PHONE | PROCESSING | PENDING | SUCCESS | ERROR
   const [amount, setAmount] = useState(null);
   const [errorMsg, setErrorMsg] = useState("");
   const [loading, setLoading] = useState(false);
+  const [currentPaymentId, setCurrentPaymentId] = useState(null);
 
   if (!isOpen) return null;
 
@@ -21,15 +47,33 @@ const SupportModal = ({ isOpen, onClose, creator }) => {
 
   const handlePaymentSubmit = async (phone, providerId) => {
     setStep("PROCESSING");
+    setErrorMsg("");
 
     try {
-      await paymentService.sendTip(
+      const response = await paymentService.sendTip(
         creator.walletId,
         providerId,
         amount,
         phone,
         creator.user.email,
       );
+
+      if (response?.success) {
+        const { status, depositId } = response.metadata;
+        setCurrentPaymentId(depositId);
+
+        if (STATUS_MAPPINGS.SUCCESS.includes(status)) {
+          setStep("SUCCESS");
+        } else if (STATUS_MAPPINGS.PROCESSING.includes(status)) {
+          setStep("PENDING");
+        } else {
+          setStep("ERROR");
+          setErrorMsg("Transaction was declined or failed.");
+        }
+      } else {
+        setStep("ERROR");
+        setErrorMsg(response.message || "Something went wrong.");
+      }
     } catch (err) {
       setErrorMsg(err.message || "Payment failed. Please try again.");
       setStep("ERROR");
@@ -37,26 +81,30 @@ const SupportModal = ({ isOpen, onClose, creator }) => {
   };
 
   const handleVerifyStatus = async () => {
+    if (currentPaymentId) {
+      setLoading(true);
+      try {
+        const { status } = await paymentService.checkTip(currentPaymentId);
 
-    setLoading(true);
-    try {
-      // Assuming paymentService.checkTip exists and returns status
-      const response = await paymentService.checkTip(creator.walletId);
-
-      if (response.status === "COMPLETED") {
-        setStep("SUCCESS");
-      } else {
-        // If not completed yet, show the pending notice
+        if (STATUS_MAPPINGS.SUCCESS.includes(status)) {
+          setStep("SUCCESS");
+        } else if (STATUS_MAPPINGS.PROCESSING.includes(status)) {
+          setStep("PENDING");
+        } else {
+          setStep("ERROR");
+          setErrorMsg("Transaction was declined or failed.");
+        }
+      } catch (err) {
+        console.log(err);
+        setErrorMsg(
+          "We couldn't verify the payment status. It might still be processing.",
+        );
         setStep("PENDING");
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.log(err);
-      setErrorMsg(
-        "We couldn't verify the payment status. It might still be processing.",
-      );
-      setStep("PENDING");
-    } finally {
-      setLoading(false);
+    } else {
+      setErrorMsg("No tip detected.");
     }
   };
 

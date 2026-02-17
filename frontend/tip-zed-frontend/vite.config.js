@@ -13,7 +13,7 @@ export default defineConfig({
     proxy: {
       // Catch any request starting with "/api"
       '/api': {
-        target: 'https://tipzed.pythonanywhere.com', // The Live Server URL
+        target: 'https://lipila.schadmin.cloud', // The Live Server URL
         changeOrigin: true, // ⚠️ Crucial: This tricks the backend into thinking the request is local
         secure: false,      // Helpful if the live server has SSL issues
       },
