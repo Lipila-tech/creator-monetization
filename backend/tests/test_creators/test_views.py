@@ -225,7 +225,7 @@ class TestPublicCreatorProfile:
         request = factory.get(url)
         serializer = CreatorPublicSerializer(creator_profile, context={"request": request})
         data = serializer.data
-        expected_url = "http://testserver/test_images/test_image.png"
+        expected_url = "http://testserver/media/test_images/test_image.png"
         
         assert data["profile_image"] == expected_url
 
