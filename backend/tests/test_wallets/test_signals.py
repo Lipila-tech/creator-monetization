@@ -22,3 +22,15 @@ def test_creating_a_wallet_creates_wallet_kyc():
     assert hasattr(wallet, 'kyc')
     assert wallet.kyc.wallet == wallet
     assert wallet.kyc.verified is False
+
+
+@pytest.mark.django_db
+def test_creating_a_wallet_creates_wallet_payout_account():
+    """Test that creating a Wallet also creates a WalletPayoutAccount."""
+    user = UserFactory()
+    creator_profile = user.creator_profile
+    wallet = creator_profile.wallet
+
+    assert hasattr(wallet, 'payout_account')
+    assert wallet.payout_account.wallet == wallet
+    assert wallet.payout_account.verified is False

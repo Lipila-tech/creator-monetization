@@ -32,6 +32,7 @@ def finalise_wallet_payout(request, payout_tx_id):
     )
 
     wallet = payout_tx.wallet
+    payout_account = wallet.payout_account
     app_label = wallet._meta.app_label
     model_name = wallet._meta.model_name
 
@@ -51,6 +52,7 @@ def finalise_wallet_payout(request, payout_tx_id):
                 "wallet": wallet,
                 "payout_tx": payout_tx,
                 "wallet_change_url": wallet_change_url,
+                "payout_account": payout_account,
             },
         )
 
@@ -86,6 +88,8 @@ def trigger_wallet_payout(request, wallet_id):
     """
 
     wallet = get_object_or_404(Wallet, id=wallet_id)
+    payout_account = wallet.payout_account
+    
 
     app_label = Wallet._meta.app_label
     model_name = Wallet._meta.model_name
@@ -106,6 +110,7 @@ def trigger_wallet_payout(request, wallet_id):
             {
                 "wallet": wallet,
                 "change_url": change_url,
+                "payout_account": payout_account,
             },
         )
 

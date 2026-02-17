@@ -120,9 +120,11 @@ class WalletPayoutAccountFactory(factory.django.DjangoModelFactory):
 
     wallet = factory.SubFactory(WalletFactory)
     provider = "MTN_MOMO_ZMB"
+    account_name = factory.Faker("name")
     phone_number = '0003334455'
     verified = False
-
+    created_at = factory.Faker("date_time")
+    updated_at = factory.Faker("date_time")
 
 class WalletTransactionFactory(factory.django.DjangoModelFactory):
     """Factory for creating test wallet transactions."""
