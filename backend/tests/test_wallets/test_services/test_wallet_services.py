@@ -14,6 +14,31 @@ from tests.factories import UserFactory
 class TestPayoutScheduleService:
     """Test Service to compute next payout date for wallet with funds"""
 
+    def test_next_payment_date_always_falls_on_same_day_of_week(self):
+        """Test that the next payout date always falls on the same day of the week
+        as the last payout date."""
+        last_payout = datetime(2024, 1, 1)  # Tuesday
+        next_date = PayoutScheduleService.get_next_payout_date(
+            last_payout_date=last_payout, payout_interval_days=7
+        )
+        assert next_date.weekday() == last_payout.weekday()
+
+    def test_next_payment_date_biweekly(self):
+        """Test that the next payout date is correct for a biweekly interval."""
+        last_payout = datetime(2024, 1, 1)  # Tuesday
+        next_date = PayoutScheduleService.get_next_payout_date(
+            last_payout_date=last_payout, payout_interval_days=14
+        )
+        assert next_date == last_payout + timedelta(days=14)
+
+    def test_next_payment_date_monthly(self):
+        """Test that the next payout date is correct for a monthly interval (30 days)."""
+        last_payout = datetime(2024, 1, 1)  # Tuesday
+        next_date = PayoutScheduleService.get_next_payout_date(
+            last_payout_date=last_payout, payout_interval_days=30
+        )
+        assert next_date == last_payout + timedelta(days=30)
+
     def test_get_next_payout_date_no_previous_payout(self):
         """Test that if there is no previous payout, the next payout date is now."""
         next_date = PayoutScheduleService.get_next_payout_date(
