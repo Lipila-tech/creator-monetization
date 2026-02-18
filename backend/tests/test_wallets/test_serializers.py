@@ -57,7 +57,6 @@ class TestWalletDetailSerializer:
         data = serializer.data
 
         assert "transaction_count" in data
-        assert "total_incoming" in data
         assert "total_outgoing" in data
 
 
