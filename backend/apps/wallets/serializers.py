@@ -52,6 +52,7 @@ class WalletDetailSerializer(serializers.ModelSerializer):
     total_outgoing = serializers.SerializerMethodField()
     # explicitly convert Decimal to string for JSON serialization
     balance = serializers.SerializerMethodField()
+    next_payout_date = serializers.SerializerMethodField()
 
     def get_balance(self, obj):
         return str(obj.balance)
@@ -65,6 +66,8 @@ class WalletDetailSerializer(serializers.ModelSerializer):
             "balance",
             "currency",
             "is_active",
+            "payout_interval_days",
+            "next_payout_date",
             "kyc_level",
             "kyc_verified",
             "transaction_count",
@@ -91,13 +94,23 @@ class WalletDetailSerializer(serializers.ModelSerializer):
             total=models.Sum("amount")
         )["total"] or Decimal("0"))
 
+    def get_next_payout_date(self, obj):
+        from .services.wallet_services import PayoutScheduleService
+        last_payout = obj.transactions.filter(transaction_type="PAYOUT").order_by("-created_at").first()
+        last_payout_date = last_payout.created_at if last_payout else None
+        payout_interval = obj.payout_interval_days or 30  # default to 30 days if not set
+        next_payout_date = PayoutScheduleService.get_next_payout_date(
+            last_payout_date, payout_interval
+        )
+        return next_payout_date.isoformat() if next_payout_date else None
+
 
 class WalletUpdateSerializer(serializers.ModelSerializer):
     """Serializer for updating wallet"""
 
     class Meta:
         model = Wallet
-        fields = ["is_active", "kyc_level"]
+        fields = ["is_active", "kyc_level", "payout_interval_days"]
 
     def validate_kyc_level(self, value):
         """Validate KYC level"""
@@ -105,6 +118,19 @@ class WalletUpdateSerializer(serializers.ModelSerializer):
         if value not in valid_levels:
             raise serializers.ValidationError(
                 f"KYC level must be one of {valid_levels}"
+            )
+        return value
+
+    def validate_payout_interval_days(self, value):
+        """Validate payout interval must be a positive integer and one of the defined choices"""
+        if value <= 0:
+            raise serializers.ValidationError(
+                "Payout interval must be a positive integer"
+            )
+        valid_intervals = [choice[0] for choice in Wallet.PAYOUT_INTERVAL_CHOICES]
+        if value not in valid_intervals:
+            raise serializers.ValidationError(
+                f"Payout interval must be one of {valid_intervals}"
             )
         return value
 

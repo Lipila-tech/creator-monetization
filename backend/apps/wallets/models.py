@@ -16,15 +16,19 @@ User = get_user_model()
 
 
 class Wallet(UUIDModel):
+    PAYOUT_INTERVAL_CHOICES = (
+        (7, "Weekly"),
+        (14, "Bi-Weekly"),
+        (30, "Monthly"),
+    )
     creator = models.OneToOneField(
         CreatorProfile, on_delete=models.CASCADE, related_name="wallet")
-
     balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-
     currency = models.CharField(max_length=3, default="ZMW")
-
     is_active = models.BooleanField(default=True)
-
+    payout_interval_days = models.PositiveIntegerField(
+        choices=PAYOUT_INTERVAL_CHOICES, default=30
+    )
     # KYC
     kyc_level = models.CharField(max_length=20, default="BASIC")
     kyc_verified = models.BooleanField(default=False)
