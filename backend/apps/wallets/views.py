@@ -13,8 +13,8 @@ from apps.wallets.serializers import (
     WalletPayoutAccountSerializer,
 )
 from utils.external_requests import pawapay_request
-from apps.wallets.services.transaction_service import WalletTransactionService
-from apps.wallets.services.wallet_service import WalletService
+from apps.wallets.services.wallet_services import WalletTransactionService
+from apps.wallets.services.wallet_services import WalletService
 from utils.exceptions import DuplicateTransaction, WalletNotFound
 from utils.authentication import RequireAPIKey
 from drf_spectacular.utils import extend_schema

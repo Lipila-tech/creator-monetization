@@ -2,9 +2,9 @@ from decimal import Decimal
 import uuid
 from django.db import transaction
 from django.core.exceptions import PermissionDenied
-from apps.wallets.services.transaction_service import WalletTransactionService
+from apps.wallets.services.wallet_services import WalletTransactionService
 from apps.payments.services.fee_service import FeeService
-from apps.wallets.services.wallet_service import WalletService
+from apps.wallets.services.wallet_services import WalletService
 from utils.exceptions import InsufficientBalance, InvalidTransaction
 
 
