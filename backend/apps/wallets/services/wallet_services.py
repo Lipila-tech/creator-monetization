@@ -39,6 +39,12 @@ class PayoutScheduleService:
             payout_interval_days: the required interval between payouts in days
         returns: the next eligible payout date
         """
+        try:
+            payout_interval_days = int(payout_interval_days)
+        except (ValueError, TypeError):
+            raise ValueError("Payout interval must be an integer number of days")
+        if payout_interval_days < 0:
+            raise ValueError("Payout interval cannot be negative")
         if last_payout_date is None:
             return datetime.now()
         return last_payout_date + timedelta(days=payout_interval_days)
