@@ -68,6 +68,7 @@ class PaymentAdmin(admin.ModelAdmin):
         "patron_phone",
         "amount",
         "currency",
+        "status",
         "provider",
         "created_at",
     ]

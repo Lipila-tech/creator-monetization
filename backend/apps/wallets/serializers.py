@@ -49,7 +49,6 @@ class WalletDetailSerializer(serializers.ModelSerializer):
         source="creator.user.get_account_type", read_only=True
     )
     transaction_count = serializers.SerializerMethodField()
-    total_incoming = serializers.SerializerMethodField()
     total_outgoing = serializers.SerializerMethodField()
     # explicitly convert Decimal to string for JSON serialization
     balance = serializers.SerializerMethodField()
@@ -69,7 +68,6 @@ class WalletDetailSerializer(serializers.ModelSerializer):
             "kyc_level",
             "kyc_verified",
             "transaction_count",
-            "total_incoming",
             "total_outgoing",
             "created_at",
             "updated_at",
@@ -80,7 +78,6 @@ class WalletDetailSerializer(serializers.ModelSerializer):
             "creator_id",
             "creator_name",
             "transaction_count",
-            "total_incoming",
             "total_outgoing",
             "created_at",
             "updated_at",
@@ -89,15 +86,10 @@ class WalletDetailSerializer(serializers.ModelSerializer):
     def get_transaction_count(self, obj):
         return obj.transactions.count()
 
-    def get_total_incoming(self, obj):
-        return obj.transactions.filter(transaction_type="CASH_IN").aggregate(
-            total=models.Sum("amount")
-        )["total"] or Decimal("0")
-
     def get_total_outgoing(self, obj):
-        return obj.transactions.filter(transaction_type="PAYOUT").aggregate(
+        return abs(obj.transactions.filter(transaction_type="PAYOUT").aggregate(
             total=models.Sum("amount")
-        )["total"] or Decimal("0")
+        )["total"] or Decimal("0"))
 
 
 class WalletUpdateSerializer(serializers.ModelSerializer):
