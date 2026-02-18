@@ -36,24 +36,42 @@ export const AuthProvider = ({ children }) => {
     }
   });
 
+  
+  // Helper function to fetch and enhance user data
+  const fetchEnhancedUserData = async (user) => {
+    const { data: creatorData } = await creatorService.getCreatorBySlug(
+      user.slug,
+    );
+
+    return {
+      ...user,
+      profileImage: creatorData.profileImage || user.profileImage,
+      coverImage: creatorData.coverImage || user.coverImage,
+    };
+  };
+
   const login = async (email, password) => {
     try {
       const response = await authService.loginUser(email, password);
 
       const { accessToken, refreshToken } = response.data;
-
       saveTokens(accessToken, refreshToken);
 
-      // if user is not in local storage
-      if (!getUser()) {
-        const { data: responseData } = await authService.getProfile();
+      // Always fetch fresh profile data after login
+      const { data: profileResponse } = await authService.getProfile();
 
-        if (responseData.status === "success") {
-          saveUser(responseData.data);
-          return { success: true, user: responseData.data };
-        }
-      } else {
-        return { success: true, user: getUser() };
+      if (profileResponse.status === "success") {
+        const profileData = profileResponse.data;
+
+        // Fetch additional creator data with image status (for onboarding purposes)
+        const enhancedUserData = await fetchEnhancedUserData(profileData);
+
+        saveUser(enhancedUserData);
+
+        return {
+          success: true,
+          user: enhancedUserData,
+        };
       }
 
       throw new Error("No user found");
@@ -91,43 +109,39 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("user");
   };
 
+  // Main update function
   const update = async (formData) => {
     try {
       const response = await creatorService.updateCreator(formData);
 
       if (response.success) {
-        // Extract data from FormData
-        const updatedUserData = {
-          ...user,
-          firstName: formData.get("firstName"),
-          lastName: formData.get("lastName"),
-          bio: formData.get("bio") || user.bio,
+        const currentUser = getUser();
+
+        // Build updated user data
+        let updatedUserData = {
+          ...currentUser,
+          firstName: formData.get("first_name") || currentUser.firstName,
+          lastName: formData.get("last_name") || currentUser.lastName,
+          bio: formData.get("bio") || currentUser.bio,
         };
 
-        // Update profile image URL if returned in response
-        if (response.data?.profileImage) {
-          updatedUserData.profileImage = response.data.profileImage;
+        // If images were uploaded, fetch fresh data
+        if (formData.get("profile_image") || formData.get("cover_image")) {
+          updatedUserData = await fetchEnhancedUserData(updatedUserData);
         }
 
-        // Update cover image URL if returned in response
-        if (response.data?.coverImage) {
-          updatedUserData.coverImage = response.data.coverImage;
-        }
-
+        // Save to localStorage
         saveUser(updatedUserData);
-
-        console.log(updatedUserData);
 
         return {
           success: true,
           user: updatedUserData,
-          data: response.data, // Pass through any response data
+          data: response.data,
         };
       }
 
       return { success: false, error: response.error };
     } catch (error) {
-      console.log(error);
       return {
         success: false,
         error: error.response?.data?.message || "Profile Update failed",

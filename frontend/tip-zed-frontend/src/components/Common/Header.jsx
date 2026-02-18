@@ -19,7 +19,7 @@ const Header = () => {
   };
 
   const renderAvatar = () => {
-    if (user?.profileImage) {
+    if (user?.profileImage && typeof user.profileImage === "string") {
       return (
         <img
           src={user.profileImage}
