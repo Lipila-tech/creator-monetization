@@ -40,6 +40,28 @@ class TestWalletListSerializer:
 pytest.mark.django_db
 class TestWalletDetailSerializer:
     """Test WalletDetailSerializer"""
+
+    def test_serializer_has_expected_fields(self, user_factory):
+        """Test that serializer includes expected fields"""
+        wallet_factory = user_factory.creator_profile.wallet
+        serializer = WalletDetailSerializer(wallet_factory)
+        data = serializer.data
+
+        expected_fields = [
+            "id",
+            "balance",
+            "currency",
+            "is_active",
+            "payout_interval_days",
+            "next_payout_date",
+            "level",
+            "is_verified",
+            "transaction_count",
+            "total_outgoing",
+        ]
+        for field in expected_fields:
+            assert field in data, f"{field} should be in serialized data" 
+
     def test_serializer_get_next_payout_date_with_transactions(self, wallet_transaction_factory):
         """
         Test that the get_next_payout_date method returns a valid date string
@@ -183,20 +205,20 @@ class TestWalletUpdateSerializer:
         serializer = WalletUpdateSerializer(wallet_factory, data=data, partial=True)
         assert serializer.is_valid(), serializer.errors
 
-    def test_update_wallet_kyc_level(self, user_factory):
+    def test_update_wallet_level(self, user_factory):
         """Test updating wallet KYC level"""
         wallet_factory = user_factory.creator_profile.wallet
-        data = {"kyc_level": "STANDARD"}
+        data = {"level": "STANDARD"}
         serializer = WalletUpdateSerializer(wallet_factory, data=data, partial=True)
         assert serializer.is_valid(), serializer.errors
 
-    def test_update_wallet_invalid_kyc_level(self, user_factory):
+    def test_update_wallet_invalid_level(self, user_factory):
         """Test updating with invalid KYC level"""
         wallet_factory = user_factory.creator_profile.wallet
-        data = {"kyc_level": "INVALID"}
+        data = {"level": "INVALID"}
         serializer = WalletUpdateSerializer(wallet_factory, data=data, partial=True)
         assert not serializer.is_valid()
-        assert "kyc_level" in serializer.errors
+        assert "level" in serializer.errors
 
 
 # ========== WALLET PAYOUT ACCOUNT SERIALIZER TESTS ==========

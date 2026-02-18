@@ -78,7 +78,7 @@ class TestTriggerWalletPayout:
         wallet = user.creator_profile.wallet
 
         # Setup wallet with KYC verified and balance
-        wallet.kyc_verified = True
+        wallet.is_verified = True
         wallet.save()
         WalletTransactionService.cash_in(
             wallet=wallet,
@@ -100,7 +100,7 @@ class TestTriggerWalletPayout:
         user = UserFactory(is_staff=True)
         wallet = user.creator_profile.wallet
 
-        wallet.kyc_verified = True
+        wallet.is_verified = True
         wallet.save()
         WalletTransactionService.cash_in(
             wallet=wallet,
@@ -144,7 +144,7 @@ class TestTriggerWalletPayout:
         user = UserFactory(is_staff=True)
         wallet = user.creator_profile.wallet
 
-        wallet.kyc_verified = True
+        wallet.is_verified = True
         wallet.save()
         WalletTransactionService.cash_in(
             wallet=wallet,
@@ -182,7 +182,7 @@ class TestFinaliseWalletPayout:
         client = Client()
         user = UserFactory(is_staff=True, is_superuser=False)
         wallet = user.creator_profile.wallet
-        wallet.kyc_verified = True
+        wallet.is_verified = True
         wallet.save()
 
         # Create a pending payout transaction
@@ -202,7 +202,7 @@ class TestFinaliseWalletPayout:
         client = Client()
         user = UserFactory(is_staff=True, is_superuser=False)
         wallet = user.creator_profile.wallet
-        wallet.kyc_verified = True
+        wallet.is_verified = True
         wallet.save()
 
         payout_tx = WalletTransactionFactory(
@@ -220,7 +220,7 @@ class TestFinaliseWalletPayout:
         client = Client()
         user = UserFactory(is_staff=True, is_superuser=True)
         wallet = user.creator_profile.wallet
-        wallet.kyc_verified = True
+        wallet.is_verified = True
         wallet.save()
 
         payout_tx = WalletTransactionFactory(
@@ -244,7 +244,7 @@ class TestFinaliseWalletPayout:
         client = Client()
         user = UserFactory(is_staff=True, is_superuser=True)
         wallet = user.creator_profile.wallet
-        wallet.kyc_verified = True
+        wallet.is_verified = True
         wallet.save()
 
         payout_tx = WalletTransactionFactory(
@@ -270,7 +270,7 @@ class TestFinaliseWalletPayout:
         client = Client()
         user = UserFactory(is_staff=True, is_superuser=True)
         wallet = user.creator_profile.wallet
-        wallet.kyc_verified = True
+        wallet.is_verified = True
         wallet.save()
 
         payout_tx = WalletTransactionFactory(
@@ -296,7 +296,7 @@ class TestFinaliseWalletPayout:
         client = Client()
         user = UserFactory(is_staff=True, is_superuser=True)
         wallet = user.creator_profile.wallet
-        wallet.kyc_verified = True
+        wallet.is_verified = True
         wallet.save()
 
         payout_tx = WalletTransactionFactory(
@@ -316,7 +316,7 @@ class TestFinaliseWalletPayout:
         client = Client()
         user = UserFactory(is_staff=True, is_superuser=True)
         wallet = user.creator_profile.wallet
-        wallet.kyc_verified = True
+        wallet.is_verified = True
         wallet.save()
 
         # Create a completed payout transaction
@@ -335,7 +335,7 @@ class TestFinaliseWalletPayout:
         client = Client()
         user = UserFactory(is_staff=True, is_superuser=True)
         wallet = user.creator_profile.wallet
-        wallet.kyc_verified = True
+        wallet.is_verified = True
         wallet.save()
 
         # Create a CASH_IN transaction (not a PAYOUT)

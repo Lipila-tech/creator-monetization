@@ -82,6 +82,21 @@ class TestWalletPayoutAccountView:
 @pytest.mark.django_db
 class TestWalletDetailsViews:
     """Tests for wallet views"""
+    
+    def test_wallet_has_next_payout_date_and_payout_interval(self, api_client, user_factory):
+        """Test that wallet details include next payout date"""
+        client = APIClientFactory()
+        api_client.credentials(HTTP_X_API_KEY=client.api_key)
+        api_client.force_authenticate(user=user_factory)
+        response = api_client.get("/api/v1/wallets/me/")
+        assert response.status_code == 200
+        data = response.data.get("data")
+        assert data is not None
+        assert "next_payout_date" in data
+        assert data["next_payout_date"] is not None
+        assert "payout_interval_days" in data
+        assert data["payout_interval_days"] is not None
+
     def test_get_user_wallet_404(self, api_client):
         """Test getting a current users wallet with no wallet"""
         user = UserFactory(user_type="admin")
