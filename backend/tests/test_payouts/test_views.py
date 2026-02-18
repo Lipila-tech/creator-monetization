@@ -9,7 +9,7 @@ from unittest.mock import patch
 from django.test import Client
 from django.urls import reverse
 
-from apps.wallets.services.transaction_service import WalletTransactionService
+from apps.wallets.services.wallet_services import WalletTransactionService
 from apps.payments.services.payout_orchestrator import PayoutOrchestrator
 from tests.factories import UserFactory, WalletTransactionFactory
 

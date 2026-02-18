@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied
 import pytest
 from apps.payments.services.payout_orchestrator import PayoutOrchestrator
 from utils.exceptions import InsufficientBalance, InvalidTransaction
-from apps.wallets.services.transaction_service import\
+from apps.wallets.services.wallet_services import\
     WalletTransactionService as WalletTxnService
 from apps.wallets.models import WalletTransaction
 
