@@ -7,6 +7,36 @@ from tests.factories import (
 
 
 @pytest.mark.django_db
+class TestWalletUpdateView:
+    """Tests for wallet update view"""
+
+    def test_update_wallet_payout_interval(self, auth_api_client, user_factory):
+        """Test updating current user's wallet payout interval"""
+        
+        auth_api_client.force_authenticate(user=user_factory)
+        payload = {
+            "payoutIntervalDays": 14,
+        }
+        response = auth_api_client.put(
+            "/api/v1/wallets/me/", data=payload, format='json')
+        assert response.status_code == 200
+        data = response.data.get("data")
+        assert data is not None
+        assert data["payout_interval_days"] == payload["payoutIntervalDays"]
+        
+    def test_update_wallet_payout_interval_invalid_value(self, auth_api_client, user_factory):
+        """Test updating current user's wallet payout interval with invalid value"""
+        auth_api_client.force_authenticate(user=user_factory)
+        payload = {
+            "payoutIntervalDays": 10,
+        }
+        response = auth_api_client.put(
+            "/api/v1/wallets/me/", data=payload, format='json')
+        assert response.status_code == 400
+        assert response.data["status"] == "failed"
+        assert "payout_interval_days" in response.data["errors"]
+
+@pytest.mark.django_db
 class TestWalletPayoutAccountView:
     """Tests for wallet payout account views"""
 
