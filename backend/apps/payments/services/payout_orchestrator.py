@@ -27,7 +27,7 @@ class PayoutOrchestrator:
             PermissionDenied: If the user is not staff.
             InsufficientBalance: If the wallet has insufficient balance.
         """
-        if not wallet.kyc_verified:
+        if not wallet.is_verified:
             raise InvalidTransaction("KYC not verified. Payouts are blocked.")
 
         if not initiated_by.is_staff:
