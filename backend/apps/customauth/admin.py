@@ -42,7 +42,7 @@ class WalletTransactionAdmin(admin.ModelAdmin):
 
 
 class WalletAdmin(admin.ModelAdmin):
-    list_display = ("id", "creator", "balance", "kyc_verified", "trigger_payout")
+    list_display = ("id", "creator", "balance", "is_verified", "trigger_payout")
 
     readonly_fields = ("balance",)
 
