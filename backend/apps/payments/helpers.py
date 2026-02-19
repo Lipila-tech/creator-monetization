@@ -8,8 +8,8 @@ def check_final_status(payment):
         # If webhook log already exists for this payment, skip logging
         if not WebHook.objects.filter(external_id=payment.reference).exists():
             WebHook.objects.create(
-                parsed_payload={"payment_id": payment.id, "status": payment.status},
-                event_type=f"payment.{payment.status}",
+                parsed_payload={"payment_id": str(payment.id), "status": payment.status},
+                event_type=f"deposit.{payment.status}",
                 payment=payment,
                 provider=payment.provider,
                 external_id=payment.reference,
@@ -17,7 +17,7 @@ def check_final_status(payment):
         return payment.status
     else:
         # If not in final state, attempt to resend callback to update status
-        data, code = resend_callback(payment.id)
+        data, code = resend_callback(str(payment.id))
         if code == 200:
             return data['status']
         else:
