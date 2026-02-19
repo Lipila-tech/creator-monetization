@@ -7,28 +7,29 @@ from apps.payments.models import (
     PaymentStatus,
     Currency,
     UUIDModel,
-    TimeStampedModel, 
-    SoftDeleteModel)
+    TimeStampedModel
+    )
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
 
 User = get_user_model()
 
 
 class Wallet(UUIDModel):
+    PAYOUT_INTERVAL_CHOICES = (
+        (7, "Weekly"),
+        (14, "Bi-Weekly"),
+        (30, "Monthly"),
+    )
     creator = models.OneToOneField(
         CreatorProfile, on_delete=models.CASCADE, related_name="wallet")
-
     balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-
     currency = models.CharField(max_length=3, default="ZMW")
-
+    payout_interval_days = models.PositiveIntegerField(
+        choices=PAYOUT_INTERVAL_CHOICES, default=30
+    )
+    level = models.CharField(max_length=20, default="BASIC")
     is_active = models.BooleanField(default=True)
-
-    # KYC
-    kyc_level = models.CharField(max_length=20, default="BASIC")
-    kyc_verified = models.BooleanField(default=False)
-
+    is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

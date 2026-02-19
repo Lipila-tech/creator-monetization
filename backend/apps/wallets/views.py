@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-
+from drf_spectacular.utils import extend_schema
 from apps.wallets.models import WalletTransaction, WalletKYC, WalletPayoutAccount
 from apps.payments.models import Payment
 from apps.wallets.serializers import (
@@ -11,14 +11,14 @@ from apps.wallets.serializers import (
     WalletTransactionListSerializer,
     WalletKYCSerializer,
     WalletPayoutAccountSerializer,
+    WalletUpdateSerializer,
 )
-from utils.external_requests import pawapay_request
-from apps.wallets.services.transaction_service import WalletTransactionService
-from apps.wallets.services.wallet_service import WalletService
+from apps.wallets.services.wallet_services import (
+    WalletTransactionService, WalletService)
 from utils.exceptions import DuplicateTransaction, WalletNotFound
 from utils.authentication import RequireAPIKey
-from drf_spectacular.utils import extend_schema
 from utils import serializers as helpers
+from utils.external_requests import pawapay_request
 
 
 class WalletPayoutAccountView(APIView):
@@ -112,7 +112,6 @@ class WalletPayoutAccountView(APIView):
 
 class WalletListView(APIView):
     permission_classes = [RequireAPIKey, IsAuthenticated]
-    serializer_class = WalletDetailSerializer
     @extend_schema(
         operation_id="retrieve__Wallet",
         summary="Retrieve Users Wallet",
@@ -224,6 +223,52 @@ class WalletListView(APIView):
                             )
                         except DuplicateTransaction:
                             pass
+    @extend_schema(
+            operation_id="update_wallet_payout_interval",
+            summary="Update Wallet Payout Interval",
+            responses={
+                200: helpers.SuccessResponseSerializer,
+                400: helpers.ValidationErrorSerializer,
+                401: helpers.UnauthorizedErrorSerializer,
+                403: helpers.ForbiddenErrorSerializer,
+                404: helpers.NotFoundErrorSerializer,
+                409: helpers.ConflictErrorSerializer,
+                429: helpers.RateLimitErrorSerializer,
+                500: helpers.ServerErrorSerializer,
+            }
+         )
+    def put(self, request, *args, **kwargs):
+        """Update wallet payout interval"""
+        try:
+            wallet = WalletService.get_wallet_for_user(request.user)
+        except WalletNotFound:
+            return Response(
+                {"status": "NOT_FOUND"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = WalletUpdateSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(
+                {
+                    "status": "failed",
+                    "errors": serializer.errors,
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        wallet.payout_interval_days = serializer.validated_data["payout_interval_days"]
+        wallet.save()
+
+        return Response(
+            {
+                "status": "success",
+                "data": {
+                    "payout_interval_days": wallet.payout_interval_days,
+                }
+            },
+            status=status.HTTP_200_OK
+        )
 
 class WalletTransactionsView(APIView):
     permission_classes = [RequireAPIKey, IsAuthenticated]

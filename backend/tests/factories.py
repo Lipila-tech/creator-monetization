@@ -108,8 +108,8 @@ class WalletFactory(factory.django.DjangoModelFactory):
     balance = factory.LazyFunction(lambda: Decimal("0.00"))
     currency = "ZMW"
     is_active = True
-    kyc_level = "BASIC"
-    kyc_verified = False
+    level = "BASIC"
+    is_verified = False
 
 
 class WalletPayoutAccountFactory(factory.django.DjangoModelFactory):

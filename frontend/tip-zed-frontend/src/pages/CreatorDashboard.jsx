@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { walletService } from "@/services/walletService";
@@ -14,6 +15,10 @@ import {
   Check,
   CheckCircle2,
   Share2,
+  Copy,
+  Check,
+  CheckCircle2,
+  Share2,
 } from "lucide-react";
 import { useCreatorOnboarding } from "@/hooks/useCreatorOnboarding";
 import OnboardingChecklist from "@/components/Creator/OnboardingChecklist";
@@ -21,6 +26,7 @@ import Overview from "@/components/Creator/Overview";
 import Transactions from "@/components/Creator/Transactions";
 import EditProfile from "@/components/Creator/EditProfile";
 import Guide from "@/components/Creator/Guide";
+import FundsAndPayouts from "@/components/Creator/FundsAndPayouts";
 import FundsAndPayouts from "@/components/Creator/FundsAndPayouts";
 import MetaTags from "@/components/Common/MetaTags";
 import PayoutAccount from "@/components/Creator/PayoutAccount";
@@ -53,6 +59,7 @@ const CreatorDashboard = () => {
   const [page, setPage] = useState(1);
   const [showHelp, setShowHelp] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   useEffect(() => {
     // GUARD-- If we are on Edit Profile or Guide, do not fetch anything.
@@ -67,12 +74,21 @@ const CreatorDashboard = () => {
         setError(null);
 
         // fetch wallet data: needed for overview/ transactions/ funds and payouts views
+        // fetch wallet data: needed for overview/ transactions/ funds and payouts views
         const shouldFetchWalletData =
+          isOverview || isTransactionsView || isFundsAndPayoutsView;
           isOverview || isTransactionsView || isFundsAndPayoutsView;
 
         if (shouldFetchWalletData) {
           const walletRes = await walletService.getWalletData();
+          const walletRes = await walletService.getWalletData();
 
+          // Only update walletData if we actually fetched a new one
+          if (walletRes) {
+            setWalletData(walletRes);
+            setHasWalletData(true);
+          }
+        }
           // Only update walletData if we actually fetched a new one
           if (walletRes) {
             setWalletData(walletRes);
@@ -195,6 +211,11 @@ const CreatorDashboard = () => {
               className="bg-zed-green text-white px-6 py-3 rounded-xl font-bold shadow-lg flex items-center gap-2 hover:scale-105 transition-all text-sm"
             >
               Share Payment Link <Share2 size={18} />
+            <button
+              onClick={() => setIsShareModalOpen(true)}
+              className="bg-zed-green text-white px-6 py-3 rounded-xl font-bold shadow-lg flex items-center gap-2 hover:scale-105 transition-all text-sm"
+            >
+              Share Payment Link <Share2 size={18} />
             </button>
           </div>
         )}
@@ -240,6 +261,15 @@ const CreatorDashboard = () => {
             error={error}
           />
         )}
+        {isOverview && (
+          <Overview
+            walletData={walletData}
+            setPage={setPage}
+            page={page}
+            loading={loading}
+            error={error}
+          />
+        )}
 
         {/* VIEW B: TRANSACTIONS */}
         {(isTransactionsView || isOverview) && (
@@ -248,6 +278,7 @@ const CreatorDashboard = () => {
             isTransactionsView={isTransactionsView}
             setPage={setPage}
             loading={loading}
+            recentTxnData={walletData.recentTransactions}
             recentTxnData={walletData.recentTransactions}
             walletData={walletData}
             page={page}
@@ -307,10 +338,113 @@ const CreatorDashboard = () => {
           onClose={() => setIsShareModalOpen(false)}
           url={`${window.location.protocol}//${window.location.host}/creator-profile/${user?.slug}`}
         />
+
+        <CopyModal
+          isOpen={isShareModalOpen}
+          onClose={() => setIsShareModalOpen(false)}
+          url={`${window.location.protocol}//${window.location.host}/creator-profile/${user?.slug}`}
+        />
       </DashboardLayout>
     </>
   );
 };
+
+const CopyModal = ({ isOpen, onClose, url }) => {
+  const [copied, setCopied] = useState(false);
+  const [toast, setToast] = useState({ show: false, message: "" });
+
+  if (!isOpen) return null;
+
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      showToast("Link copied!");
+      setCopied(true);
+    } catch (err) {
+      if (err.name !== "AbortError") {
+        showToast("Could not share profile.");
+      }
+    }
+  };
+
+  const showToast = (message) => {
+    setToast({ show: true, message });
+    setTimeout(() => {
+      setToast({ show: false, message: "" });
+      setCopied(false);
+    }, 3000);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <div className="bg-white rounded-2xl w-full max-w-md shadow-xl overflow-hidden animate-in fade-in zoom-in duration-200">
+        {/* Header */}
+        <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100">
+          <h3 className="font-bold text-gray-900">Share your page</h3>
+          <button
+            onClick={onClose}
+            className="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="p-6">
+          <p className="text-sm text-gray-600 mb-4">
+            Copy your unique support link to share on your social media.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center gap-3">
+            <input
+              type="text"
+              readOnly
+              value={url}
+              className="flex-1 w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-zed-green/50"
+            />
+
+            <button
+              onClick={handleShare}
+              className={`w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${
+                copied
+                  ? "bg-green-100 text-green-700"
+                  : "bg-zed-black text-white hover:bg-gray-800"
+              }`}
+            >
+              {copied ? (
+                <>
+                  <Check size={18} /> Copied
+                </>
+              ) : (
+                <>
+                  <Copy size={18} /> Copy
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div
+        className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] transition-all duration-500 ${
+          toast.show
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 translate-y-4 pointer-events-none"
+        }`}
+      >
+        <div className="bg-gray-900 text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-white/10 backdrop-blur-md">
+          <div className="bg-zed-green rounded-full p-1">
+            <CheckCircle2 size={14} className="text-white" />
+          </div>
+          <span className="text-sm font-bold tracking-tight">
+            {toast.message}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 const CopyModal = ({ isOpen, onClose, url }) => {
   const [copied, setCopied] = useState(false);

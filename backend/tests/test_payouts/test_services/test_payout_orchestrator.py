@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied
 import pytest
 from apps.payments.services.payout_orchestrator import PayoutOrchestrator
 from utils.exceptions import InsufficientBalance, InvalidTransaction
-from apps.wallets.services.transaction_service import\
+from apps.wallets.services.wallet_services import\
     WalletTransactionService as WalletTxnService
 from apps.wallets.models import WalletTransaction
 
@@ -21,8 +21,8 @@ class TestPayoutOrchestratorTest:
     
     def test_staff_can_initiate_payout_verified_wallet(self, staff_user, user_factory):
         wallet = user_factory.creator_profile.wallet
-        wallet.kyc.verified = True
-        wallet.kyc.save()
+        wallet.is_verified = True
+        wallet.save()
         WalletTxnService.cash_in(
             wallet=wallet,
             amount=Decimal("100.00"),
@@ -40,8 +40,8 @@ class TestPayoutOrchestratorTest:
 
     def test_non_staff_cannot_initiate_payout(self, user_factory):
         wallet = user_factory.creator_profile.wallet
-        wallet.kyc.verified = True
-        wallet.kyc.save()
+        wallet.is_verified = True
+        wallet.save()
         WalletTxnService.cash_in(
             wallet=wallet,
             amount=Decimal("100.00"),
@@ -57,8 +57,8 @@ class TestPayoutOrchestratorTest:
 
     def test_cannot_payout_zero_balance(self, staff_user, user_factory):
         wallet = user_factory.creator_profile.wallet
-        wallet.kyc.verified = True
-        wallet.kyc.save()
+        wallet.is_verified = True
+        wallet.save()
       
         with pytest.raises(InsufficientBalance):
             PayoutOrchestrator.initiate_payout(
@@ -68,8 +68,8 @@ class TestPayoutOrchestratorTest:
 
     def test_payout_fee_is_deducted(self, staff_user, user_factory, txn_filter):
         wallet = user_factory.creator_profile.wallet
-        wallet.kyc.verified = True
-        wallet.kyc.save()
+        wallet.is_verified = True
+        wallet.save()
         WalletTxnService.cash_in(
             wallet=wallet,
             amount=Decimal("100.00"),
@@ -89,8 +89,8 @@ class TestPayoutOrchestratorTest:
      
     def test_finalize_successful_payout(self, staff_user, user_factory):
         wallet = user_factory.creator_profile.wallet
-        wallet.kyc.verified = True
-        wallet.kyc.save()
+        wallet.is_verified = True
+        wallet.save()
         WalletTxnService.cash_in(
             wallet=wallet,
             amount=Decimal("100.00"),
@@ -113,8 +113,8 @@ class TestPayoutOrchestratorTest:
 
     def test_failed_payout_reverses_fee(self, staff_user, user_factory, txn_filter):
         wallet = user_factory.creator_profile.wallet
-        wallet.kyc.verified = True
-        wallet.kyc.save()
+        wallet.is_verified = True
+        wallet.save()
         WalletTxnService.cash_in(
             wallet=wallet,
             amount=Decimal("100.00"),
@@ -139,8 +139,8 @@ class TestPayoutOrchestratorTest:
 
     def test_finalize_is_idempotent(self, staff_user, user_factory, txn_filter):
         wallet = user_factory.creator_profile.wallet
-        wallet.kyc.verified = True
-        wallet.kyc.save()
+        wallet.is_verified = True
+        wallet.save()
         WalletTxnService.cash_in(
             wallet=wallet,
             amount=Decimal("100.00"),

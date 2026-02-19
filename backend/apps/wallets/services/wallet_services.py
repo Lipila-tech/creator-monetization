@@ -1,25 +1,103 @@
+
+"""
+Service layer for wallet operations, including cash-ins, payouts, and
+fee management. This module defines the core business logic for handling
+wallet transactions, ensuring data integrity, and maintaining accurate
+wallet balances.
+"""
 import uuid
 from decimal import Decimal
 from django.db import transaction
-
+from django.db.models import Sum, Q
+from utils.exceptions import WalletNotFound, WalletError
+from datetime import datetime, timedelta
+from typing import Optional
 from apps.wallets.models import WalletTransaction, Wallet
+from apps.payments.services.fee_service import FeeService
 from utils.exceptions import (
     InsufficientBalance,
     DuplicateTransaction,
     InvalidTransaction,
 )
-from apps.wallets.services.wallet_service import WalletService
-from apps.payments.services.fee_service import FeeService
+
+
+
+class PayoutScheduleService:
+    """Service to compute next payout date for wallet with funds"""
+
+    @staticmethod
+    def get_next_payout_date(
+        last_payout_date: Optional[datetime], payout_interval_days: int
+    ) -> datetime:
+        """
+        Computes the next payout date based on the last payout date and
+        the payout interval.
+        If there has been no previous payout, the next payout date is
+        considered to be now (eligible for immediate payout).
+        args:
+            last_payout_date: the date of the last payout, or None if no payouts yet
+            payout_interval_days: the required interval between payouts in days
+        returns: the next eligible payout date
+        """
+        try:
+            payout_interval_days = int(payout_interval_days)
+        except (ValueError, TypeError):
+            raise ValueError("Payout interval must be an integer number of days")
+        if payout_interval_days < 0:
+            raise ValueError("Payout interval cannot be negative")
+        if last_payout_date is None:
+            return datetime.now()
+        return last_payout_date + timedelta(days=payout_interval_days)
+
+
+class WalletService:
+    """Core wallet operations."""
+
+    @staticmethod
+    def get_wallet_for_user(user):
+        """Fetches the wallet for a given user.
+        Args:
+            user (User): The user instance.
+        Returns:
+            Wallet: The wallet instance associated with the user.
+        Raises:
+            WalletNotFound: If the user does not have a wallet.
+        """
+        try:
+            return user.creator_profile.wallet
+        except Exception:
+            raise WalletNotFound("User does not have a wallet")
+
+    @staticmethod
+    def recalculate_wallet_balance(wallet):
+        """
+        Recalculates and updates the wallet balance based on
+        completed transactions.
+        Args:
+            wallet (Wallet): The wallet instance to recalculate balance for.
+        Returns:
+            Decimal: The updated wallet balance.
+        """
+        try:
+            query_filter = (
+                (Q(transaction_type="CASH_IN") | Q(transaction_type="PAYOUT")) &
+                Q(status="COMPLETED")
+            )
+            total = (wallet.transactions.filter(query_filter).aggregate(
+                total=Sum("amount"))["total"] or 0)
+        except AttributeError:
+            raise WalletError("Wallet error")
+
+        wallet.balance = total
+        wallet.save(update_fields=["balance"])
+
+        return wallet.balance
 
 
 class WalletTransactionService:
     """
     Single source of truth for all wallet money movements.
     """
-
-    # ------------------------------------------------------------------
-    # FEE CREATION (shared utility)
-    # ------------------------------------------------------------------
     @staticmethod
     def create_fee_transaction(
         *,
@@ -30,9 +108,16 @@ class WalletTransactionService:
         transaction_type: str = "FEE",
     ) -> WalletTransaction:
         """
-        Create a fee (or fee reversal)
-        transaction linked to another transaction.
-        Amount MUST be positive.
+        Create a fee (or fee reversal) transaction linked to another
+        transaction Amount MUST be positive.
+        args:
+            wallet: the wallet to which the fee applies
+            amount: the fee amount (positive value)
+            reference: unique reference for the fee transaction
+            related_transaction: the transaction this fee is linked to
+            transaction_type: "FEE" for regular fees, "FEE_REVERSAL" for
+            reversals
+        returns: the created fee transaction (status COMPLETED)
         """
         if amount < 0:
             raise InvalidTransaction("Amount must be positive")
@@ -56,12 +141,20 @@ class WalletTransactionService:
 
         return fee_tx
 
-    # ------------------------------------------------------------------
-    # CASH-IN
-    # ------------------------------------------------------------------
     @staticmethod
     @transaction.atomic
     def cash_in(*, wallet, amount: Decimal, payment, reference: str):
+        """
+        Process a cash-in transaction. Amount must be positive.
+        args:
+        wallet: the wallet to credit
+        amount: the gross cash-in amount (before fees)
+        payment: the related payment instance (for audit)
+        reference: unique reference for the transaction (e.g. payment ID)
+
+        returns: the created cash-in transaction (status COMPLETED). Fees are
+        automatically calculated and linked to the cash-in transaction.
+        """
         if amount <= 0:
             raise InvalidTransaction("Amount must be positive")
         if WalletTransaction.objects.filter(reference=reference).exists():
@@ -94,12 +187,21 @@ class WalletTransactionService:
         WalletService.recalculate_wallet_balance(wallet)
         return cashin_tx
 
-    # ------------------------------------------------------------------
-    # PAYOUT (INITIATE)
-    # ------------------------------------------------------------------
     @staticmethod
     @transaction.atomic
     def payout(*, wallet, amount: Decimal, correlation_id: str):
+        """
+        Initiate a payout transaction. Amount must be positive.
+        args:
+        wallet: the wallet to debit
+        amount: the gross payout amount (before fees)
+        correlation_id: unique ID to link payout with external payment
+        processor transaction.
+
+        returns: the created payout transaction (status PENDING). Finalization
+        of the payout (marking as COMPLETED or FAILED) should be done via
+        finalize_payout() to ensure proper fee handling and balance updates.
+        """
         
         if amount <= 0:
             raise InvalidTransaction("Amount must be positive")
@@ -137,14 +239,20 @@ class WalletTransactionService:
         WalletService.recalculate_wallet_balance(wallet)
         return payout_tx
 
-    # ------------------------------------------------------------------
-    # PAYOUT (FINALISE)
-    # ------------------------------------------------------------------
     @staticmethod
     @transaction.atomic
     def finalize_payout(
         *, payout_tx: WalletTransaction, success: bool, approved_by=None
     ):
+        """
+        Finalize payout transaction. If success is False, the payout is
+        marked as failed and the fee is reversed.
+        args:
+            payout_tx: the original payout transaction to finalize
+            success: whether the payout succeeded or failed
+            approved_by: optional user who approved the payout (for audit)
+        returns: the updated payout transaction
+        """
         if payout_tx.transaction_type != "PAYOUT":
             raise InvalidTransaction("Not a payout transaction")
 
@@ -158,10 +266,8 @@ class WalletTransactionService:
             payout_tx.save(update_fields=["status", "approved_by"])
             WalletService.recalculate_wallet_balance(payout_tx.wallet)
             return payout_tx
-
-        # -------------------------
+        
         # FAILED PAYOUT → reverse fee
-        # -------------------------
         payout_tx.status = "FAILED"
         payout_tx.save(update_fields=["status", "approved_by"])
 

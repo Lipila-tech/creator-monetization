@@ -1,12 +1,114 @@
-from decimal import Decimal
 import pytest
-from apps.wallets.services.transaction_service import\
+from decimal import Decimal
+from datetime import datetime, timedelta
+from apps.wallets.services.wallet_services import (
+    WalletService, PayoutScheduleService)
+from apps.wallets.services.wallet_services import\
     WalletTransactionService as WalletTxnService
 from utils.exceptions import (
-    InsufficientBalance, DuplicateTransaction, InvalidTransaction)
+    InsufficientBalance, DuplicateTransaction,
+    InvalidTransaction,WalletNotFound, WalletError)
+from tests.factories import UserFactory
 
 
-class TestWalletService:
+class TestPayoutScheduleService:
+    """Test Service to compute next payout date for wallet with funds"""
+
+    def test_next_payment_date_always_falls_on_same_day_of_week(self):
+        """Test that the next payout date always falls on the same day of the week
+        as the last payout date."""
+        last_payout = datetime(2024, 1, 1)  # Tuesday
+        next_date = PayoutScheduleService.get_next_payout_date(
+            last_payout_date=last_payout, payout_interval_days=7
+        )
+        assert next_date.weekday() == last_payout.weekday()
+
+    def test_next_payment_date_biweekly(self):
+        """Test that the next payout date is correct for a biweekly interval."""
+        last_payout = datetime(2024, 1, 1)  # Tuesday
+        next_date = PayoutScheduleService.get_next_payout_date(
+            last_payout_date=last_payout, payout_interval_days=14
+        )
+        assert next_date == last_payout + timedelta(days=14)
+
+    def test_next_payment_date_monthly(self):
+        """Test that the next payout date is correct for a monthly interval (30 days)."""
+        last_payout = datetime(2024, 1, 1)  # Tuesday
+        next_date = PayoutScheduleService.get_next_payout_date(
+            last_payout_date=last_payout, payout_interval_days=30
+        )
+        assert next_date == last_payout + timedelta(days=30)
+
+    def test_get_next_payout_date_no_previous_payout(self):
+        """Test that if there is no previous payout, the next payout date is now."""
+        next_date = PayoutScheduleService.get_next_payout_date(
+            last_payout_date=None, payout_interval_days=7
+        )
+        assert isinstance(next_date, datetime)
+
+    def test_get_next_payout_date_with_previous_payout(self):
+        """Test that the next payout date is correctly calculated
+        based on the last payout date and interval."""
+        last_payout = datetime(2024, 1, 1)
+        next_date = PayoutScheduleService.get_next_payout_date(
+            last_payout_date=last_payout, payout_interval_days=7
+        )
+        assert next_date == last_payout + timedelta(days=7)
+
+    def test_get_next_payout_date_with_previous_payout_and_zero_interval(self):
+        """If payout interval is zero, next payout date should be same as last
+        payout date."""
+        last_payout = datetime(2024, 1, 1)
+        next_date = PayoutScheduleService.get_next_payout_date(
+            last_payout_date=last_payout, payout_interval_days=0
+        )
+        assert next_date == last_payout
+
+
+    def test_get_next_payout_date_with_previous_payout_and_large_interval(self):
+        """Test that the next payout date is correctly calculated for a large
+        interval."""
+        last_payout = datetime(2024, 1, 1)
+        next_date = PayoutScheduleService.get_next_payout_date(
+            last_payout_date=last_payout, payout_interval_days=30
+        )
+        assert next_date == last_payout + timedelta(days=30)
+
+    def test_get_next_payout_date_with_previous_payout_and_non_integer_interval(self):
+        """Test that the next payout date is correctly calculated for a non-integer
+        interval (should be treated as integer)."""
+        last_payout = datetime(2024, 1, 1)
+        next_date = PayoutScheduleService.get_next_payout_date(
+            last_payout_date=last_payout, payout_interval_days=7.5
+        )
+        assert next_date == last_payout + timedelta(days=7)
+
+    def test_get_next_payout_date_with_previous_payout_and_non_numeric_interval(self):
+        """Test that if the payout interval is non-numeric, it raises a TypeError."""
+        last_payout = datetime(2024, 1, 1)
+        with pytest.raises(ValueError):
+            PayoutScheduleService.get_next_payout_date(
+                last_payout_date=last_payout, payout_interval_days="seven"
+            )
+
+    def test_get_next_payout_date_with_previous_payout_and_none_interval(self):
+        """Test that if the payout interval is None, it raises a TypeError."""
+        last_payout = datetime(2024, 1, 1)
+        with pytest.raises(ValueError):
+            PayoutScheduleService.get_next_payout_date(
+                last_payout_date=last_payout, payout_interval_days=None
+            )
+
+    def test_get_next_payout_date_with_previous_payout_and_negative_interval(self):
+        """Test that if the payout interval is negative, it raises a ValueError."""
+        last_payout = datetime(2024, 1, 1)
+        with pytest.raises(ValueError):
+            PayoutScheduleService.get_next_payout_date(
+                last_payout_date=last_payout, payout_interval_days=-7
+            )
+    
+
+class TestWalletTransactionService:
     """Test Single source of truth for all wallet money movements."""
 
     def test_wallet_balance_matches_transactions(self, user_factory):
@@ -252,3 +354,65 @@ class TestWalletService:
         with pytest.raises(Exception):
             WalletTxnService.finalize_payout(
                 payout_tx=tx, success=True)
+
+
+@pytest.mark.django_db
+class TestWalletService:
+    def test_get_wallet_for_user(self, user_factory):
+        wallet = WalletService.get_wallet_for_user(user_factory)
+        assert wallet == user_factory.creator_profile.wallet
+
+    def test_get_wallet_for_user_with_no_wallet(self):
+        user = UserFactory(user_type="admin")
+
+        with pytest.raises(WalletNotFound, match="User does not have a wallet"):
+            WalletService.get_wallet_for_user(user)
+        
+    def test_recalculate_wallet_balance_cash_in_out(self, wallet_txn_factory):
+        from decimal import Decimal
+        wallet_txn = wallet_txn_factory(
+            amount=Decimal('10'), status="COMPLETED")
+        WalletService.recalculate_wallet_balance(wallet_txn.wallet)
+        wallet_txn.wallet.refresh_from_db()
+        assert wallet_txn.wallet.balance == Decimal('10')
+
+        # Add fee
+        wallet_txn = wallet_txn_factory(
+            amount=Decimal('-3'), wallet=wallet_txn.wallet, status="COMPLETED",
+            transaction_type="FEE")
+        wallet_txn.save()
+        WalletService.recalculate_wallet_balance(wallet_txn.wallet)
+        wallet_txn.wallet.refresh_from_db()
+        assert wallet_txn.wallet.balance == Decimal('10')
+
+        #cashout
+        wallet_txn = wallet_txn_factory(
+            amount=Decimal('-3'), wallet=wallet_txn.wallet, status="COMPLETED",
+            transaction_type="PAYOUT")
+        wallet_txn.save()
+        WalletService.recalculate_wallet_balance(wallet_txn.wallet)
+        wallet_txn.wallet.refresh_from_db()
+        assert wallet_txn.wallet.balance == Decimal('7')
+
+    def test_dont_add_pending_txn_to_balance(self, wallet_txn_factory):
+        from decimal import Decimal
+        wallet_txn = wallet_txn_factory(
+            amount=Decimal('10'), status="COMPLETED")
+        WalletService.recalculate_wallet_balance(wallet_txn.wallet)
+        wallet_txn.wallet.refresh_from_db()
+        assert wallet_txn.wallet.balance == Decimal('10')
+
+        wallet_txn = wallet_txn_factory(
+            amount=Decimal('-3'), wallet=wallet_txn.wallet)
+        wallet_txn.save()
+        WalletService.recalculate_wallet_balance(wallet_txn.wallet)
+        wallet_txn.wallet.refresh_from_db()
+        assert wallet_txn.wallet.balance == Decimal('10')
+
+    def test_calculate_balance_bad_arguments(self, wallet_txn_factory):
+        from decimal import Decimal
+        wallet_txn_factory(
+            amount=Decimal('10'), status="COMPLETED")
+        with pytest.raises(WalletError):
+            WalletService.recalculate_wallet_balance('not-wallet')
+        

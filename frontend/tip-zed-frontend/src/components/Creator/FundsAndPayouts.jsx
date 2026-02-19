@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import { walletService } from "../../services/walletService";
 
-// Enhanced Skeleton Primitives
 const Shimmer = ({ className = "" }) => (
   <div
     className={`animate-pulse bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100 bg-[length:400%_100%] rounded-xl ${className}`}

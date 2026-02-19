@@ -9,7 +9,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from apps.payments.models import Payment
 from apps.payments.models import PaymentWebhookLog as WebHook
-from apps.wallets.services.transaction_service import WalletTransactionService
+from apps.wallets.services.wallet_services import WalletTransactionService
 from utils.authentication import RequireAPIKey
 from utils.exceptions import DuplicateTransaction
 from utils.external_requests import pawapay_request

@@ -2,9 +2,9 @@ from decimal import Decimal
 import uuid
 from django.db import transaction
 from django.core.exceptions import PermissionDenied
-from apps.wallets.services.transaction_service import WalletTransactionService
+from apps.wallets.services.wallet_services import WalletTransactionService
 from apps.payments.services.fee_service import FeeService
-from apps.wallets.services.wallet_service import WalletService
+from apps.wallets.services.wallet_services import WalletService
 from utils.exceptions import InsufficientBalance, InvalidTransaction
 
 
@@ -27,7 +27,7 @@ class PayoutOrchestrator:
             PermissionDenied: If the user is not staff.
             InsufficientBalance: If the wallet has insufficient balance.
         """
-        if not wallet.kyc_verified:
+        if not wallet.is_verified:
             raise InvalidTransaction("KYC not verified. Payouts are blocked.")
 
         if not initiated_by.is_staff:
