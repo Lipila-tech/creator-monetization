@@ -50,7 +50,7 @@ const SupportModal = ({ isOpen, onClose, creator }) => {
     setErrorMsg("");
 
     try {
-      const response = await paymentService.sendTip(
+      const { data, success, message } = await paymentService.sendTip(
         creator.walletId,
         providerId,
         amount,
@@ -58,21 +58,21 @@ const SupportModal = ({ isOpen, onClose, creator }) => {
         creator.user.email,
       );
 
-      if (response?.success) {
-        const { status, depositId } = response.metadata;
+      if (success) {
+        const { status, depositId } = data.metadata;
         setCurrentPaymentId(depositId);
 
         if (STATUS_MAPPINGS.SUCCESS.includes(status)) {
           setStep("SUCCESS");
         } else if (STATUS_MAPPINGS.PROCESSING.includes(status)) {
-          setStep("PENDING");
+          setStep("PROCESSING");
         } else {
           setStep("ERROR");
           setErrorMsg("Transaction was declined or failed.");
         }
       } else {
         setStep("ERROR");
-        setErrorMsg(response.message || "Something went wrong.");
+        setErrorMsg(message || "Something went wrong.");
       }
     } catch (err) {
       setErrorMsg(err.message || "Payment failed. Please try again.");
@@ -84,15 +84,23 @@ const SupportModal = ({ isOpen, onClose, creator }) => {
     if (currentPaymentId) {
       setLoading(true);
       try {
-        const { status } = await paymentService.checkTip(currentPaymentId);
+        const { status, success, message } =
+          await paymentService.checkTip(currentPaymentId);
 
-        if (STATUS_MAPPINGS.SUCCESS.includes(status)) {
-          setStep("SUCCESS");
-        } else if (STATUS_MAPPINGS.PROCESSING.includes(status)) {
-          setStep("PENDING");
+        if (success) {
+          if (STATUS_MAPPINGS.SUCCESS.includes(status.toUpperCase())) {
+            setStep("SUCCESS");
+          } else if (
+            STATUS_MAPPINGS.PROCESSING.includes(status.toUpperCase())
+          ) {
+            setStep("PENDING");
+          } else {
+            setStep("ERROR");
+            setErrorMsg("Transaction was declined or failed.");
+          }
         } else {
           setStep("ERROR");
-          setErrorMsg("Transaction was declined or failed.");
+          setErrorMsg(message || "Something went wrong.");
         }
       } catch (err) {
         console.error(err);

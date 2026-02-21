@@ -46,4 +46,30 @@ export const walletService = {
       estimatedAmount: 1250,
     };
   },
+
+  getPayoutAccount: async () => {
+    try {
+      const response = await api.get(`/wallets/payout-account`);
+      return response.data;
+    } catch (error) {
+      throw (
+        error.response?.data || {
+          message: "Failed to fetch wallet payout account data",
+        }
+      );
+    }
+  },
+
+  updatePayoutAccount: async (accountData) => {
+    try {
+      const response = await api.put(`/wallets/payout-account`, accountData);
+      return response.data;
+    } catch (error) {
+      throw (
+        error.response?.data || {
+          message: "Failed to update wallet payout account data",
+        }
+      );
+    }
+  },
 };

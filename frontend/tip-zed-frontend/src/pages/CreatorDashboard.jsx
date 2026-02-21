@@ -23,6 +23,7 @@ import EditProfile from "@/components/Creator/EditProfile";
 import Guide from "@/components/Creator/Guide";
 import FundsAndPayouts from "@/components/Creator/FundsAndPayouts";
 import MetaTags from "@/components/Common/MetaTags";
+import PayoutAccount from "@/components/Creator/PayoutAccount";
 
 const CreatorDashboard = () => {
   const { user } = useAuth();
@@ -36,9 +37,14 @@ const CreatorDashboard = () => {
   const isGuideView = pathname === "/creator-dashboard/guide";
   const isFundsAndPayoutsView =
     pathname === "/creator-dashboard/funds-and-payouts";
+  const isPayoutAccountView = pathname === "/creator-dashboard/payout-account";
 
   // Identify if the current view requires data fetching
-  const isDataView = isOverview || isTransactionsView || isFundsAndPayoutsView;
+  const isDataView =
+    isOverview ||
+    isTransactionsView ||
+    isFundsAndPayoutsView ||
+    isPayoutAccountView;
 
   const [walletData, setWalletData] = useState(null);
   const [hasWalletData, setHasWalletData] = useState(false);
@@ -96,7 +102,7 @@ const CreatorDashboard = () => {
     isDataView,
     isEditProfileView,
     hasWalletData,
-    isFundsAndPayoutsView
+    isFundsAndPayoutsView,
   ]);
 
   const { missingSteps, showOnboarding, completionPercentage } =
@@ -157,7 +163,9 @@ const CreatorDashboard = () => {
                 {isTransactionsView && "Transaction History"}
                 {isOverview && "Overview"}
                 {isFundsAndPayoutsView && "Funds and Payouts"}
+                {isPayoutAccountView && "Payout Account"}
               </h1>
+
               {/* Guard against null walletData if API partially failed */}
               {walletData && (
                 <div className="flex items-center gap-2 mt-1">
@@ -169,6 +177,17 @@ const CreatorDashboard = () => {
                   )}
                 </div>
               )}
+
+              <p className="mt-2 text-sm text-gray-500">
+                {isOverview &&
+                  "View your wallet balance, quick stats, and recent transactions at a glance."}
+                {isTransactionsView &&
+                  "Track all your deposits, withdrawals, and earnings in one centralized place."}
+                {isFundsAndPayoutsView &&
+                  "Track your earnings, manage your available balance, and view your upcoming withdrawal schedule."}
+                {isPayoutAccountView &&
+                  "Manage your verified mobile money account where earnings will be automatically settled."}
+              </p>
             </div>
 
             <button
@@ -242,9 +261,10 @@ const CreatorDashboard = () => {
         {isGuideView && <Guide slug={user?.slug} />}
 
         {/* VIEW E: FUNDS AND PAYOUTS */}
-        {isFundsAndPayoutsView && (
-          <FundsAndPayouts walletData={walletData} />
-        )}
+        {isFundsAndPayoutsView && <FundsAndPayouts walletData={walletData} />}
+
+        {/* VIEW F: PAYOUT ACCOUNT*/}
+        {isPayoutAccountView && <PayoutAccount />}
 
         {/* FLOATING HELP BUTTON */}
         {showOnboarding && (
