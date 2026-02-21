@@ -7,7 +7,7 @@ import {
   Loader2,
 } from "lucide-react";
 
-const PaymentStatus =({
+const PaymentStatus = ({
   status,
   amount,
   error,
@@ -72,12 +72,24 @@ const PaymentStatus =({
           Tips can sometimes take a few minutes to reflect. Don't worry, your
           support is on its way!
         </p>
-        <button
-          onClick={onClose}
-          className="w-full bg-zed-black text-white py-3.5 rounded-xl font-bold hover:bg-gray-800"
-        >
-          Got it
-        </button>
+        <div className="flex flex-col gap-3">
+          <button
+            onClick={onClose}
+            className="w-full bg-zed-black text-white py-3.5 rounded-xl font-bold hover:bg-gray-800 transition-colors"
+          >
+            Got it
+          </button>
+          <button
+            onClick={onVerify}
+            className="w-full bg-gray-100 text-gray-700 py-3.5 rounded-xl font-bold hover:bg-gray-200 transition-colors"
+          >
+            {isLoading ? (
+              <Loader2 className="animate-spin" size={20} />
+            ) : (
+              "Check Again"
+            )}
+          </button>
+        </div>
       </div>
     );
   }
@@ -126,6 +138,6 @@ const PaymentStatus =({
   }
 
   return null;
-}
+};
 
 export default PaymentStatus;

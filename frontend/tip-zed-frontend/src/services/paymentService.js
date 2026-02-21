@@ -30,27 +30,29 @@ export const paymentService = {
     patronMessage = "",
   ) => {
     try {
-      const response = await api.post(`/payments/deposits/${walletId}/`, {
-        amount,
-        provider: ispProvider,
-        patronPhone,
-        patronEmail,
-        patronMessage,
-      });
+      const { status, data, statusText } = await api.post(
+        `/payments/deposits/${walletId}/`,
+        {
+          amount,
+          provider: ispProvider,
+          patronPhone,
+          patronEmail,
+          patronMessage,
+        },
+      );
 
-      if (response.status === "accepted" || response.status === "success") {
+      if (status === 201)
         return {
           success: true,
-          data: response.data,
+          data: data.data,
         };
-      }
 
-      throw new Error(response.message);
+      throw new Error(`Payment failed with status: ${statusText}`);
     } catch (error) {
       return {
         success: false,
         message:
-          error.response?.data ||
+          error.response?.data.status ||
           error.message ||
           "Failed to initiate payment.",
       };
@@ -71,18 +73,21 @@ export const paymentService = {
    */
   checkTip: async (paymentId) => {
     try {
-      const response = await api.get(`/payments/status/${paymentId}/`);
+      const { status, data } = await api.get(`/payments/status/${paymentId}/`);
 
-      return {
-        success: response.status,
-      };
-      
+      if (status === 200)
+        return {
+          success: true,
+          status: data.status,
+        };
     } catch (error) {
-      throw (
-        error.response?.data ||
-        error.message ||
-        "Failed to check payment status."
-      );
+      return {
+        success: false,
+        message:
+          error.response?.data?.status ||
+          error.message ||
+          "Failed to check payment status.",
+      };
     }
   },
 };
