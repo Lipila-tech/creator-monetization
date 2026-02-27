@@ -58,6 +58,13 @@ class CreatorProfile(models.Model):
         blank=True,
         related_name="creators"
     )
+    # Social media links
+    x_profile = models.URLField(blank=True, validators=[URLValidator()], help_text='X (Twitter) profile URL')
+    instagram_profile = models.URLField(blank=True, validators=[URLValidator()], help_text='Instagram profile URL')
+    youtube_profile = models.URLField(blank=True, validators=[URLValidator()], help_text='YouTube channel URL')
+    tikTok_profile = models.URLField(blank=True, validators=[URLValidator()], help_text='TikTok profile URL')
+    facebook_profile = models.URLField(blank=True, validators=[URLValidator()], help_text='Facebook profile URL')
+   
 
     class Meta:
         db_table = 'creators_profile'

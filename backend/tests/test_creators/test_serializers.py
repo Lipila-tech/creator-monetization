@@ -38,7 +38,13 @@ class TestUpdateCreatorProfileSerializer:
         data = {
             'first_name': 'test', 'last_name': 'surname', 'bio': '',
             'phone_number': '', 'profile_image': None,
-            'cover_image': None, 'website': '', 'category_slugs': []
+            'cover_image': None, 'website': '', 'category_slugs': [],
+            "x_profile": '',
+            "instagram_profile": '',
+            "youtube_profile": '',
+            "tikTok_profile": '',
+            "facebook_profile": '',
+
         }
         profile = user_factory.creator_profile
 
@@ -138,7 +144,12 @@ class TestCreatorPublicSerializer:
         expected_fields = {
             'user', 'bio', 'profile_image', 'cover_image', 'website',
             'followers_count', 'rating', 'verified', 'status',
-            'created_at', 'updated_at', "wallet_id", "categories"
+            'created_at', 'updated_at', "wallet_id", "categories",
+            "x_profile",
+            "instagram_profile",
+            "youtube_profile",
+            "tikTok_profile",
+            "facebook_profile",
         }
 
         assert set(data.keys()) == expected_fields

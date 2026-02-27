@@ -17,6 +17,51 @@ from tests.factories import UserFactory, CreatorCategoryFactory
 class TestUpdateCreatorProfile:
     """Test for updating a creators profile"""
 
+    def test_update_social_media_links(self, auth_api_client, user_factory):
+        """Test Update only social media links"""
+        creator_profile = user_factory.creator_profile
+
+        data = {
+            "x_profile": "https://twitter.com/test_creator",
+            "instagram_profile": "https://instagram.com/test_creator",
+            "youtube_profile": "https://youtube.com/test_creator",
+            "tikTok_profile": "https://tiktok.com/@test_creator",
+            "facebook_profile": "https://facebook.com/test_creator",
+        }
+        auth_api_client.force_authenticate(user=user_factory)
+        response = auth_api_client.put(
+            "/api/v1/creators/profile/me/", data=data, format="multipart"
+        )
+        assert response.status_code == 200
+        assert response.data is not None
+        assert creator_profile.x_profile == "https://twitter.com/test_creator"
+        assert creator_profile.instagram_profile == "https://instagram.com/test_creator"
+        assert creator_profile.youtube_profile == "https://youtube.com/test_creator"
+        assert creator_profile.tikTok_profile == "https://tiktok.com/@test_creator"
+        assert creator_profile.facebook_profile == "https://facebook.com/test_creator"
+
+    def test_update_social_media_invalid_links(self, auth_api_client, user_factory):
+        """Test Update only social media links with invalid URLs"""
+        
+        data = {
+            "x_profile": "not_a_valid_url",
+            "instagram_profile": "also_not_a_valid_url",
+            "youtube_profile": "definitely_not_a_valid_url",
+            "tikTok_profile": "invalid_url_for_tiktok",
+            "facebook_profile": "invalid_url_for_facebook",
+        }
+        auth_api_client.force_authenticate(user=user_factory)
+        response = auth_api_client.put(
+            "/api/v1/creators/profile/me/", data=data, format="multipart"
+        )
+        assert response.status_code == 400
+        assert response.data is not None
+        assert "x_profile" in response.data['details']
+        assert "instagram_profile" in response.data['details']
+        assert "youtube_profile" in response.data['details']
+        assert "tikTok_profile" in response.data['details']
+        assert "facebook_profile" in response.data['details']
+
     def test_fail_unauthenticated_request(self, auth_api_client):
         """Test endpoint requires authenticated user"""
 
@@ -36,6 +81,11 @@ class TestUpdateCreatorProfile:
             "cover_image",
             "website",
             "category_slugs",
+            "x_profile",
+            "instagram_profile",
+            "youtube_profile",
+            "tikTok_profile",
+            "facebook_profile", 
         }
         auth_api_client.force_authenticate(user=user_factory)
         response = auth_api_client.get("/api/v1/creators/profile/me/")

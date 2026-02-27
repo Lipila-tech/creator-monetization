@@ -1,8 +1,6 @@
 from rest_framework import serializers
 from apps.creators.models import CreatorProfile, CreatorCategory
 from apps.customauth.serializers import UserSerializer
-from apps.wallets.serializers import WalletKYCSerializer
-from apps.wallets.models import Wallet, WalletKYC
 from django.db import transaction
 
 from django.contrib.auth import get_user_model
@@ -43,6 +41,12 @@ class UpdateCreatorProfileSerializer(serializers.ModelSerializer):
             "phone_number",
             # M2M
             "category_slugs",
+            # Social media links
+            "x_profile",
+            "instagram_profile",
+            "youtube_profile",
+            "tikTok_profile",
+            "facebook_profile",
         ]
         extra_kwargs = {
             "bio": {"required": False, "allow_null": True, "allow_blank": True},
@@ -124,6 +128,12 @@ class CreatorPublicSerializer(serializers.ModelSerializer):
             'updated_at',
             'status',
             'categories',
+             # Social media links
+            "x_profile",
+            "instagram_profile",
+            "youtube_profile",
+            "tikTok_profile",
+            "facebook_profile",
         ]
 
  

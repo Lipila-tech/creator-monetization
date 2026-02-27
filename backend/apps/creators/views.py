@@ -5,7 +5,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from apps.creators.models import CreatorProfile
 from apps.creators.serializers import (
     CreatorPublicSerializer, CreatorListSerializer,
-    UpdateCreatorProfileSerializer, WalletKYCSerializer)
+    UpdateCreatorProfileSerializer)
 from drf_spectacular.utils import extend_schema
 from utils import serializers as helpers
 from utils.authentication import RequireAPIKey
@@ -80,6 +80,7 @@ class UpdateProfileView(APIView):
             data=request.data, partial=True,
             context={"request": request},
         )
+
         if serializer.is_valid():
             serializer.save()
             return Response(
