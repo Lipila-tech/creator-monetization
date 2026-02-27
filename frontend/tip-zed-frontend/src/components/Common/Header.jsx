@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import logo from "@/assets/images/logo.webp";
 
 const Header = () => {
   const { pathname } = useLocation();
@@ -48,8 +49,22 @@ const Header = () => {
     <nav className="bg-white shadow-sm sticky top-0 z-50 border-b border-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
-          <Link to="/" className="flex items-center group">
-            <span className="text-2xl font-bold text-zed-green group-hover:opacity-80 transition-opacity">
+          {/* Branding - always show, but style differently on auth pages */}
+          <Link to="/" className="flex items-center gap-3 group">
+            <img 
+              src={logo} 
+              alt="TipZed Logo" 
+              className="h-10 w-10 object-contain group-hover:opacity-80 transition-opacity"
+            />
+            <span 
+              className="text-2xl font-black tracking-tight"
+              style={{
+                background: "linear-gradient(90deg, #198753 0%, #198753 25%, #FF6600 25%, #FF6600 50%, #000000 50%, #000000 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}
+            >
               TipZed
             </span>
           </Link>
