@@ -196,7 +196,7 @@ const CreatorCatalog = () => {
                 const name = getCreatorName(creator);
                 return (
                   <Link
-                    to={`/creator-profile/${creator.user?.slug}`}
+                    to={`/${creator.user?.slug}`}
                     key={creator.user?.id || creator._id}
                     className="group"
                   >

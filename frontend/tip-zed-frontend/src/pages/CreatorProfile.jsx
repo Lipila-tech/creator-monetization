@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
+  ArrowLeft,
   AlertCircle,
   CheckCircle2,
   Globe,
@@ -12,6 +13,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { creatorService } from "@/services/creatorService";
 import SupportModal from "@/components/Payment/SupportModal";
 import MetaTags from "@/components/Common/MetaTags";
+import { useAuth } from "@/hooks/useAuth";
 
 const getName = (creator) =>
   `${creator?.user?.firstName || ""} ${creator?.user?.lastName || ""}`.trim() ||
@@ -21,12 +23,20 @@ const getName = (creator) =>
 const CreatorProfile = () => {
   const [isSupportOpen, setIsSupportOpen] = useState(false);
   const { slug } = useParams();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const [creator, setCreator] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [toast, setToast] = useState({ show: false, message: "" });
+
+  // if this is not their own profile do not show supporters, reviews if they are null
+  const showEmptyState = useMemo(() => {
+    if (user && creator && user.id == creator.user.id) return true;
+
+    return false;
+  }, [user, creator]);
 
   useEffect(() => {
     const fetchCreator = async () => {
@@ -189,6 +199,16 @@ const CreatorProfile = () => {
       <div className="min-h-screen bg-white">
         {/* Cover Image Section */}
         <div className="h-64 md:h-80 w-full bg-gray-100 relative overflow-hidden">
+          <button
+            onClick={() => navigate("/creator-catalog")}
+            className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20 p-2.5 bg-white/70 hover:bg-white backdrop-blur-md text-gray-800 rounded-full shadow-lg transition-all active:scale-95 group"
+            title="Go Back"
+          >
+            <ArrowLeft
+              size={22}
+              className="group-hover:-translate-x-0.5 transition-transform"
+            />
+          </button>
           {creator.coverImage ? (
             <img
               src={creator.coverImage}
@@ -242,18 +262,23 @@ const CreatorProfile = () => {
 
               {/* Cleaner Stats Row */}
               <div className="flex flex-wrap gap-6 text-sm">
-                <div className="flex items-center gap-1.5 text-gray-700">
-                  <Users size={18} className="text-zed-green" />
-                  <span className="font-bold">
-                    {creator.followersCount || 0}
-                  </span>
-                  <span className="text-gray-400">Supporters</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-gray-700">
-                  <Star size={18} className="text-zed-orange" />
-                  <span className="font-bold">{creator.rating || "5.0"}</span>
-                  <span className="text-gray-400">Rating</span>
-                </div>
+                {((creator.followersCount && creator.followersCount > 0) ||
+                  showEmptyState) && (
+                  <div className="flex items-center gap-1.5 text-gray-700">
+                    <Users size={18} className="text-zed-green" />
+                    <span className="font-bold">
+                      {creator.followersCount || 0}
+                    </span>
+                    <span className="text-gray-400">Supporters</span>
+                  </div>
+                )}
+                {((creator.rating && creator.rating > 0) || showEmptyState) && (
+                  <div className="flex items-center gap-1.5 text-gray-700">
+                    <Star size={18} className="text-zed-orange" />
+                    <span className="font-bold">{creator.rating || 0}</span>
+                    <span className="text-gray-400">Rating</span>
+                  </div>
+                )}
                 <div className="flex items-center gap-1.5 text-gray-700">
                   <Calendar size={18} className="text-gray-400" />
                   <span className="text-gray-400">

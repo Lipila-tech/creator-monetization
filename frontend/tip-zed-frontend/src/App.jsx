@@ -26,13 +26,13 @@ function App() {
             {/* The Landing Page */}
             <Route path="/" element={<Home />} />
 
+            {/* Public Facing Pages */}
+            <Route path="/:slug" element={<CreatorProfile />} />
+            <Route path="/creator-catalog" element={<CreatorCatalog />} />
+
             {/* Auth Pages */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Signup />} />
-
-            {/* Public Facing Pages */}
-            <Route path="/creator-catalog" element={<CreatorCatalog />} />
-            <Route path="/creator-profile/:slug" element={<CreatorProfile />} />
 
             {/* Legal Pages */}
             <Route path="/terms-of-service" element={<TermsOfService />} />

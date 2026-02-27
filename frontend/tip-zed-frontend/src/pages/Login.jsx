@@ -38,6 +38,18 @@ const Login = () => {
                 Sign up
               </Link>
             </p>
+
+            <div className="mt-6 pt-6 border-t border-gray-200/60 text-center">
+              <p className="text-sm text-gray-600">
+                Just looking around?{" "}
+                <Link
+                  to="/creator-catalog"
+                  className="text-zed-orange font-medium hover:underline transition-colors"
+                >
+                  Browse creators
+                </Link>
+              </p>
+            </div>
           </div>
         </div>
       </div>

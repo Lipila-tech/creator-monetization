@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ChevronLeft, Lock, Edit2 } from "lucide-react";
 import { detectProvider, PROVIDERS } from "../../utils/mobileMoney";
+import { validateMobileNumber } from "../../utils/mobileMoney";
 
 const PROVIDERS_ARRAY = Object.values(PROVIDERS);
 
@@ -15,6 +16,13 @@ const PaymentForm = ({ amount, onSubmit, onBack }) => {
   });
   const [isManual, setIsManual] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
+
+  const validation = useMemo(() => validateMobileNumber(phone), [phone]);
+
+  const notValid = !validation.isValid;
+
+  const validationError =
+    !validation.isValid && phone.length === 10 ? validation.error : null;
 
   // Auto-detect only if NOT in manual mode and phone changes
   const handlePhoneChange = (e) => {
@@ -79,6 +87,9 @@ const PaymentForm = ({ amount, onSubmit, onBack }) => {
               )}
             </div>
           </div>
+          {validationError && (
+            <span style={{ color: "red" }}>{validationError}</span>
+          )}
         </div>
 
         {/* Provider Selection */}
@@ -91,19 +102,15 @@ const PaymentForm = ({ amount, onSubmit, onBack }) => {
               onClick={() => setIsManual(!isManual)}
               className="text-xs text-zed-green font-semibold flex items-center gap-1 hover:underline"
             >
-              <Edit2 size={12} /> {isManual ? "Detect Network" : "Select Network"}
+              <Edit2 size={12} />{" "}
+              {isManual ? "Detect Network" : "Select Network"}
             </button>
           </div>
 
-          {isManual ? (
-            <div className="grid grid-cols-3 gap-2">
-              {PROVIDERS_ARRAY.map((p) => {
-                return <>{p.id}</>;
-              })}
-            </div>
-          ) : (
+          {/* Render the interactive grid ONLY when isManual is true */}
+          {isManual && (
             <div className="grid grid-cols-3 gap-3">
-              {PROVIDERS_ARRAY.map((p) => {
+              {PROVIDERS_ARRAY.map((p, key) => {
                 const isSelected = provider?.id === p.id;
 
                 // Mapping brand colors for the active state
@@ -115,7 +122,7 @@ const PaymentForm = ({ amount, onSubmit, onBack }) => {
 
                 return (
                   <button
-                    key={p.id}
+                    key={p.id || key} // Better to use p.id as the key if it's unique
                     onClick={() => setProvider(p)}
                     className={`p-4 border-2 rounded-2xl flex flex-col items-center gap-2 transition-all duration-200 ${
                       isSelected
@@ -162,7 +169,7 @@ const PaymentForm = ({ amount, onSubmit, onBack }) => {
 
       <button
         onClick={handlePayment}
-        disabled={!phone || !provider || phone.length < 10}
+        disabled={notValid}
         className="w-full bg-zed-green text-white py-4 rounded-xl font-bold text-lg hover:bg-green-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-green-100"
       >
         Tip K{amount}
@@ -174,6 +181,6 @@ const PaymentForm = ({ amount, onSubmit, onBack }) => {
       </div>
     </div>
   );
-}
+};
 
 export default PaymentForm;

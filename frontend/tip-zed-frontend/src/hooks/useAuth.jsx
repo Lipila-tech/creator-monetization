@@ -37,12 +37,16 @@ export const AuthProvider = ({ children }) => {
     }
   });
 
-  // Helper function to fetch and enhance user data
+  /**
+   * Helper function to fetch and enhance user data
+   * @param {*} user current minimal user data that requires enhancement
+   * @returns fully complete user profile data
+   */
   const fetchEnhancedUserData = async (user) => {
-    const { data: creatorData } = await creatorService.getCreatorBySlug(
-      user.slug,
-    );
-    const walletData = await walletService.getWalletData();
+    const [{ data: creatorData }, walletData] = await Promise.all([
+      creatorService.getCreatorBySlug(user.slug),
+      walletService.getWalletData(),
+    ]);
 
     return {
       ...user,
@@ -54,31 +58,59 @@ export const AuthProvider = ({ children }) => {
     };
   };
 
+  /**
+   * Silently enhances user data in the background to prevent prolonged login
+   * @param {*} user current minimal user data that requires enhancement
+   */
+  const enhanceUserInBackground = async (user) => {
+    try {
+      const enhancedUser = await fetchEnhancedUserData(user);
+
+      const prev = getUser();
+
+      if (!prev) throw new Error("User not found");
+
+      // Merge minimal user data with fill profile data
+      saveUser({
+        ...prev, // minimal
+        ...enhancedUser, // full profile
+      });
+    } catch (err) {
+      // let login continue without enhancement (silent fail)
+      console.warn("User enhancement failed:", err);
+    }
+  };
+
+  /**
+   * Call login endpoint and performs a global update of user state and auth state
+   * @param {string} email user's email
+   * @param {string} password user's password
+   * @returns
+   */
   const login = async (email, password) => {
     try {
-      const response = await authService.loginUser(email, password);
+      const { data } = await authService.loginUser(email, password);
+      const { accessToken, refreshToken } = data;
 
-      const { accessToken, refreshToken } = response.data;
       saveTokens(accessToken, refreshToken);
 
-      // Always fetch fresh profile data after login
       const { data: profileResponse } = await authService.getProfile();
 
-      if (profileResponse.status === "success") {
-        const profileData = profileResponse.data;
-
-        // Fetch additional creator data with image status (for onboarding purposes)
-        const enhancedUserData = await fetchEnhancedUserData(profileData);
-
-        saveUser(enhancedUserData);
-
-        return {
-          success: true,
-          user: enhancedUserData,
-        };
+      if (profileResponse.status !== "success") {
+        throw new Error("No user found");
       }
 
-      throw new Error("No user found");
+      const baseUser = profileResponse.data;
+
+      // Instant UX so app can render now
+      saveUser(baseUser);
+
+      enhanceUserInBackground(baseUser);
+
+      return {
+        success: true,
+        user: baseUser,
+      };
     } catch (error) {
       return {
         success: false,
@@ -87,6 +119,11 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  /**
+   * Calls the register endpoint and performs a global update of user state and auth state
+   * @param {*} formData user data
+   * @returns
+   */
   const register = async (formData) => {
     try {
       const response = await authService.registerUser(formData);
@@ -104,6 +141,9 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  /**
+   * Calls logout endpoint and removes global user and auth state
+   */
   const logout = async () => {
     await authService.logoutUser();
     setUser(null);
@@ -113,7 +153,11 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("user");
   };
 
-  // Main update function
+  /**
+   * Calls the update endpoint and updates the global user state
+   * @param {*} formData
+   * @returns
+   */
   const update = async (formData) => {
     try {
       const response = await creatorService.updateCreator(formData);
@@ -127,15 +171,20 @@ export const AuthProvider = ({ children }) => {
           firstName: formData.get("first_name") || currentUser.firstName,
           lastName: formData.get("last_name") || currentUser.lastName,
           bio: formData.get("bio") || currentUser.bio,
+          phoneNumber: formData.get("phone_number") || currentUser.phoneNumber,
+          email: formData.get("email") || currentUser.email,
+          categorySlugs:
+            formData.get("category_slugs") || currentUser.categorySlugs,
         };
 
         // If images were uploaded, fetch fresh data
         if (formData.get("profile_image") || formData.get("cover_image")) {
-          updatedUserData = await fetchEnhancedUserData(updatedUserData);
+          // required to fetch server side user image urls
+          enhanceUserInBackground(updatedUserData);
+        } else {
+          // if no images a local update of user data can occur
+          saveUser(updatedUserData);
         }
-
-        // Save to localStorage
-        saveUser(updatedUserData);
 
         return {
           success: true,

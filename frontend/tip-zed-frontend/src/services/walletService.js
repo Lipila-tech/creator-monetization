@@ -3,15 +3,17 @@ import api from "./api";
 export const walletService = {
   /**
    * Retrieves the authenticated user’s wallet information.
-   * @param {number} [page=1] The page number for paginated wallet data.
+   * @param {number} [page] The page number for paginated wallet data, if not provided no txnData will be returned.
    *
    * @returns {Promise<any>} Resolves with the user’s wallet data for the given page.
    *
    * @throws {{ message: string }} Throws an error object if the request fails.
    */
-  getWalletData: async (page = 1) => {
+  getWalletData: async (page) => {
     try {
-      const response = await api.get(`/wallets/me/?page=${page}`);
+      const response = await api.get(
+        `/wallets/me/${page ? `?page=${page}` : ""}`,
+      );
       return response.data.data;
     } catch (error) {
       throw error.response?.data || { message: "Failed to fetch wallet data" };

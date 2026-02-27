@@ -13,7 +13,7 @@ const api = rateLimit(
     timeout: TIMEOUT,
     headers: {
       "X-API-KEY": API_KEY,
-      'Accept': 'application/json',
+      Accept: "application/json",
     },
   }),
   {
@@ -42,21 +42,9 @@ const processQueue = (token) => {
 // Request Interceptor (Attach Token)
 api.interceptors.request.use(
   (config) => {
-    const publicRoutes = [
-      "/auth/login/",
-      "/auth/register/",
-      "/creators/all/",
-      "/creator-profile/",
-      "/creator-catalog/",
-    ];
+    const token = localStorage.getItem("accessToken");
 
-    const isPublic = publicRoutes.some((route) => config.url.includes(route));
-
-    if (!isPublic) {
-      const token = localStorage.getItem("accessToken");
-
-      if (token) config.headers.Authorization = `Bearer ${token}`;
-    }
+    if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
   (error) => Promise.reject(error),

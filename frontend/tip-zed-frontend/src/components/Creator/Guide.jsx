@@ -26,7 +26,7 @@ const Guide = ({ slug }) => {
   const { hash } = useLocation();
   const copyRef = useRef(null);
 
-  const creatorLink = `${window.location.protocol}//${window.location.host}/creator-profile/${slug}`;
+  const creatorLink = `${window.location.protocol}//${window.location.host}/${slug}`;
 
   const copyToClipboard = (text, type = "link") => {
     navigator.clipboard.writeText(text);
