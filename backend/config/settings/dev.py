@@ -61,7 +61,19 @@ INSTALLED_APPS = [
     'apps.payments',
     'apps.payouts',
     'apps.wallets',
+    # Allauth apps for social authentication
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    # Add Google and Facebook providers for social authentication
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.facebook',
+    # DRF Auth kit
+    # 'auth_kit', 
+    'auth_kit.social'
 ]
+
+SITE_ID = 1 # Required for django-allauth
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -73,7 +85,45 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'utils.authentication.ClientIdentificationMiddleware',
+    'allauth.account.middleware.AccountMiddleware', # Middleware for django-allauth
 ]
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+        'FETCH_USERINFO': True,
+        'APP': {
+            'client_id': env('GOOGLE_CLIENT_ID'),
+            'secret': env('GOOGLE_CLIENT_SECRET'),
+            'key': '',
+        }
+    },
+    'facebook': {
+        'METHOD': 'oauth2',
+        'SCOPE': ['email', 'public_profile'],
+        'APP': {
+            'client_id': env('FACEBOOK_APP_ID'),
+            'secret': env('FACEBOOK_APP_SECRET'),
+            'key': '',
+        },
+        'FIELDS': [
+            'id',
+            'email',
+            'name',
+            'first_name',
+            'last_name',
+            'picture',
+        ],
+        'VERIFIED_EMAIL': False,
+        'VERSION': 'v13.0',
+    }
+}
 
 ROOT_URLCONF = 'config.urls'
 
@@ -181,6 +231,7 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_RENDERER_CLASSES':(
         'djangorestframework_camel_case.render.CamelCaseJSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer', # development only
     ),
     'DEFAULT_PARSER_CLASSES':(
         'djangorestframework_camel_case.parser.CamelCaseJSONParser',

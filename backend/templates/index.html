@@ -1,12 +1,171 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>TipZed API</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TipZed API Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            font-weight: bold;
+            color: white;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 50px;
+            line-height: 1.6;
+        }
+
+        .links-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 480px) {
+            .links-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .link-card {
+            display: flex;
+            flex-direction: column;
+            padding: 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid #f0f0f0;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .link-card:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.2);
+        }
+
+        .link-card .icon {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .link-card .title {
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .link-card .description {
+            font-size: 0.85em;
+            color: #888;
+            font-weight: 400;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .divider {
+            height: 1px;
+            background: #eee;
+            margin: 30px 0;
+        }
+
+        .footer {
+            color: #999;
+            font-size: 0.9em;
+            margin-top: 20px;
+        }
+
+        .version {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to TipZed API</h1>
-    <a href="/api/v1/schema/docs">Docs</a>
-    <a href="/api/v1/schema/swagger-ui">Swagger UI</a>
-    <a href="api/v1/schema/">Downlod Docs</a>
+    <div class="container">
+        <div class="logo">📚</div>
+        <h1>TipZed API</h1>
+        <p class="subtitle">Creator Monetization Platform API Documentation</p>
+
+        <div class="links-grid">
+            <a href="/api/v1/schema/docs" class="link-card">
+                <div class="icon">📖</div>
+                <div class="title">ReDoc</div>
+                <div class="description">Interactive documentation</div>
+            </a>
+
+            <a href="/api/v1/schema/swagger-ui" class="link-card">
+                <div class="icon">🔄</div>
+                <div class="title">Swagger UI</div>
+                <div class="description">Try it out instantly</div>
+            </a>
+
+            <a href="/api/v1/schema/" class="link-card full-width">
+                <div class="icon">⬇️</div>
+                <div class="title">Download OpenAPI Schema</div>
+                <div class="description">Get the complete API specification in OpenAPI format</div>
+            </a>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="footer">
+            <p>API v1.0</p>
+            <div class="version">Production</div>
+        </div>
+    </div>
 </body>
 </html>
