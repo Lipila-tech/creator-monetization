@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const LoginForm = () => {
   const { login } = useAuth();
@@ -122,7 +123,7 @@ const LoginForm = () => {
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full bg-zed-green text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zed-green disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg shadow-green-100"
+        className="w-full py-2.5 rounded-lg font-semibold text-white bg-zed-orange hover:bg-orange-600 transition shadow-md disabled:opacity-50"
       >
         {isLoading ? (
           <span className="flex items-center justify-center gap-2">
@@ -151,8 +152,18 @@ const LoginForm = () => {
           "Sign In"
         )}
       </button>
+      {/* Legal Links */}
+      <div className="text-center text-sm text-gray-500">
+        Don't have an account?{" "}
+        <Link
+          to="/signup"
+          className="text-zed-orange font-medium hover:underline"
+        >
+          Sign Up
+        </Link>
+      </div>
     </form>
   );
-};
+}
 
 export default LoginForm;

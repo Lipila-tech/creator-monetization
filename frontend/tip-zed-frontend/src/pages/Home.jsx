@@ -1,13 +1,14 @@
+import {HashLink as Hlink} from 'react-router-hash-link';
 import {
-  ArrowRight,
+  ArrowDown,
   XCircle,
-  CheckCircle,
   Heart,
   Repeat,
   Lock,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import MetaTags from "@/components/Common/MetaTags";
+import bannerImage from "@/assets/images/banner.webp";
 
 const Home = () => {
   return (
@@ -20,17 +21,25 @@ const Home = () => {
 
       <div className="min-h-screen bg-gray-50 pb-24 md:pb-0 font-sans">
         {/*  HERO SECTION */}
-        <section className="relative bg-zed-black overflow-hidden pt-20 pb-16 px-6 text-center">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-gradient-to-br from-zed-green/20 via-transparent to-zed-orange/20 blur-3xl opacity-50 z-0 pointer-events-none"></div>
+        <section 
+          className="relative bg-zed-black overflow-hidden pt-20 pb-16 px-6 text-center"
+          style={{
+            backgroundImage: `url(${bannerImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed'
+          }}
+        >
+          <div className="absolute inset-0 bg-black/60 z-0"></div>
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-gradient-to-br from-zed-green/20 via-transparent to-zed-orange/20 blur-3xl opacity-30 z-1 pointer-events-none"></div>
 
           <div className="max-w-3xl mx-auto relative z-10">
             <h1 className="text-5xl md:text-6xl font-extrabold text-white mb-6 tracking-tight leading-[1.1]">
-              Get paid by your fans.{" "}
-              <span className="text-zed-green">Locally.</span>
+              Stop chasing payments across borders.{" "}
+              <span className="text-zed-green">Start earning from the people who believe in you—right here at home.</span>
             </h1>
-            <p className="text-xl md:text-2xl text-gray-300 mb-10 leading-relaxed max-w-xl mx-auto">
-              Subscriptions and tips using mobile money — built for African
-              creators.
+            <p className="text-xl md:text-2xl text-gray-200 mb-10 leading-relaxed max-w-2xl mx-auto">
+              Build a stable income through local subscriptions and direct fan support.
             </p>
 
             {/* CTAs */}
@@ -41,12 +50,12 @@ const Home = () => {
               >
                 Start as a Creator
               </Link>
-              <Link
-                to="/creator-catalog"
+              <Hlink
+                to="#learn-more"
                 className="w-full md:w-auto text-white flex items-center justify-center px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white/10 transition-all active:scale-95"
               >
-                Support a creator <ArrowRight className="ml-2 w-5 h-5" />
-              </Link>
+                Learn More <ArrowDown className="ml-2 w-5 h-5" />
+              </Hlink>
             </div>
           </div>
         </section>
@@ -67,45 +76,14 @@ const Home = () => {
               <span>Mobile Money</span>
             </div>
           </div>
-        </section>
-
-        {/* THE PROBLEM */}
-        <section className="py-20 px-6 bg-gray-50">
+        </section>        {/* THE STRUGGLE */}
+        <section className="py-20 px-6 bg-gray-50" id="learn-more">
           <div className="max-w-3xl mx-auto">
-            <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-12 leading-tight">
-              Creating is hard.
-              <br />
-              <span className="text-gray-400">Getting paid shouldn’t be.</span>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 leading-tight">
+              <span className="text-zed-orange">The Problem.</span>
             </h2>
-
-            <div className="space-y-6 mb-12">
-              <div className="flex items-center gap-4 bg-white p-5 rounded-2xl shadow-sm">
-                <XCircle className="text-red-500 flex-shrink-0" size={28} />
-                <span className="font-semibold text-xl text-gray-800">
-                  PayPal doesn’t work
-                </span>
-              </div>
-              <div className="flex items-center gap-4 bg-white p-5 rounded-2xl shadow-sm">
-                <XCircle className="text-red-500 flex-shrink-0" size={28} />
-                <span className="font-semibold text-xl text-gray-800">
-                  Cards fail
-                </span>
-              </div>
-              <div className="flex items-center gap-4 bg-green-50 p-5 rounded-2xl shadow-sm border border-green-100">
-                <CheckCircle
-                  className="text-zed-green flex-shrink-0"
-                  size={28}
-                />
-                <span className="font-semibold text-xl text-gray-900">
-                  Fans use mobile money
-                </span>
-              </div>
-            </div>
-
-            <p className="text-xl md:text-2xl font-medium text-gray-700 leading-relaxed bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-              You have supporters — but{" "}
-              <span className="text-zed-orange">no easy way</span> to accept
-              support.
+            <p className="text-2xl md:text-3xl text-gray-700 mb-12 leading-relaxed font-medium">
+              Global platforms are built for global audiences. They take high fees, pay out late, and don't understand the local love that fuels African creativity.
             </p>
           </div>
         </section>
@@ -113,32 +91,15 @@ const Home = () => {
         {/* THE SOLUTION */}
         <section className="py-20 px-6 bg-zed-black text-white">
           <div className="max-w-4xl mx-auto">
-            <p className="text-zed-green font-bold tracking-widest uppercase mb-3 text-sm">
-              Meet TipZed
-            </p>
-            <h2 className="text-3xl md:text-4xl font-bold mb-10 leading-tight">
-              TipZed lets fans support you using local payments.
+            <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight">
+              <span className="text-zed-green">The Solution.</span>
             </h2>
-
-            <p className="text-xl mb-6 font-medium text-gray-300">You get:</p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-              <div className="bg-white/10 p-6 rounded-2xl text-center backdrop-blur-sm">
-                <p className="font-bold text-lg">Tips</p>
-              </div>
-              <div className="bg-white/10 p-6 rounded-2xl text-center backdrop-blur-sm">
-                <p className="font-bold text-lg">Subscriptions</p>
-              </div>
-              <div className="bg-white/10 p-6 rounded-2xl text-center backdrop-blur-sm">
-                <p className="font-bold text-lg">A wallet</p>
-              </div>
-              <div className="bg-white/10 p-6 rounded-2xl text-center backdrop-blur-sm">
-                <p className="font-bold text-lg">Local payouts</p>
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-r from-zed-orange/20 to-transparent p-6 rounded-2xl border-l-4 border-zed-orange">
+            <p className="text-2xl md:text-3xl text-gray-200 mb-12 leading-relaxed font-medium">
+              TipZed is the Zambian creator's true home. We help you build a stable income through local subscriptions and direct fan support.
+            </p>
+            <div className="bg-gradient-to-r from-zed-orange/20 to-transparent p-8 rounded-2xl border-l-4 border-zed-orange">
               <p className="text-xl font-semibold">
-                No bank accounts. No complicated setup.
+                Keep your art authentic. Keep your money close.
               </p>
             </div>
           </div>

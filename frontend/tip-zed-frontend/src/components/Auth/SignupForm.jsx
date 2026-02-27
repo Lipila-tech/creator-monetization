@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
@@ -66,7 +67,7 @@ const SignupForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-3">
       {error && (
         <div
           role="alert"
@@ -138,10 +139,31 @@ const SignupForm = () => {
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full py-3 rounded-lg font-semibold text-white bg-zed-orange hover:bg-orange-600 transition shadow-md disabled:opacity-50"
+        className="w-full py-2.5 rounded-lg font-semibold text-white bg-zed-orange hover:bg-orange-600 transition shadow-md disabled:opacity-50"
       >
         {isLoading ? "Creating Account..." : "Sign Up"}
       </button>
+
+      {/* Legal links */}
+      <div className="text-center text-sm text-gray-500">
+        By signing up, you agree to our{" "}
+        <Link to="/terms-of-service" className="text-zed-orange hover:underline">
+          Terms of Service
+        </Link>{" "}
+        and{" "}
+        <Link to="/privacy-policy" className="text-zed-orange hover:underline">
+          Privacy Policy
+        </Link>
+        .
+      </div>
+
+      {/* Link to login */}
+      <div className="text-center text-sm text-gray-600">
+        Already have an account?{" "}
+        <Link to="/login" className="text-zed-orange font-medium hover:underline">
+          Log In
+        </Link>
+      </div>
     </form>
   );
 };
