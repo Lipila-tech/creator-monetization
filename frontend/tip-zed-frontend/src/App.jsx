@@ -12,6 +12,7 @@ import CreatorCatalog from "./pages/CreatorCatalog";
 import CreatorProfile from "./pages/CreatorProfile";
 import NotFound from "./pages/NotFound";
 import { menuItems } from "@/utils/creatorMenuItems";
+import AuthCallback from "./pages/AuthCallback";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
             {/* Auth Pages */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Signup />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
 
             {/* Legal Pages */}
             <Route path="/terms-of-service" element={<TermsOfService />} />
