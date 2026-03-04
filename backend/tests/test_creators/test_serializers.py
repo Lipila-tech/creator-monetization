@@ -4,13 +4,30 @@ from apps.creators.serializers import (
     CreatorPublicSerializer,
     CreatorListSerializer,
     CreatorCategorySerializer,
-    UpdateCreatorProfileSerializer)
+    UpdateCreatorProfileSerializer,
+    UserTypeSelectionSerializer
+)
 from apps.creators.models import CreatorCategory
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+class TestUserTypeSelectionSerializer:
+    def test_valid_user_type_selection(self):
+        """Test that valid user type choices are accepted."""
+        for user_type, _ in User.USER_TYPE_CHOICES:
+            serializer = UserTypeSelectionSerializer(data={'user_type': user_type})
+            assert serializer.is_valid(), f"Expected valid for user_type '{user_type}'"
+            assert serializer.validated_data['user_type'] == user_type
 
+    def test_invalid_user_type_selection(self):
+        """Test that invalid user type choices are rejected."""
+        invalid_user_types = ['invalid', '', None, 'creator ', ' patron']
+        for invalid in invalid_user_types:
+            serializer = UserTypeSelectionSerializer(data={'user_type': invalid})
+            assert not serializer.is_valid(), f"Expected invalid for user_type '{invalid}'"
+            assert 'user_type' in serializer.errors
+            
 @pytest.mark.django_db
 class TestUpdateCreatorProfileSerializer:
 

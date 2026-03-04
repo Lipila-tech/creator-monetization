@@ -5,7 +5,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from apps.creators.models import CreatorProfile
 from apps.creators.serializers import (
     CreatorPublicSerializer, CreatorListSerializer,
-    UpdateCreatorProfileSerializer)
+    UpdateCreatorProfileSerializer, UserTypeSelectionSerializer
+)
 from drf_spectacular.utils import extend_schema
 from utils import serializers as helpers
 from utils.authentication import RequireAPIKey
@@ -14,6 +15,42 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
+
+
+class SelectUserTypeView(APIView):
+    permission_classes = [RequireAPIKey, IsAuthenticated]
+
+    @extend_schema(
+        operation_id="select_user_type",
+        summary="Select User Type",
+        request=helpers.UserTypeSelectionSerializer,
+        responses={
+            200: helpers.SuccessResponseSerializer,
+            400: helpers.ValidationErrorSerializer,
+            401: helpers.UnauthorizedErrorSerializer,
+            403: helpers.ForbiddenErrorSerializer,
+            404: helpers.NotFoundErrorSerializer,
+            409: helpers.ConflictErrorSerializer,
+            429: helpers.RateLimitErrorSerializer,
+            500: helpers.ServerErrorSerializer,
+        }
+    )
+    def post(self, request):
+        """Endpoint for users to select their user type (creator or patron)."""
+
+        serializer = UserTypeSelectionSerializer(data=request.data)
+        if serializer.is_valid():
+            user_type = serializer.validated_data['user_type']
+            request.user.user_type = user_type
+            request.user.save()
+            return Response(
+                {"status": "success", "message": f"User type set to {user_type}."},
+                status=status.HTTP_200_OK
+            )
+        return Response(
+            {"error": "Invalid data", "details": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 class UpdateProfileView(APIView):
     permission_classes = [RequireAPIKey, IsAuthenticated]

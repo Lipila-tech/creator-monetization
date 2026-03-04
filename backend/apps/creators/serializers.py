@@ -7,6 +7,9 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+class UserTypeSelectionSerializer(serializers.Serializer):
+    user_type = serializers.ChoiceField(choices=User.USER_TYPE_CHOICES)
+    
 
 class UpdateCreatorProfileSerializer(serializers.ModelSerializer):
     # --- User fields (writeable passthrough) ---

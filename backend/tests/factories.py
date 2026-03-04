@@ -66,6 +66,13 @@ class AdminUserFactory(UserFactory):
     is_staff = True
     is_superuser = True
 
+class NormalUserFactory(UserFactory):
+    """Factory for creating test normal users."""
+
+    user_type = "guest"
+    is_staff = False
+    is_superuser = False
+
 
 class APIClientFactory(factory.django.DjangoModelFactory):
     """Factory for creating test API clients."""

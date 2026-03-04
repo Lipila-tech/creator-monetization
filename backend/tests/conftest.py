@@ -64,6 +64,12 @@ def creator_user(db):
     from tests.factories import UserFactory
     return UserFactory(user_type='creator')
 
+@pytest.fixture
+def normal_user(db):
+    """Fixture for creating a normal user."""
+    from tests.factories import NormalUserFactory
+    return NormalUserFactory()
+
 
 @pytest.fixture
 def api_client_obj(db):
