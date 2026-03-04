@@ -23,7 +23,7 @@ class SelectUserTypeView(APIView):
     @extend_schema(
         operation_id="select_user_type",
         summary="Select User Type",
-        request=helpers.UserTypeSelectionSerializer,
+        request=UserTypeSelectionSerializer,
         responses={
             200: helpers.SuccessResponseSerializer,
             400: helpers.ValidationErrorSerializer,
