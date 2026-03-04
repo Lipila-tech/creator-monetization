@@ -141,6 +141,23 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const googleAuth = async (code) => {
+    try {
+      const response = await authService.googleAuth({ code });
+      const { accessToken, refreshToken, ...userData } = response.data;
+
+      saveTokens(accessToken, refreshToken);
+      saveUser(userData.user);
+
+      return { success: true, user: userData.user };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.response?.data?.message || "OAuth failed",
+      };
+    }
+  }
+
   /**
    * Calls logout endpoint and removes global user and auth state
    */
@@ -204,7 +221,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, token, login, register, logout, update }}
+      value={{ user, token, login, register, logout, update, googleAuth }}
     >
       {children}
     </AuthContext.Provider>

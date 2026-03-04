@@ -1,5 +1,6 @@
 import SignupForm from "@/components/Auth/SignupForm";
 import MetaTags from "@/components/Common/MetaTags";
+import GoogleLoginButton from "../components/Auth/GoogleLoginButton";
 
 const Signup = () => {
   return (
@@ -16,14 +17,27 @@ const Signup = () => {
             <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
               Create Your Account
             </h2>
-            <p className="text-gray-500 text-sm mt-2">
-              Join TipZed in seconds
-            </p>
+            <p className="text-gray-500 text-sm mt-2">Join TipZed in seconds</p>
           </div>
 
           {/* Form Component */}
           <SignupForm />
 
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-4 bg-white text-gray-500 font-medium">
+                OR
+              </span>
+            </div>
+          </div>
+
+          <GoogleLoginButton
+            buttonText="Continue with Google"
+            mode="register"
+          />
         </div>
       </div>
     </>

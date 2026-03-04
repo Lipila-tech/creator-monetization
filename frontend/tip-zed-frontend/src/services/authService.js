@@ -70,7 +70,7 @@ export const authService = {
 
   /**
    * Logs out the currently authenticated user.
-   * 
+   *
    * @returns {Promise<{
    *   success: boolean,
    *   data?: any,
@@ -87,15 +87,14 @@ export const authService = {
       return {
         success: false,
         error:
-          error.response?.data?.message ||
-          "Logout failed. Please try again.",
+          error.response?.data?.message || "Logout failed. Please try again.",
       };
     }
   },
 
   /**
    * Retrieves the authenticated user’s profile.
-   * 
+   *
    * @returns {Promise<{
    *   success: boolean,
    *   data?: any,
@@ -111,9 +110,21 @@ export const authService = {
       console.error("Profile API Error:", error.response);
       return {
         success: false,
-        error:
-          error.response?.data?.message ||
-          "Failed to fetch user profile.",
+        error: error.response?.data?.message || "Failed to fetch user profile.",
+      };
+    }
+  },
+
+  googleAuth: async (code) => {
+    try {
+      const response = await api.post("/auth/social/google/", { code });
+
+      return { success: true, data: response.data };
+    } catch (error) {
+      console.error("Social API Error:", error.response);
+      return {
+        success: false,
+        error: error.response?.data?.message || "Failed to perform oauth.",
       };
     }
   },

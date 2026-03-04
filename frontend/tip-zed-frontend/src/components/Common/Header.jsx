@@ -42,7 +42,6 @@ const Header = () => {
     );
   };
 
-  const isAuthPage = ["/login", "/register"].includes(pathname);
   const isDashboard = pathname === "/creator-dashboard";
 
   return (
