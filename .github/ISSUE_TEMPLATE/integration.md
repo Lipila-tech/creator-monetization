@@ -2,14 +2,14 @@
 name: Backend–Frontend Integration
 about: Integration task for backend and frontend alignment during MVP
 title: "[INT] "
-labels: ["integration", "high-priority", "2-week-mvp"]
+labels: ["integration", "high-priority", "backend", "frontend"]
 ---
 
-## 🔗 Integration Area
+## Integration Area
 What flow is being integrated?
 Examples: Auth Flow, Payments, Wallet Balance, Creator Profile, Payout Request
 
-## 📡 API Contract
+## API Contract
 **Endpoint:** `METHOD /api/v1/path`
 
 **Request Body:**
@@ -33,11 +33,11 @@ Examples: Auth Flow, Payments, Wallet Balance, Creator Profile, Payout Request
 - 403: Forbidden
 - 500: Server error
 
-## 🔄 End-to-End Flow
+## End-to-End Flow
 Describe the user flow being tested.
 Example: User clicks Pay → Selects amount → Sees confirmation → Mobile money prompt → Success page
 
-## ✅ Acceptance Criteria
+## Acceptance Criteria
 - [ ] Frontend and backend API contract aligned
 - [ ] Correct data returned from backend
 - [ ] Error cases handled gracefully (user sees friendly message)
@@ -46,20 +46,20 @@ Example: User clicks Pay → Selects amount → Sees confirmation → Mobile mon
 - [ ] Idempotency working (duplicate requests handled safely)
 - [ ] All edge cases tested
 
-## 🧪 Test Evidence
+## Test Evidence
 - [ ] Screenshots of working flow
 - [ ] Console logs (no errors)
 - [ ] Backend logs confirming correct state
 - [ ] Response times acceptable (< 3s)
 
-## 👤 Integration Owner Sign-off
+## Integration Owner Sign-off
 **Integration Owner:** (Peter Zyambo or delegate)
 - [ ] API contract approved
 - [ ] Frontend is using real endpoint (not mock)
 - [ ] End-to-end test passed
 - [ ] Ready to merge
 
-## ⏱️ Integration Window
+## Integration Window
 Integration Days 3–5: First live integrations
 Integration Days 6–7: Full end-to-end payment/payout flows
 Days 9–10: Stabilization & regression testing

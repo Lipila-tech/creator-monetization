@@ -1,0 +1,40 @@
+name: Django Rest API Backend CI
+on:
+  # Only run CI for backend changes
+  pull_request:
+    paths:
+      - "backend/**"
+  push:
+    branches: [main]
+    paths:
+      - "backend/**"
+jobs:
+  backend-ci:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+          cache: pip
+          cache-dependency-path: backend/requirements/prod.txt
+      - name: Install dependencies
+        run: pip install -r requirements/prod.txt
+      - name: Run Pytest tests
+        env:
+            DJANGO_SETTINGS_MODULE: backend.config.settings.test
+        run: pytest --cov=apps --cov=utils --cov-report=xml --cov-fail-under=80
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella-backend
+          fail_ci_if_error: true
+          
+    

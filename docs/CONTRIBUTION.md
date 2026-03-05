@@ -9,7 +9,7 @@
 
 ---
 
-## 🚀 Quick Start for Contributors
+## Quick Start for Contributors
 
 1. **Fork & Clone**
    ```bash
@@ -38,7 +38,7 @@
 
 ---
 
-## 📋 Branching Strategy
+## Branching Strategy
 
 ### Branch Naming Convention
 
@@ -83,7 +83,7 @@ git checkout -b refactor/payment-service-structure
 
 ---
 
-## 💬 Commit Message Convention
+## Commit Message Convention
 
 ### Format
 ```
@@ -115,10 +115,10 @@ git checkout -b refactor/payment-service-structure
 - `config` - Configuration
 
 ### Subject
-- ✅ Imperative mood ("add" not "added" or "adds")
-- ✅ First letter lowercase
-- ✅ No period at end
-- ✅ Under 50 characters
+- [x] Imperative mood ("add" not "added" or "adds")
+- [x] First letter lowercase
+- [x] No period at end
+- [x] Under 50 characters
 - ❌ Avoid: "Update", "Fix", "Implement"
 
 ### Examples
@@ -163,7 +163,7 @@ Related to #44
 
 ---
 
-## 🔀 Pull Requests
+## Pull Requests
 
 ### PR Title Format
 
@@ -262,59 +262,9 @@ Fixes #15
 
 ---
 
-## ✅ Code Review Process
-
-### Before Submitting PR
-1. ✅ Code follows style guidelines (see below)
-2. ✅ All tests pass locally
-3. ✅ No console warnings/errors
-4. ✅ Documentation updated
-5. ✅ Commit messages follow convention
-
-### Review by Project Leads
-
-**Peter (Backend Lead):**
-- Reviews backend code
-- Approves API contract changes
-- Ensures security best practices
-- Validates database schema changes
-
-**George (Frontend/Backend Support):**
-- Reviews frontend code
-- Ensures mobile responsiveness
-- Validates component structure
-- Coordinates backend-frontend integration
-
-**Barnabas (Frontend Support):**
-- Reviews styling/responsive design
-- Tests cross-browser compatibility
-- Validates accessibility
-
-### Integration Windows (Days 3-10)
-During daily integration syncs (15 min standups):
-- Backend + frontend verify API contracts
-- Test endpoints with real data
-- Log any integration issues
-- Peter approves before merge
-
-### Approval Flow
-```
-Developer submits PR
-    ↓
-Code review (24 hour SLA)
-    ↓
-Tests passing (automated)
-    ↓
-Peter approves (API owner)
-    ↓
-Merge to main
-    ↓
-Deploy to staging
-```
-
 ---
 
-## 🏗️ Code Style Guidelines
+## Code Style Guidelines
 
 ### Backend (Django/Python)
 
@@ -325,7 +275,7 @@ Deploy to staging
 - Docstrings for functions/classes
 
 ```python
-# ✅ Good
+# [x] Good
 def calculate_wallet_balance(user_id: int) -> Decimal:
     """Calculate total wallet balance from transaction ledger.
     
@@ -344,7 +294,7 @@ def calculate_wallet_balance(user_id: int) -> Decimal:
     )
     return sum(t.amount for t in transactions)
 
-# ❌ Bad
+# Bad
 def calc_balance(uid):
     t = TransactionLedger.objects.filter(user_id=uid, status='completed')
     return sum([tr.amount for tr in t])
@@ -352,7 +302,7 @@ def calc_balance(uid):
 
 **Django Models:**
 ```python
-# ✅ Good
+# [x] Good
 class Creator(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     bio = models.TextField(max_length=500, blank=True)
@@ -398,7 +348,7 @@ class CreatorSerializer(serializers.ModelSerializer):
 - Descriptive naming
 
 ```javascript
-// ✅ Good: CreatorProfileEditor.jsx
+// [x] Good: CreatorProfileEditor.jsx
 import PropTypes from 'prop-types';
 import { useState } from 'react';
 
@@ -452,13 +402,13 @@ CreatorProfileEditor.propTypes = {
 
 **Styling (Tailwind):**
 ```jsx
-// ✅ Good: Use Tailwind utility classes
+// [x] Good: Use Tailwind utility classes
 <div className="flex flex-col gap-4 max-w-md">
   <input className="px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
   <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition" />
 </div>
 
-// ❌ Bad: Custom CSS for simple utilities
+// Bad: Custom CSS for simple utilities
 <style>
   .input { padding: 8px 12px; border: 1px solid #ccc; }
 </style>
@@ -466,7 +416,7 @@ CreatorProfileEditor.propTypes = {
 
 ---
 
-## 🧪 Testing Requirements
+## Testing Requirements
 
 ### Backend Tests
 
@@ -574,14 +524,14 @@ describe('CreatorProfileEditor', () => {
 
 ---
 
-## 📦 Dependency Updates
+## Dependency Updates
 
 ### Adding Dependencies
 
 **Backend:**
 ```bash
 # Add to requirements.txt, then:
-pip install -r requirements.txt
+pip install -r requirements/dev.txt
 ```
 
 **Frontend:**
@@ -598,7 +548,7 @@ npm install
 
 ---
 
-## 🚨 Common Issues & Solutions
+## Common Issues & Solutions
 
 ### Issue: Merge Conflicts
 ```bash
@@ -641,62 +591,3 @@ echo $PYTHONPATH
 ```
 
 ---
-
-## 📞 Getting Help
-
-**Have questions?**
-- Check [README.md](README.md) for project overview
-- See [backend/README.md](backend/README.md) for API docs
-- See [frontend/README.md](frontend/README.md) for UI setup
-- Review [EXAMPLE_WEEK1_ISSUES.md](docs/EXAMPLE_WEEK1_ISSUES.md) for real examples
-
-**During integration windows (Days 3-10):**
-- Daily 15-min standup at [time TBD]
-- Ask in Slack or GitHub issues
-- George coordinates backend-frontend alignment
-- Peter approves API changes
-
----
-
-## 🎯 Definition of Done
-
-A PR is ready to merge when:
-
-- ✅ Code follows style guidelines
-- ✅ All tests pass (80%+ coverage for backend, 75%+ for frontend)
-- ✅ No console warnings/errors
-- ✅ Documentation updated
-- ✅ Commit messages follow convention
-- ✅ Peter approved (for APIs/backend)
-- ✅ George approved (for frontend/integration)
-- ✅ Accessibility verified (frontend changes)
-- ✅ Mobile responsiveness verified (frontend changes)
-- ✅ No breaking changes (or properly versioned)
-
----
-
-## 🚀 Deployment After Merge
-
-Once PR is merged to `main`:
-
-1. **Staging Deployment** (automatic CI/CD)
-   ```bash
-   git push origin main
-   # Triggers: run tests, build, deploy to staging
-   ```
-
-2. **Verify in Staging**
-   - Test endpoints
-   - Check logs for errors
-   - Verify integration with frontend
-
-3. **Production Deployment** (manual approval)
-   - Peter reviews staging results
-   - Approves production push
-   - Monitors logs for errors
-
----
-
-**Last Updated:** January 27, 2026  
-**Sprint:** 2-Week MVP  
-**Questions?** Reach out to Peter, George, or Barnabas

@@ -100,8 +100,8 @@ SOCIALACCOUNT_PROVIDERS = {
         },
         'FETCH_USERINFO': True,
         'APP': {
-            'client_id': env('GOOGLE_CLIENT_ID'),
-            'secret': env('GOOGLE_CLIENT_SECRET'),
+             'client_id': env('GOOGLE_CLIENT_ID', default=''),
+            'secret': env('GOOGLE_CLIENT_SECRET', default=''),
             'key': '',
         }
     },
@@ -109,8 +109,8 @@ SOCIALACCOUNT_PROVIDERS = {
         'METHOD': 'oauth2',
         'SCOPE': ['email', 'public_profile'],
         'APP': {
-            'client_id': env('FACEBOOK_APP_ID'),
-            'secret': env('FACEBOOK_APP_SECRET'),
+            'client_id': env('FACEBOOK_APP_ID', default=''),
+            'secret': env('FACEBOOK_APP_SECRET', default=''),
             'key': '',
         },
         'FIELDS': [
@@ -290,5 +290,5 @@ SPECTACULAR_SETTINGS = {
     ],
 }
 
-PAWAPAY_BASE_URL = env("PAWAPAY_BASE_URL")
-PAWAPAY_API_KEY = env("PAWAPAY_API_KEY")
+PAWAPAY_BASE_URL = env("PAWAPAY_BASE_URL", default="https://api.sandbox.pawapay.io")
+PAWAPAY_API_KEY = env("PAWAPAY_API_KEY", default="")
