@@ -1,20 +1,20 @@
 ---
-name: Frontend Feature (Lead)
+name: Frontend Feature
 about: Core frontend feature owned by Frontend Lead
 title: "[FE][Lead] "
-labels: ["frontend", "frontend-lead", "high-priority", "2-week-mvp"]
-assignees: ["George Mugale"]
+labels: ["frontend", "high-priority"]
+assignees: []
 ---
 
-## 📌 Feature / Task Summary
+## Feature / Task Summary
 Briefly describe what this feature does and why it matters for the MVP.
 
-## 👤 User Story
+## User Story
 **As a** [creator/fan/admin]
 **I want to** [action]
 **So that** [benefit]
 
-## 🎨 Scope
+## Scope
 - [ ] UI components / pages
 - [ ] State management (Redux/Context)
 - [ ] API integration
@@ -22,13 +22,13 @@ Briefly describe what this feature does and why it matters for the MVP.
 - [ ] Responsive design (mobile-first)
 - [ ] Loading states & skeletons
 
-## 🔗 Backend API Dependencies
+## Backend API Dependencies
 List required endpoints:
 - Endpoint: `METHOD /api/v1/...`
 - Expected response body
 - Error cases (401, 400, 500)
 
-## ✅ Acceptance Criteria
+## Acceptance Criteria
 - [ ] Feature matches design / UX spec
 - [ ] Integrated with real backend API (no mocks)
 - [ ] Handles loading, success, error, and empty states
@@ -36,20 +36,20 @@ List required endpoints:
 - [ ] No console errors or warnings
 - [ ] Lighthouse accessibility score > 80
 
-## 🧪 Testing Notes
+## Testing Notes
 - Manual testing steps
 - Tested with real backend? Yes / No
 - Edge cases tested
 
-## 🚀 Integration Checklist
+## Integration Checklist
 - [ ] API contract approved by Integration Owner
 - [ ] Backend endpoint is live and working
 - [ ] Frontend tested against real endpoint
 - [ ] Error responses match spec
 
-## ⏱️ MVP Sprint Timeline
+## MVP Sprint Timeline
 Day / Week: (e.g., Day 3: Creator profile integration)
 
-## ⚠️ Risks / Blockers
+## Risks / Blockers
 Anything that could delay completion?
 

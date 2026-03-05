@@ -2,14 +2,14 @@
 name: QA / Go-Live Checklist
 about: Testing and launch readiness for MVP
 title: "[QA] "
-labels: ["qa", "go-live", "2-week-mvp"]
+labels: ["qa", "go-live", "high-priority"]
 ---
 
-## 🔍 Test Area
+## Test Area
 What feature or flow is being tested?
 Example: Authentication Flow, Payment Processing, Payout Approval, Admin Dashboard
 
-## ✅ MVP QA Checklist
+## MVP QA Checklist
 All auth flows tested:
 - [ ] Login successful with valid credentials
 - [ ] Login fails gracefully with invalid credentials
@@ -43,24 +43,24 @@ Error handling:
 - [ ] No console errors or warnings
 - [ ] Network errors handled gracefully
 
-## 🌐 Browser & Device Testing
+## Browser & Device Testing
 - [ ] Chrome (latest) - Desktop
 - [ ] Firefox (latest) - Desktop
 - [ ] Safari - macOS
 - [ ] Safari Mobile - iOS (iPhone 6+)
 - [ ] Chrome Mobile - Android
 
-## 🚨 Issues Found
+## Issues Found
 List bugs or concerns:
 - Issue #XXX: [description]
 - Issue #YYY: [description]
 
-## 🚀 Go-Live Status
+## Go-Live Status
 - [ ] **Ready for Production**
 - [ ] Needs Fixes (block deploy)
 - [ ] Blocked by: (link issues)
 
-## 📋 Production Readiness Checklist
+## Production Readiness Checklist
 - [ ] All critical bugs fixed
 - [ ] Performance acceptable (Lighthouse > 80)
 - [ ] Monitoring and logging enabled
