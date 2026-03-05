@@ -50,6 +50,80 @@ The `/api/v1/auth/register/` endpoint:
 - **Rotation**: Refresh tokens rotate on each refresh
 - **Blacklist**: Old refresh tokens are blacklisted
 
+## Social Authentication
+
+### Google OAuth 2.0
+
+Google social login is now supported for seamless user registration and authentication.
+
+**Configuration:**
+
+Add to `.env`:
+```env
+# Google OAuth
+GOOGLE_OAUTH_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+GOOGLE_OAUTH_CLIENT_SECRET=your-google-client-secret
+GOOGLE_OAUTH_REDIRECT_URI=https://yourdomain.com/api/v1/auth/google/callback/
+```
+
+**Endpoints:**
+
+- **Google Login URL**: `GET /api/v1/auth/google/`
+  - Redirects user to Google consent screen
+  - User grants permission and returns to callback URI
+
+- **Google Callback**: `POST /api/v1/auth/google/callback/`
+  - **Request Body**:
+    ```json
+    {
+      "code": "authorization_code_from_google",
+      "state": "state_parameter"
+    }
+    ```
+  - **Response**: Returns user data and JWT tokens (access & refresh)
+  - **Auto-registration**: Creates a new `creator` user if email doesn't exist
+  - **Auto-login**: If user exists, returns tokens directly
+
+**Frontend Integration:**
+
+```html
+<!-- Google Sign-In Button -->
+<div id="g_id_onload"
+     data-client_id="YOUR_GOOGLE_CLIENT_ID"
+     data-callback="handleCredentialResponse">
+</div>
+<div class="g_id_signin" data-type="standard"></div>
+
+<script>
+function handleCredentialResponse(response) {
+  // Send credential token to your backend
+  fetch('/api/v1/auth/google/callback/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ 
+      code: response.credential,
+      state: generateState()
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    // Store tokens
+    localStorage.setItem('access_token', data.access);
+    localStorage.setItem('refresh_token', data.refresh);
+    // Redirect to dashboard
+    window.location.href = '/dashboard';
+  });
+}
+</script>
+```
+
+**User Accounts:**
+
+- Users created via Google OAuth have `user_type='creator'`
+- Email is verified automatically during OAuth
+- Users can link multiple authentication methods
+- Password is optional for social login users
+
 ## Multi-Frontend Support
 
 ### API Client Model
@@ -97,7 +171,7 @@ def some_view(request):
 Frontend URLs are configured via environment variables:
 
 ```env
-CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3001,https://app.example.com
+CORS_ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3001,https://app.example.com
 ```
 
 ## Rate Limiting
@@ -114,54 +188,13 @@ Currently using namespace-based versioning:
 
 ## Custom Permissions
 
-Import from `utils.permissions`:
-
-### IsCreator
-Allows only users with `user_type='creator'`
-
-```python
-from utils.permissions import IsCreator
-
-class CreatorOnlyView(APIView):
-    permission_classes = [IsAuthenticated, IsCreator]
-```
-
-### IsAdminUser
-Allows only staff or admin users
-
-```python
-from utils.permissions import IsAdminUser
-
-class AdminOnlyView(APIView):
-    permission_classes = [IsAuthenticated, IsAdminUser]
-```
-
-### IsStaffUser
-Allows only staff or superusers
-
-```python
-from utils.permissions import IsStaffUser
-
-class StaffOnlyView(APIView):
-    permission_classes = [IsAuthenticated, IsStaffUser]
-```
-
-### IsOwnerOrAdmin
-Allows only object owner or admin users
-
-```python
-from utils.permissions import IsOwnerOrAdmin
-
-class OwnerOrAdminView(APIView):
-    permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
-```
+Find custom permissions in `permissions.py`:
 
 ## Authentication Methods
 
-The API supports multiple authentication methods (tried in order):
-
-1. **API Key Authentication** - Via `X-API-Key` header (for client identification)
-2. **JWT Authentication** - Via `Authorization: Bearer <token>` header
+- **JWT Authentication**: Primary method for all users
+- **Google OAuth**: Supported for creators
+- **Future**: Additional social providers, API key authentication, etc.
 
 ## API Endpoints
 **Base URL**: `https://tipzed.pythonanywhere.com/`
@@ -175,31 +208,7 @@ The API supports multiple authentication methods (tried in order):
 
 ## Environment Variables
 
-Add to `.env` file:
-
-```env
-# Authentication
-SECRET_KEY=your-secret-key-here
-DEBUG=False
-
-# Database
-DATABASE_URL=postgresql://user:password@localhost/dbname
-
-# Allowed Hosts
-ALLOWED_HOSTS=localhost,127.0.0.1,yourdomain.com
-
-# CORS
-CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3001,https://app.example.com
-```
-
-## Database Migrations
-
-After implementing these changes, run:
-
-```bash
-python manage.py makemigrations customauth creators
-python manage.py migrate
-```
+Create `.env` file and copy required variables from `.env.example`.
 
 ## Security Notes
 
@@ -212,8 +221,8 @@ python manage.py migrate
 
 ## Future Enhancements
 
-- OAuth 2.0 / OpenID Connect support
-- Social login (Google, Facebook, etc.)
+- OAuth 2.0 / OpenID Connect support (additional providers)
+- Social login (Facebook, GitHub, etc.)
 - Two-factor authentication
 - API usage analytics per client
 - Webhook support for real-time events

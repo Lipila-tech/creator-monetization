@@ -1,48 +1,11 @@
 # Backend API - TipZed Monetization MVP
 
-**Django REST Framework API for creator monetization platform**
-
 Core service handling authentication, creator profiles, wallets, payments, payouts, and admin reconciliation.
 
 ---
 
 ## Overview
-
-RESTful API serving the TipZed web app. Handles:
-- User authentication (JWT)
-- Creator profiles & public endpoints
-- Immutable wallet ledger
-- Payment processing & webhooks
-- Payout management & admin approval
-- Transaction reconciliation
-
-**Tech Stack:**
-- Django 4.2
-- Django REST Framework
-- PostgreSQL (ledger)
-- Redis (caching/queues)
-- Celery (async tasks)
-- pytest (testing)
-
----
-
-## Project Structure
-
-```
-backend/
-├── config/                  ← Django project settings
-├── apps/                    ← Django apps
-├── tests/                   ← Test cases
-├── utils/                   ← Utility functions and helpers
-├── middleware/
-├── manage.py                ← Django CLI
-├── requirements.txt         ← Python dependencies
-├── .env.example             ← Environment variables template
-├── pytest.ini               ← Pytest configuration
-└── README.md                ← This file
-```
-
----
+The backend API is built with Django REST Framework and provides endpoints for all core functionalities of the TipZed monetization platform. It handles user authentication, creator profile management, wallet operations, payment processing, payout requests, and admin reconciliation.
 
 ## Setup
 
@@ -63,7 +26,7 @@ python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 
 # Install dependencies
-pip install -r requirements.txt
+pip install -r requirements/dev.txt
 
 # Configure environment
 cp .env.example .env
@@ -82,30 +45,27 @@ python manage.py runserver
 ---
 
 
-## 📝 Environment Variables
+## Environment Variables
 
 Create `.env` file and copy required variables from `.env.example`.
 
 ---
 
-## 🔐 Authentication
+## Authentication
 
-### JWT Flow
-
-1. **Register / Login** → Returns `access_token` + `refresh_token`
-2. **API Request** → Send `Authorization: Bearer <access_token>`
-3. **Token Expires** → Use `refresh_token` to get new `access_token`
+Check the authentication documentation for details: [docs/AUTHENTICATION.md](docs/AUTHENTICATION.md)
 
 ### Roles
 - `creator` - Can create profiles, receive payments, request payouts
-- `fan` - Can view profiles, send payments
+- `patron` - Can view profiles, make donations and subscribe
 - `admin` - Can view all data, approve payouts, reconcile transactions
+- `guest` - Can view public profiles, make payments without account
 
 ---
 
 ## Live API Endpoints
 
-**Base URL**: `https://tipzed.pythonanywhere.com/`
+**Base URL**: `https://lipila.schadmin.cloud/`
 
 **Check the documentation for API endpoints at:**
 - swagger: https://tipzed.pythonanywhere.com/api/v1/schema/swagger-ui/
@@ -150,7 +110,7 @@ pytest.ini is preconfigured for coverage reports. update `pytest.ini` if needed.
 
 ---
 
-## 🐛 Common Issues
+## Common Issues
 
 ### Database Connection Error
 ```bash
@@ -226,17 +186,11 @@ sudo systemctl restart gunicorn
 ## Support
 
 **Backend Issues?** → Contact Peter Zyambo
-
-**Need Help?**
-- Check [technical architecture](../README.md)
-- Review [ISSUE_TEMPLATE_GUIDE.md](../ISSUE_TEMPLATE_GUIDE.md)
-- See [EXAMPLE_WEEK1_ISSUES.md](../EXAMPLE_WEEK1_ISSUES.md) for patterns
-
+**API Questions?** → Check documentation or ask in #backend channel
 ---
 
 ## Contributing Backend
 
-Want to help with backend development?
 
 **See [CONTRIBUTION.md](../CONTRIBUTION.md)**
 
