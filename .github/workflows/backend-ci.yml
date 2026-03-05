@@ -27,7 +27,7 @@ jobs:
         run: pip install -r requirements/prod.txt
       - name: Run Pytest tests
         env:
-            DJANGO_SETTINGS_MODULE: backend.config.settings.test
+            DJANGO_SETTINGS_MODULE: config.settings.test
         run: pytest --cov=apps --cov=utils --cov-report=xml --cov-fail-under=80
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
