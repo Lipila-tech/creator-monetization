@@ -1,9 +1,10 @@
 from apps.payouts.tasks import auto_payout_wallets
 from apps.wallets.models import Wallet
-from apps.wallets.services.wallet_services import WalletTransactionService as WalletTxnService
+from apps.wallets.services.wallet_services import (
+    WalletTransactionService as WalletTxnService,
+)
 import pytest
 from decimal import Decimal
-from tests.conftest import user_factory
 from tests.factories import UserFactory
 
 
@@ -70,9 +71,10 @@ class TestPayoutTasks:
             correlation_id="TEST-PAYOUT-PENDING",
         )
 
-        with pytest.raises(Exception, match="A payout is already pending for this wallet"):
+        with pytest.raises(
+            Exception, match="A payout is already pending for this wallet"
+        ):
             auto_payout_wallets()
-
 
     def test_auto_payout_multiple_wallets(self, admin_user):
         # Create multiple wallets with balance
@@ -94,7 +96,6 @@ class TestPayoutTasks:
             assert payout_tx is not None
             assert payout_tx.status == "PENDING"
             assert payout_tx.amount == Decimal("-90.00")
-        
 
     def test_auto_payout_mixed_wallet_status(self, admin_user):
         # Create verified wallet with balance
@@ -124,14 +125,17 @@ class TestPayoutTasks:
         auto_payout_wallets()
 
         # Only verified wallet should have a payout transaction
-        payout_tx_verified = verified_wallet.transactions.filter(transaction_type="PAYOUT").first()
+        payout_tx_verified = verified_wallet.transactions.filter(
+            transaction_type="PAYOUT"
+        ).first()
         assert payout_tx_verified is not None
         assert payout_tx_verified.status == "PENDING"
         assert payout_tx_verified.amount == Decimal("-90.00")
 
-        payout_tx_unverified = unverified_wallet.transactions.filter(transaction_type="PAYOUT").first()
+        payout_tx_unverified = unverified_wallet.transactions.filter(
+            transaction_type="PAYOUT"
+        ).first()
         assert payout_tx_unverified is None
-
 
     def test_auto_payout_mixed_wallet_balances(self, admin_user):
         # Create wallet with balance
@@ -155,10 +159,14 @@ class TestPayoutTasks:
         auto_payout_wallets()
 
         # Only wallet with balance should have a payout transaction
-        payout_tx_with_balance = wallet_with_balance.transactions.filter(transaction_type="PAYOUT").first()
+        payout_tx_with_balance = wallet_with_balance.transactions.filter(
+            transaction_type="PAYOUT"
+        ).first()
         assert payout_tx_with_balance is not None
         assert payout_tx_with_balance.status == "PENDING"
         assert payout_tx_with_balance.amount == Decimal("-90.00")
 
-        payout_tx_without_balance = wallet_without_balance.transactions.filter(transaction_type="PAYOUT").first()
+        payout_tx_without_balance = wallet_without_balance.transactions.filter(
+            transaction_type="PAYOUT"
+        ).first()
         assert payout_tx_without_balance is None

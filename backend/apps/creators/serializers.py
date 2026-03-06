@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from apps.creators.models import CreatorProfile, CreatorCategory
-from apps.customauth.serializers import UserSerializer
+from apps.customauth.serializers import CustomUserSerializer
 from django.db import transaction
 
 from django.contrib.auth import get_user_model
@@ -111,7 +111,7 @@ class CreatorCategorySerializer(serializers.ModelSerializer):
 
 class CreatorPublicSerializer(serializers.ModelSerializer):
     """Serializer for public creator profile data."""
-    user = UserSerializer(read_only=True)
+    user = CustomUserSerializer(read_only=True)
     wallet_id = serializers.PrimaryKeyRelatedField(
         source="wallet", read_only=True
     )
@@ -146,7 +146,7 @@ class CreatorPublicSerializer(serializers.ModelSerializer):
  
 class CreatorListSerializer(serializers.ModelSerializer):
     """Serializer for listing creator profiles."""
-    user = UserSerializer(read_only=True)
+    user = CustomUserSerializer(read_only=True)
     profile_image = serializers.ImageField(max_length=None, use_url=True)
     profile_image = serializers.ImageField(max_length=None, use_url=True)
     categories = CreatorCategorySerializer(many=True, read_only=True)

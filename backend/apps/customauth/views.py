@@ -7,8 +7,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model
 from .serializers import (
-    UserSerializer,
-    UserRegistrationSerializer,
+    CustomUserSerializer,
+    CustomUserRegistrationSerializer,
     CustomLoginSerializer,
     ChangePasswordSerializer,
     CustomTokenRefreshSerializer
@@ -97,12 +97,12 @@ class CustomLoginView(TokenObtainPairView):
 
 class UserRegistrationView(APIView):
     permission_classes = [RequireAPIKey]
-    serializer_class = UserRegistrationSerializer
+    serializer_class = CustomUserRegistrationSerializer
 
     @extend_schema(
         operation_id="email_password_register",
         summary="Email & Password Registration",
-        request=UserRegistrationSerializer,
+        request=CustomUserRegistrationSerializer,
         responses={
             201: helpers.RegistrationResponseSerializer,
             400: helpers.ValidationErrorSerializer,
@@ -126,12 +126,12 @@ class UserRegistrationView(APIView):
             --------------
             Public endpoint.
         """
-        serializer = UserRegistrationSerializer(data=request.data)
+        serializer = CustomUserRegistrationSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
             refresh = RefreshToken.for_user(user)
             return Response({
-                'user': UserSerializer(user).data,
+                'user': CustomUserSerializer(user).data,
                 'refresh_token': str(refresh),
                 'access_token': str(refresh.access_token),
             }, status=status.HTTP_201_CREATED)
@@ -140,7 +140,7 @@ class UserRegistrationView(APIView):
 
 class UserProfileView(APIView):
     """Get current user profile."""
-    serializer_class = UserSerializer
+    serializer_class = CustomUserSerializer
     permission_classes = [RequireAPIKey, IsAuthenticated]
 
     @extend_schema(
@@ -159,7 +159,7 @@ class UserProfileView(APIView):
     )
     def get(self, request):
         """Get user profile."""
-        serializer = UserSerializer(request.user)
+        serializer = CustomUserSerializer(request.user)
         return Response({
             'status': 'success',
             'data':serializer.data
@@ -181,7 +181,7 @@ class UserProfileView(APIView):
     )
     def put(self, request):
         """Fully Update user profile."""
-        serializer = UserSerializer(
+        serializer = CustomUserSerializer(
             request.user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -209,7 +209,7 @@ class UserProfileView(APIView):
     )
     def patch(self, request):
         """Partially update user profile."""
-        serializer = UserSerializer(
+        serializer = CustomUserSerializer(
             request.user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()

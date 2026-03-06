@@ -42,7 +42,7 @@ class TestUpdateCreatorProfile:
 
     def test_update_social_media_invalid_links(self, auth_api_client, user_factory):
         """Test Update only social media links with invalid URLs"""
-        
+
         data = {
             "x_profile": "not_a_valid_url",
             "instagram_profile": "also_not_a_valid_url",
@@ -56,11 +56,11 @@ class TestUpdateCreatorProfile:
         )
         assert response.status_code == 400
         assert response.data is not None
-        assert "x_profile" in response.data['details']
-        assert "instagram_profile" in response.data['details']
-        assert "youtube_profile" in response.data['details']
-        assert "tikTok_profile" in response.data['details']
-        assert "facebook_profile" in response.data['details']
+        assert "x_profile" in response.data["details"]
+        assert "instagram_profile" in response.data["details"]
+        assert "youtube_profile" in response.data["details"]
+        assert "tikTok_profile" in response.data["details"]
+        assert "facebook_profile" in response.data["details"]
 
     def test_fail_unauthenticated_request(self, auth_api_client):
         """Test endpoint requires authenticated user"""
@@ -85,7 +85,7 @@ class TestUpdateCreatorProfile:
             "instagram_profile",
             "youtube_profile",
             "tikTok_profile",
-            "facebook_profile", 
+            "facebook_profile",
         }
         auth_api_client.force_authenticate(user=user_factory)
         response = auth_api_client.get("/api/v1/creators/profile/me/")
@@ -146,23 +146,22 @@ class TestUpdateCreatorProfile:
             "last_name": "surname",
             "bio": "Test bio",
             "phone_number": "09665544",
-            "profile_image": '',
-            "cover_image": '',
+            "profile_image": "",
+            "cover_image": "",
             "categorySlugs": [],
         }
         auth_api_client.force_authenticate(user=user_factory)
-        response = auth_api_client.put(
-            "/api/v1/creators/profile/me/", data=data)
+        response = auth_api_client.put("/api/v1/creators/profile/me/", data=data)
 
         assert response.status_code == 200
         assert response.data is not None
-        
+
         assert user_factory.creator_profile.bio == "Test bio"
-        
+
         assert user_factory.first_name == "test"
         assert user_factory.last_name == "surname"
         assert user_factory.phone_number == "09665544"
-       
+
     def test_update_rofile_images(self, auth_api_client, user_factory):
         """Test Update only profile and cover images"""
         creator_profile = user_factory.creator_profile
@@ -238,7 +237,6 @@ class TestUpdateCreatorProfile:
         assert creator_profile.profile_image.url is not None
         assert creator_profile.cover_image.url is not None
 
-
     def test_update_user_categories(self, auth_api_client, user_factory):
         categories = CreatorCategoryFactory.create_batch(4)
 
@@ -246,10 +244,8 @@ class TestUpdateCreatorProfile:
         c2 = categories[1].slug
         c3 = categories[2].slug
         c4 = categories[3].slug
-       
-        data = {
-            "category_slugs": [c1, c2, c3, c4]
-        }
+
+        data = {"category_slugs": [c1, c2, c3, c4]}
         auth_api_client.force_authenticate(user=user_factory)
         response = auth_api_client.put(
             "/api/v1/creators/profile/me/", data=data, format="multipart"
@@ -260,7 +256,7 @@ class TestUpdateCreatorProfile:
         # Check categories
         assert user_factory.creator_profile.categories.filter() is not None
         assert len(user_factory.creator_profile.categories.filter()) == 4
-        
+
 
 @pytest.mark.django_db
 class TestPublicCreatorProfile:
@@ -273,10 +269,12 @@ class TestPublicCreatorProfile:
         url = reverse("creators:creator_public_view", args=[creator_profile.user.slug])
         factory = APIRequestFactory()
         request = factory.get(url)
-        serializer = CreatorPublicSerializer(creator_profile, context={"request": request})
+        serializer = CreatorPublicSerializer(
+            creator_profile, context={"request": request}
+        )
         data = serializer.data
         expected_url = "http://testserver/media/test_images/test_image.png"
-        
+
         assert data["profile_image"] == expected_url
 
     def test_list_creator_profiles_view(self, auth_api_client):
@@ -374,7 +372,9 @@ class TestPublicCreatorProfile:
             assert profile.user.last_name in response.content.decode()
             assert "bio" in response.content.decode()
 
-    def test_creator_public_view_slug_case_insensitivity(self, auth_api_client, user_factory):
+    def test_creator_public_view_slug_case_insensitivity(
+        self, auth_api_client, user_factory
+    ):
         """Test that the creator public view is case insensitive regarding slugs."""
         creator_profile = user_factory.creator_profile
 
@@ -389,7 +389,9 @@ class TestPublicCreatorProfile:
         assert creator_profile.user.last_name in response.content.decode()
         assert "bio" in response.content.decode()
 
-    def test_creator_public_view_special_characters_in_slug(self, auth_api_client, user_factory):
+    def test_creator_public_view_special_characters_in_slug(
+        self, auth_api_client, user_factory
+    ):
         """Test that the creator public view handles special characters in slugs."""
         creator_profile = user_factory.creator_profile
         creator_profile.user.slug = "specialchar_slug-123"

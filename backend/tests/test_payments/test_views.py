@@ -30,6 +30,7 @@ class TestDepositViews:
         assert response.status_code == 429
 
     def test_unautenticated_frontend_client_fails(self, api_client, wallet_factory, mocker):
+        """Test that a frontend without X-API-Key has no access to endpoint"""
         mock_request = mocker.patch("apps.payments.views.pawapay_request")
         mock_request.return_value = (
             {"depositId": "1234", "status": "ACCEPTED"}, 200)

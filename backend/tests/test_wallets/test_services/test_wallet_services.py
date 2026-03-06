@@ -1,13 +1,17 @@
 import pytest
 from decimal import Decimal
 from datetime import datetime, timedelta
+from apps.wallets.services.wallet_services import WalletService, PayoutScheduleService
 from apps.wallets.services.wallet_services import (
-    WalletService, PayoutScheduleService)
-from apps.wallets.services.wallet_services import\
-    WalletTransactionService as WalletTxnService
+    WalletTransactionService as WalletTxnService,
+)
 from utils.exceptions import (
-    InsufficientBalance, DuplicateTransaction,
-    InvalidTransaction,WalletNotFound, WalletError)
+    InsufficientBalance,
+    DuplicateTransaction,
+    InvalidTransaction,
+    WalletNotFound,
+    WalletError,
+)
 from tests.factories import UserFactory
 
 
@@ -64,7 +68,6 @@ class TestPayoutScheduleService:
         )
         assert next_date == last_payout
 
-
     def test_get_next_payout_date_with_previous_payout_and_large_interval(self):
         """Test that the next payout date is correctly calculated for a large
         interval."""
@@ -106,7 +109,7 @@ class TestPayoutScheduleService:
             PayoutScheduleService.get_next_payout_date(
                 last_payout_date=last_payout, payout_interval_days=-7
             )
-    
+
 
 class TestWalletTransactionService:
     """Test Single source of truth for all wallet money movements."""
@@ -114,17 +117,22 @@ class TestWalletTransactionService:
     def test_wallet_balance_matches_transactions(self, user_factory):
         WalletTxnService.cash_in(
             wallet=user_factory.creator_profile.wallet,
-            amount=Decimal("5.00"), payment=None, reference="A"
+            amount=Decimal("5.00"),
+            payment=None,
+            reference="A",
         )
 
         WalletTxnService.cash_in(
             wallet=user_factory.creator_profile.wallet,
-            amount=Decimal("15.00"), payment=None, reference="B"
+            amount=Decimal("15.00"),
+            payment=None,
+            reference="B",
         )
         # Only added to transactions if its finalized
         WalletTxnService.payout(
             wallet=user_factory.creator_profile.wallet,
-            amount=Decimal("3.00"), correlation_id="C"
+            amount=Decimal("3.00"),
+            correlation_id="C",
         )
 
         user_factory.creator_profile.wallet.refresh_from_db()
@@ -137,12 +145,11 @@ class TestWalletTransactionService:
             payment=None,
             reference="CASHIN-1",
         )
-        
+
         user_factory.creator_profile.wallet.refresh_from_db()
         assert user_factory.creator_profile.wallet.balance == Decimal("18.00")
         assert tx.transaction_type == "CASH_IN"
         assert tx.status == "COMPLETED"
-
 
     def test_cash_in_creates_a_transaction_with_deducted_fee(self, user_factory):
         tx = WalletTxnService.cash_in(
@@ -151,11 +158,10 @@ class TestWalletTransactionService:
             payment=None,
             reference="CASHIN-1",
         )
-        
+
         user_factory.creator_profile.wallet.refresh_from_db()
         wallet_balance = user_factory.creator_profile.wallet.balance
         assert wallet_balance == tx.amount
-        
 
     def test_payout_transaction_reduces_balance(self, user_factory):
         # First cash-in
@@ -169,7 +175,8 @@ class TestWalletTransactionService:
         # Payout
         tx = WalletTxnService.payout(
             wallet=user_factory.creator_profile.wallet,
-            amount=Decimal("30.00"), correlation_id="PAYOUT-1"
+            amount=Decimal("30.00"),
+            correlation_id="PAYOUT-1",
         )
 
         assert tx.amount == Decimal("-30.00")
@@ -186,7 +193,9 @@ class TestWalletTransactionService:
     def test_duplicate_transaction_raises(self, user_factory):
         WalletTxnService.cash_in(
             wallet=user_factory.creator_profile.wallet,
-            amount=Decimal("10.00"), payment=None, reference="DUP-1"
+            amount=Decimal("10.00"),
+            payment=None,
+            reference="DUP-1",
         )
 
         with pytest.raises(DuplicateTransaction):
@@ -207,11 +216,11 @@ class TestWalletTransactionService:
 
         payout_tx = WalletTxnService.payout(
             wallet=user_factory.creator_profile.wallet,
-            amount=Decimal("30.00"), correlation_id="PAYOUT-2"
+            amount=Decimal("30.00"),
+            correlation_id="PAYOUT-2",
         )
 
-        WalletTxnService.finalize_payout(
-            payout_tx=payout_tx, success=True)
+        WalletTxnService.finalize_payout(payout_tx=payout_tx, success=True)
 
         user_factory.creator_profile.wallet.refresh_from_db()
         # cashin(50 - 10%) = 45 - cashout(30) = 15
@@ -230,11 +239,11 @@ class TestWalletTransactionService:
 
         payout_tx = WalletTxnService.payout(
             wallet=user_factory.creator_profile.wallet,
-            amount=Decimal("25.00"), correlation_id="PAYOUT-3"
+            amount=Decimal("25.00"),
+            correlation_id="PAYOUT-3",
         )
 
-        WalletTxnService.finalize_payout(
-            payout_tx=payout_tx, success=False)
+        WalletTxnService.finalize_payout(payout_tx=payout_tx, success=False)
 
         user_factory.creator_profile.wallet.refresh_from_db()
         assert user_factory.creator_profile.wallet.balance == Decimal("36.00")
@@ -249,9 +258,7 @@ class TestWalletTransactionService:
             reference="CASHIN-FEE-1",
         )
 
-        fee_tx = txn_filter(
-            related_transaction=tx, transaction_type="FEE"
-        )
+        fee_tx = txn_filter(related_transaction=tx, transaction_type="FEE")
 
         assert fee_tx.amount == Decimal("-2")  # 10% fee
         fees = tx.related_fees.all()
@@ -285,16 +292,15 @@ class TestWalletTransactionService:
 
         payout_tx = WalletTxnService.payout(
             wallet=user_factory.creator_profile.wallet,
-            amount=Decimal("20.00"), correlation_id="PAYOUT-IDEMP"
+            amount=Decimal("20.00"),
+            correlation_id="PAYOUT-IDEMP",
         )
 
-        WalletTxnService.finalize_payout(
-            payout_tx=payout_tx, success=True)
+        WalletTxnService.finalize_payout(payout_tx=payout_tx, success=True)
         user_factory.creator_profile.wallet.refresh_from_db()
         balance_after_first = user_factory.creator_profile.wallet.balance
 
-        WalletTxnService.finalize_payout(
-            payout_tx=payout_tx, success=True)
+        WalletTxnService.finalize_payout(payout_tx=payout_tx, success=True)
         user_factory.creator_profile.wallet.refresh_from_db()
 
         assert user_factory.creator_profile.wallet.balance == balance_after_first
@@ -316,9 +322,9 @@ class TestWalletTransactionService:
             wallet=user_factory.creator_profile.wallet,
             amount=Decimal("5.00"),
             related_transaction=payout_tx,
-            reference="reversal")
-        WalletTxnService.finalize_payout(
-            payout_tx=payout_tx, success=False)
+            reference="reversal",
+        )
+        WalletTxnService.finalize_payout(payout_tx=payout_tx, success=False)
 
         fee_tx = payout_tx.related_fees.first()
         reversal = txn_filter(
@@ -340,7 +346,8 @@ class TestWalletTransactionService:
         with pytest.raises(InvalidTransaction):
             WalletTxnService.payout(
                 wallet=user_factory.creator_profile.wallet,
-                amount=Decimal("-5.00"), correlation_id="NEGATIVE"
+                amount=Decimal("-5.00"),
+                correlation_id="NEGATIVE",
             )
 
     def test_finalize_non_payout_raises(self, user_factory):
@@ -352,8 +359,7 @@ class TestWalletTransactionService:
         )
 
         with pytest.raises(Exception):
-            WalletTxnService.finalize_payout(
-                payout_tx=tx, success=True)
+            WalletTxnService.finalize_payout(payout_tx=tx, success=True)
 
 
 @pytest.mark.django_db
@@ -367,52 +373,56 @@ class TestWalletService:
 
         with pytest.raises(WalletNotFound, match="User does not have a wallet"):
             WalletService.get_wallet_for_user(user)
-        
+
     def test_recalculate_wallet_balance_cash_in_out(self, wallet_txn_factory):
         from decimal import Decimal
-        wallet_txn = wallet_txn_factory(
-            amount=Decimal('10'), status="COMPLETED")
+
+        wallet_txn = wallet_txn_factory(amount=Decimal("10"), status="COMPLETED")
         WalletService.recalculate_wallet_balance(wallet_txn.wallet)
         wallet_txn.wallet.refresh_from_db()
-        assert wallet_txn.wallet.balance == Decimal('10')
+        assert wallet_txn.wallet.balance == Decimal("10")
 
         # Add fee
         wallet_txn = wallet_txn_factory(
-            amount=Decimal('-3'), wallet=wallet_txn.wallet, status="COMPLETED",
-            transaction_type="FEE")
+            amount=Decimal("-3"),
+            wallet=wallet_txn.wallet,
+            status="COMPLETED",
+            transaction_type="FEE",
+        )
         wallet_txn.save()
         WalletService.recalculate_wallet_balance(wallet_txn.wallet)
         wallet_txn.wallet.refresh_from_db()
-        assert wallet_txn.wallet.balance == Decimal('10')
+        assert wallet_txn.wallet.balance == Decimal("10")
 
-        #cashout
+        # cashout
         wallet_txn = wallet_txn_factory(
-            amount=Decimal('-3'), wallet=wallet_txn.wallet, status="COMPLETED",
-            transaction_type="PAYOUT")
+            amount=Decimal("-3"),
+            wallet=wallet_txn.wallet,
+            status="COMPLETED",
+            transaction_type="PAYOUT",
+        )
         wallet_txn.save()
         WalletService.recalculate_wallet_balance(wallet_txn.wallet)
         wallet_txn.wallet.refresh_from_db()
-        assert wallet_txn.wallet.balance == Decimal('7')
+        assert wallet_txn.wallet.balance == Decimal("7")
 
     def test_dont_add_pending_txn_to_balance(self, wallet_txn_factory):
         from decimal import Decimal
-        wallet_txn = wallet_txn_factory(
-            amount=Decimal('10'), status="COMPLETED")
+
+        wallet_txn = wallet_txn_factory(amount=Decimal("10"), status="COMPLETED")
         WalletService.recalculate_wallet_balance(wallet_txn.wallet)
         wallet_txn.wallet.refresh_from_db()
-        assert wallet_txn.wallet.balance == Decimal('10')
+        assert wallet_txn.wallet.balance == Decimal("10")
 
-        wallet_txn = wallet_txn_factory(
-            amount=Decimal('-3'), wallet=wallet_txn.wallet)
+        wallet_txn = wallet_txn_factory(amount=Decimal("-3"), wallet=wallet_txn.wallet)
         wallet_txn.save()
         WalletService.recalculate_wallet_balance(wallet_txn.wallet)
         wallet_txn.wallet.refresh_from_db()
-        assert wallet_txn.wallet.balance == Decimal('10')
+        assert wallet_txn.wallet.balance == Decimal("10")
 
     def test_calculate_balance_bad_arguments(self, wallet_txn_factory):
         from decimal import Decimal
-        wallet_txn_factory(
-            amount=Decimal('10'), status="COMPLETED")
+
+        wallet_txn_factory(amount=Decimal("10"), status="COMPLETED")
         with pytest.raises(WalletError):
-            WalletService.recalculate_wallet_balance('not-wallet')
-        
+            WalletService.recalculate_wallet_balance("not-wallet")

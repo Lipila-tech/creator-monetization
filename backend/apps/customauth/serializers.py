@@ -15,7 +15,7 @@ class CustomTokenRefreshSerializer(TokenRefreshSerializer):
         data = super().validate(attrs)
         return data
 
-class UserSerializer(serializers.ModelSerializer):
+class CustomUserSerializer(serializers.ModelSerializer):
     """Serializer for user model."""
 
     class Meta:
@@ -24,7 +24,7 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'user_type', 'date_joined', 'is_active', 'slug')
 
 
-class UserRegistrationSerializer(serializers.ModelSerializer):
+class CustomUserRegistrationSerializer(serializers.ModelSerializer):
     """Serializer for user registration."""
 
     password = serializers.CharField(

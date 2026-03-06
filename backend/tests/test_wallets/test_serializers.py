@@ -1,6 +1,7 @@
 """
 Tests for payment-related serializers (Wallet, KYC, Transactions, etc.)
 """
+
 import pytest
 from datetime import datetime, timedelta
 from apps.wallets.serializers import (
@@ -13,10 +14,13 @@ from apps.wallets.serializers import (
     WalletTransactionCreateSerializer,
     WalletKYCSerializer,
 )
+
 pytest.mark.django_db
+
+
 class TestWalletListSerializer:
     """Test WalletListSerializer"""
-    
+
     def test_serialize_wallet_list(self, user_factory):
         """Test serialization of wallet list"""
         wallet_factory = user_factory.creator_profile.wallet
@@ -38,6 +42,8 @@ class TestWalletListSerializer:
 
 
 pytest.mark.django_db
+
+
 class TestWalletDetailSerializer:
     """Test WalletDetailSerializer"""
 
@@ -60,9 +66,11 @@ class TestWalletDetailSerializer:
             "total_outgoing",
         ]
         for field in expected_fields:
-            assert field in data, f"{field} should be in serialized data" 
+            assert field in data, f"{field} should be in serialized data"
 
-    def test_serializer_get_next_payout_date_with_transactions(self, wallet_transaction_factory):
+    def test_serializer_get_next_payout_date_with_transactions(
+        self, wallet_transaction_factory
+    ):
         """
         Test that the get_next_payout_date method returns a valid date string
         if wallet has transactions, this uses default payout interval of 30 days.
@@ -75,17 +83,24 @@ class TestWalletDetailSerializer:
         next_payout_date = data["next_payout_date"]
         assert next_payout_date is not None
         # Check if it's a valid ISO date string
-        
+
         try:
             datetime.fromisoformat(next_payout_date)
             valid_date = True
         except ValueError:
             valid_date = False
         assert valid_date, "next_payout_date should be a valid ISO date string"
-        assert next_payout_date > wallet_transaction_factory.created_at.isoformat(), "Next payout date should be after last transaction date"
-        assert next_payout_date <= (wallet_transaction_factory.created_at + timedelta(days=30)).isoformat(), "Next payout date should be within 30 days of last transaction date"
+        assert (
+            next_payout_date > wallet_transaction_factory.created_at.isoformat()
+        ), "Next payout date should be after last transaction date"
+        assert (
+            next_payout_date
+            <= (wallet_transaction_factory.created_at + timedelta(days=30)).isoformat()
+        ), "Next payout date should be within 30 days of last transaction date"
 
-    def test_serializer_get_next_payout_date_weekly_interval(self, wallet_transaction_factory):
+    def test_serializer_get_next_payout_date_weekly_interval(
+        self, wallet_transaction_factory
+    ):
         """
         Test that the get_next_payout_date method returns a valid date string
         if wallet has transactions and payout interval is set to weekly (7 days).
@@ -101,17 +116,24 @@ class TestWalletDetailSerializer:
         next_payout_date = data["next_payout_date"]
         assert next_payout_date is not None
         # Check if it's a valid ISO date string
-        
+
         try:
             datetime.fromisoformat(next_payout_date)
             valid_date = True
         except ValueError:
             valid_date = False
         assert valid_date, "next_payout_date should be a valid ISO date string"
-        assert next_payout_date > wallet_transaction_factory.created_at.isoformat(), "Next payout date should be after last transaction date"
-        assert next_payout_date <= (wallet_transaction_factory.created_at + timedelta(days=7)).isoformat(), "Next payout date should be within 7 days of last transaction date"
+        assert (
+            next_payout_date > wallet_transaction_factory.created_at.isoformat()
+        ), "Next payout date should be after last transaction date"
+        assert (
+            next_payout_date
+            <= (wallet_transaction_factory.created_at + timedelta(days=7)).isoformat()
+        ), "Next payout date should be within 7 days of last transaction date"
 
-    def test_serializer_get_next_payout_date__biweekly_interval(self, wallet_transaction_factory):
+    def test_serializer_get_next_payout_date__biweekly_interval(
+        self, wallet_transaction_factory
+    ):
         """
         Test that the get_next_payout_date method returns a valid date string
         if wallet has transactions and payout interval is set to bi-weekly (14 days).
@@ -127,16 +149,20 @@ class TestWalletDetailSerializer:
         next_payout_date = data["next_payout_date"]
         assert next_payout_date is not None
         # Check if it's a valid ISO date string
-        
+
         try:
             datetime.fromisoformat(next_payout_date)
             valid_date = True
         except ValueError:
             valid_date = False
         assert valid_date, "next_payout_date should be a valid ISO date string"
-        assert next_payout_date > wallet_transaction_factory.created_at.isoformat(), "Next payout date should be after last transaction date"
-        assert next_payout_date <= (wallet_transaction_factory.created_at + timedelta(days=14)).isoformat(), "Next payout date should be within 14 days of last transaction date"
-
+        assert (
+            next_payout_date > wallet_transaction_factory.created_at.isoformat()
+        ), "Next payout date should be after last transaction date"
+        assert (
+            next_payout_date
+            <= (wallet_transaction_factory.created_at + timedelta(days=14)).isoformat()
+        ), "Next payout date should be within 14 days of last transaction date"
 
     def test_serializer_get_next_payout_date_no_transactions(self, wallet_factory):
         """
@@ -151,6 +177,7 @@ class TestWalletDetailSerializer:
         assert next_payout_date is not None
         # Check if it's a valid ISO date string
         from datetime import datetime
+
         try:
             datetime.fromisoformat(next_payout_date)
             valid_date = True
@@ -178,7 +205,10 @@ class TestWalletDetailSerializer:
         assert "transaction_count" in data
         assert "total_outgoing" in data
 
+
 pytest.mark.django_db
+
+
 class TestWalletUpdateSerializer:
     """Test WalletUpdateSerializer"""
 

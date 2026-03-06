@@ -104,14 +104,6 @@ class PaymentStatusAPIView(APIView):
         operation_id="retrieve_payment_status",
         summary="Retrieve Payment Status",
         description="Get payment status by deposit ID",
-        parameters=[
-            {
-                "name": "deposit_id",
-                "description": "ID of the deposit to check status for",
-                "required": True,
-                "type": "string (uuid)",
-            }
-        ],
         responses={
             200: {"description": "Payment status retrieved successfully"},
             404: {"description": "Payment not found"},
