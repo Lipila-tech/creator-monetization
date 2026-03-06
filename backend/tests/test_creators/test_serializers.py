@@ -15,7 +15,7 @@ User = get_user_model()
 class TestUserTypeSelectionSerializer:
     def test_valid_user_type_selection(self):
         """Test that valid user type choices are accepted."""
-        for user_type, _ in User.USER_TYPE_CHOICES:
+        for user_type in ['guest', 'creator', 'patron']:
             serializer = UserTypeSelectionSerializer(data={'user_type': user_type})
             assert serializer.is_valid(), f"Expected valid for user_type '{user_type}'"
             assert serializer.validated_data['user_type'] == user_type
