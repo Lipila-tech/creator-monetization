@@ -8,7 +8,11 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 class UserTypeSelectionSerializer(serializers.Serializer):
-    user_type = serializers.ChoiceField(choices=User.USER_TYPE_CHOICES)
+    allowed_roles = ['creator', 'patron', 'guest']
+    user_type = serializers.ChoiceField(
+        choices=[
+            (k, v) for k, v in User.USER_TYPE_CHOICES if k in ['creator', 'patron', 'guest']]
+            )
     
 
 class UpdateCreatorProfileSerializer(serializers.ModelSerializer):

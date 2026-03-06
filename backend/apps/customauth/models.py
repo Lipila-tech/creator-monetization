@@ -37,7 +37,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     """Custom user model using email for authentication."""
 
     USER_TYPE_CHOICES = (
+        ('guest', 'Guest'),
         ('creator', 'Creator'),
+        ('patron', 'Patron'),
         ('admin', 'Admin'),
         ('staff', 'Staff'),
     )

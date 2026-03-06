@@ -165,8 +165,9 @@ class WalletPayoutAccountView(APIView):
 class WalletListView(APIView):
     permission_classes = [RequireAPIKey, IsAuthenticated]
     @extend_schema(
-        operation_id="retrieve__Wallet",
+        operation_id="retrieve_Wallet",
         summary="Retrieve Users Wallet",
+        request=WalletDetailSerializer,
         responses={
             200: helpers.SuccessResponseSerializer,
             400: helpers.ValidationErrorSerializer,
@@ -276,8 +277,9 @@ class WalletListView(APIView):
                         except DuplicateTransaction:
                             pass
     @extend_schema(
-            operation_id="update_wallet_payout_interval",
-            summary="Update Wallet Payout Interval",
+            operation_id="update_payout_interval",
+            summary="Update Payout Interval",
+            request=WalletUpdateSerializer,
             responses={
                 200: helpers.SuccessResponseSerializer,
                 400: helpers.ValidationErrorSerializer,
@@ -290,7 +292,10 @@ class WalletListView(APIView):
             }
          )
     def put(self, request, *args, **kwargs):
-        """Update wallet payout interval"""
+        """
+        Update an authenticated users payout interval
+        Options (weekly, biweekly, monthly)
+        """
         try:
             wallet = WalletService.get_wallet_for_user(request.user)
         except WalletNotFound:

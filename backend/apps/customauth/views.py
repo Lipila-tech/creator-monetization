@@ -100,8 +100,9 @@ class UserRegistrationView(APIView):
     serializer_class = UserRegistrationSerializer
 
     @extend_schema(
-        operation_id="register_user",
-        summary="Register User",
+        operation_id="email_password_register",
+        summary="Email & Password Registration",
+        request=UserRegistrationSerializer,
         responses={
             201: helpers.RegistrationResponseSerializer,
             400: helpers.ValidationErrorSerializer,
@@ -114,14 +115,17 @@ class UserRegistrationView(APIView):
         }
     )
     def post(self, request):
-        """ Register a new user account (creator or patron).
+        """
+        Register a new user account (creator or patron).
 
-        Creates a new account using email/password. The backend may assign roles
-        (creator vs patron) during onboarding or via a separate profile endpoint.
+            Creates a new account using email/password. The backend auto assigns
+            user_type (creator) if not provided. Frontend may request user_type change
+            during onboarding via the Select User Type endpoint in Creators folder.
 
-        Authentication
-        --------------
-        Public endpoint."""
+            Authentication
+            --------------
+            Public endpoint.
+        """
         serializer = UserRegistrationSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()

@@ -6,12 +6,13 @@ class LoginResponseSerializer(serializers.Serializer):
 
     Used to return user access and refresh tokens upon successful login.
     """
+    access_token = serializers.CharField()
+    refresh_token = serializers.CharField()
     user = serializers.DictField(
         child=serializers.CharField(),
         help_text="Authenticated user details",
     )
-    access_token = serializers.CharField()
-    refresh_token = serializers.CharField()
+    
 
 class RegistrationResponseSerializer(serializers.Serializer):
     """
@@ -19,14 +20,13 @@ class RegistrationResponseSerializer(serializers.Serializer):
 
     Used to return newly created user access and refresh tokens upon successful registration.
     """
+    access_token = serializers.CharField()
+    refresh_token = serializers.CharField()
     user = serializers.DictField(
         child=serializers.CharField(),
         help_text="Authenticated user details",
     )
-    access_token = serializers.CharField()
-    refresh_token = serializers.CharField()
-
-
+    
 class SuccessResponseSerializer(serializers.Serializer):
     """
     Standard 200 OK response serializer.
