@@ -17,12 +17,16 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # Raises Django's ImproperlyConfigured
 # exception if SECRET_KEY not in os.environ
-SECRET_KEY = 'django-insecure-v1f+!amwlwv5ee7uk^!gs9v+9fnfv*qj6q1=n)b9=#w6(2-vw_'
+SECRET_KEY = '51124ffa-955a-4f9b-bdd3-d0f4edfa06af'
 
 # False if not in os.environ because of casting above
 DEBUG = False
+SECURE_SSL_REDIRECT = False  # Disable SSL redirect for testing
+SESSION_COOKIE_SECURE = False  # Disable secure cookies for testing
+CSRF_COOKIE_SECURE = False  # Disable secure cookies for testing
+SECURE_HST_SECONDS = 0  # Disable HSTS for testing
 
-ALLOWED_HOSTS = env('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = ['testserver', 'localhost', '127.0.0.1']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -253,24 +257,6 @@ CACHES = {
         "LOCATION": "127.0.0.1:11211",
     }
 }
-
-
-# -------------------
-# Security Headers
-# -------------------
-SECURE_HST_SECONDS = 31536000  # 1 year
-SECURE_HST_INCLUDE_SUBDOMAINS = True
-SECURE_HST_PRELOAD = True
-SECURE_CONTENT_TYPE_NOSNIFF = True
-SECURE_BROWSER_XSS_FILTER = True
-SECURE_REFERRER_POLICY = 'same-origin'
-SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin'
-SECURE_CROSS_ORIGIN_RESOURCE_POLICY = 'same-origin'
-SECURE_CROSS_ORIGIN_EMBEDDER_POLICY = 'require-corp'
-SECURE_SSL_REDIRECT = not DEBUG
-SESSION_COOKIE_SECURE = not DEBUG
-CSRF_COOKIE_SECURE = not DEBUG
-X_FRAME_OPTIONS = 'DENY'
 
 
 # Simple JWT Configuration
