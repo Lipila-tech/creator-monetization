@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+<coverage version="5.5" timestamp="1234567890" lines-valid="100" lines-covered="85" line-rate="0.85" branches-covered="0" branches-valid="0" branch-rate="0" complexity="0">
+    <packages>
+        <package name="." line-rate="0.85" branch-rate="0" complexity="0">
+            <classes>
+                <class name="module.py" filename="module.py" line-rate="0.85" branch-rate="0" complexity="0">
+                    <methods/>
+                    <lines>
+                        <line number="1" hits="1"/>
+                        <line number="2" hits="1"/>
+                        <line number="3" hits="1"/>
+                        <line number="4" hits="0"/>
+                        <line number="5" hits="1"/>
+                    </lines>
+                </class>
+            </classes>
+        </package>
+    </packages>
+</coverage>

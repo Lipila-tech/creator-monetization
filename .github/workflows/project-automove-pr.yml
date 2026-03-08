@@ -13,7 +13,7 @@ jobs:
       - name: Move linked issue in project
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GH_API_TOKEN }}
           script: |
             const projectId = "PVT_kwDOCYmIm84BNk3g";
             const STATUS_FIELD_ID = "PVTSSF_lADOCYmIm84BNk3gzg8h8SE";

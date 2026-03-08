@@ -17,7 +17,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # Raises Django's ImproperlyConfigured
 # exception if SECRET_KEY not in os.environ
-SECRET_KEY = '51124ffa-955a-4f9b-bdd3-d0f4edfa06af'
+SECRET_KEY = env('SECRET_KEY', default='unsafe-secret-key-for-testing-only')
 
 # False if not in os.environ because of casting above
 DEBUG = False
