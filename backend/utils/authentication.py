@@ -3,8 +3,52 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import BasePermission
 from django.contrib.auth import get_user_model
 from apps.customauth.models import APIClient
+from rest_framework import authentication, exceptions
+from firebase_admin import auth
 
 User = get_user_model()
+
+class FirebaseAuthentication(authentication.BaseAuthentication):
+    def authenticate(self, request):
+        auth_header = request.META.get("HTTP_AUTHORIZATION", "")
+        if not auth_header.startswith("Bearer "):
+            return None
+
+        id_token = auth_header.split("Bearer ")[1].strip()
+        if not id_token:
+            raise exceptions.AuthenticationFailed("Missing Firebase token.")
+
+        try:
+            decoded_token = auth.verify_id_token(id_token)
+        except Exception:
+            raise exceptions.AuthenticationFailed("Invalid or expired Firebase token.")
+
+        firebase_uid = decoded_token.get("uid")
+        email = decoded_token.get("email", "")
+        name = decoded_token.get("name", "")
+        picture = decoded_token.get("picture", "")
+
+        if not firebase_uid:
+            raise exceptions.AuthenticationFailed("Firebase UID not found.")
+
+        user, _ = User.objects.get_or_create(
+            username=firebase_uid,
+            defaults={
+                "email": email or "",
+                "first_name": name or "",
+            },
+        )
+
+        # optional sync
+        if email and user.email != email:
+            user.email = email
+            user.save(update_fields=["email"])
+
+        # attach decoded token if you want later access
+        request.firebase_user = decoded_token
+        request.firebase_picture = picture
+
+        return (user, None)
 
 
 class APIKeyAuthentication(BaseAuthentication):

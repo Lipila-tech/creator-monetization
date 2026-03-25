@@ -7,6 +7,9 @@ class CustomAuthConfig(AppConfig):
     name = "apps.customauth"
 
     def ready(self):
+        from .firebase import initialize_firebase
+        initialize_firebase()
+
         if os.environ.get("DJANGO_AUTO_SETUP", "false").lower() != "true":
             return
         if getattr(settings, "RUNNING_AUTO_SETUP", False):
