@@ -1,229 +1,160 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { creatorService } from "@/services/creatorService";
-import { authService } from "@/services/authService";
 import { walletService } from "../services/walletService";
+import { auth, db, googleProvider, handleFirestoreError, OperationType } from "../firebase";
+import { 
+  onAuthStateChanged, 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signOut, 
+  signInWithPopup,
+  updateProfile
+} from "firebase/auth";
+import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  // Lazy Initialization: Reads storage ONCE when app starts so there is no need for useEffect.
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const getUser = () => {
-    return JSON.parse(localStorage.getItem("user"));
-  };
-
-  const saveUser = (user) => {
-    setUser(user);
-    localStorage.setItem("user", JSON.stringify(user));
-  };
-
-  const saveTokens = (access, refresh) => {
-    setToken(token);
-    localStorage.setItem("accessToken", access);
-    localStorage.setItem("refreshToken", refresh);
-  };
-
-  const [token, setToken] = useState(() => {
-    return localStorage.getItem("accessToken") || null;
-  });
-
-  const [user, setUser] = useState(() => {
-    const storedUser = getUser();
+  const enhanceUserInBackground = async (userData) => {
     try {
-      return storedUser ?? null;
-    } catch (error) {
-      console.error("Failed to parse user data", error);
-      return null;
-    }
-  });
+      // This part depends on the existing creatorService which might still point to the old backend
+      // If the user wants full Firebase, we might need to migrate these services too.
+      // For now, I'll keep it but wrap in try-catch.
+      if (userData.slug) {
+        const [{ data: creatorData }, walletData] = await Promise.all([
+          creatorService.getCreatorBySlug(userData.slug),
+          walletService.getWalletData(),
+        ]);
 
-  /**
-   * Helper function to fetch and enhance user data
-   * @param {*} user current minimal user data that requires enhancement
-   * @returns fully complete user profile data
-   */
-  const fetchEnhancedUserData = async (user) => {
-    const [{ data: creatorData }, walletData] = await Promise.all([
-      creatorService.getCreatorBySlug(user.slug),
-      walletService.getWalletData(),
-    ]);
-
-    return {
-      ...user,
-      bio: creatorData.bio,
-      profileImage: creatorData.profileImage || user.profileImage,
-      coverImage: creatorData.coverImage || user.coverImage,
-      hasEarnings:
-        walletData?.totalEarnings > 0 || walletData?.transactionCount,
-    };
-  };
-
-  /**
-   * Silently enhances user data in the background to prevent prolonged login
-   * @param {*} user current minimal user data that requires enhancement
-   */
-  const enhanceUserInBackground = async (user) => {
-    try {
-      const enhancedUser = await fetchEnhancedUserData(user);
-
-      const prev = getUser();
-
-      if (!prev) throw new Error("User not found");
-
-      // Merge minimal user data with fill profile data
-      saveUser({
-        ...prev, // minimal
-        ...enhancedUser, // full profile
-      });
+        const enhanced = {
+          ...userData,
+          bio: creatorData.bio,
+          profileImage: creatorData.profileImage || userData.photoURL,
+          coverImage: creatorData.coverImage,
+          hasEarnings: walletData?.totalEarnings > 0 || walletData?.transactionCount,
+        };
+        setUser(prev => ({ ...prev, ...enhanced }));
+      }
     } catch (err) {
-      // let login continue without enhancement (silent fail)
       console.warn("User enhancement failed:", err);
     }
   };
 
-  /**
-   * Call login endpoint and performs a global update of user state and auth state
-   * @param {string} email user's email
-   * @param {string} password user's password
-   * @returns
-   */
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        try {
+          // Get user profile from Firestore
+          const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            setUser({
+              ...firebaseUser,
+              ...userData,
+            });
+            enhanceUserInBackground(userData);
+          } else {
+            // If doc doesn't exist, we might need to create it (e.g. after Google login)
+            const newUser = {
+              uid: firebaseUser.uid,
+              email: firebaseUser.email,
+              displayName: firebaseUser.displayName,
+              photoURL: firebaseUser.photoURL,
+              role: "user",
+              createdAt: serverTimestamp(),
+            };
+            await setDoc(doc(db, "users", firebaseUser.uid), newUser);
+            setUser(newUser);
+          }
+        } catch (error) {
+          handleFirestoreError(error, OperationType.GET, `users/${firebaseUser.uid}`);
+        }
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   const login = async (email, password) => {
     try {
-      const { data } = await authService.loginUser(email, password);
-      const { accessToken, refreshToken } = data;
-
-      saveTokens(accessToken, refreshToken);
-
-      const { data: profileResponse } = await authService.getProfile();
-
-      if (profileResponse.status !== "success") {
-        throw new Error("No user found");
-      }
-
-      const baseUser = profileResponse.data;
-
-      // Instant UX so app can render now
-      saveUser(baseUser);
-
-      enhanceUserInBackground(baseUser);
-
-      return {
-        success: true,
-        user: baseUser,
-      };
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      return { success: true, user: userCredential.user };
     } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || "Login failed",
-      };
+      return { success: false, error: error.message };
     }
   };
 
-  /**
-   * Calls the register endpoint and performs a global update of user state and auth state
-   * @param {*} formData user data
-   * @returns
-   */
-  const register = async (formData) => {
+  const register = async (data) => {
+    const { email, password, firstName, lastName, username } = data;
+    const displayName = `${firstName || ""} ${lastName || ""}`.trim() || username;
+
     try {
-      const response = await authService.registerUser(formData);
-      const { accessToken, refreshToken, ...userData } = response.data;
-
-      saveTokens(accessToken, refreshToken);
-      saveUser(userData.user);
-
-      return { success: true, user: userData.user };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || "Registration failed",
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(userCredential.user, { displayName });
+      
+      const newUser = {
+        uid: userCredential.user.uid,
+        email: email,
+        displayName: displayName,
+        username: username || "",
+        role: "creator", // Defaulting to creator for this app's context
+        createdAt: serverTimestamp(),
       };
+
+      await setDoc(doc(db, "users", userCredential.user.uid), newUser);
+      
+      return { success: true, user: newUser };
+    } catch (error) {
+      return { success: false, error: error.message };
     }
   };
 
-  const googleAuth = async (code) => {
+  const googleAuth = async () => {
     try {
-      const response = await authService.googleAuth({ code });
-      const { accessToken, refreshToken, ...userData } = response.data;
-
-      saveTokens(accessToken, refreshToken);
-      saveUser(userData.user);
-
-      return { success: true, user: userData.user };
+      const result = await signInWithPopup(auth, googleProvider);
+      return { success: true, user: result.user };
     } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || "OAuth failed",
-      };
+      return { success: false, error: error.message };
     }
-  }
+  };
 
-  /**
-   * Calls logout endpoint and removes global user and auth state
-   */
   const logout = async () => {
-    await authService.logoutUser();
-    setUser(null);
-    setToken(null);
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("user");
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
   };
 
-  /**
-   * Calls the update endpoint and updates the global user state
-   * @param {*} formData
-   * @returns
-   */
   const update = async (formData) => {
+    if (!user) return { success: false, error: "Not authenticated" };
+    
     try {
-      const response = await creatorService.updateCreator(formData);
-
-      if (response.success) {
-        const currentUser = getUser();
-
-        // Build updated user data
-        let updatedUserData = {
-          ...currentUser,
-          firstName: formData.get("first_name") || currentUser.firstName,
-          lastName: formData.get("last_name") || currentUser.lastName,
-          bio: formData.get("bio") || currentUser.bio,
-          phoneNumber: formData.get("phone_number") || currentUser.phoneNumber,
-          email: formData.get("email") || currentUser.email,
-          categorySlugs:
-            formData.get("category_slugs") || currentUser.categorySlugs,
-        };
-
-        // If images were uploaded, fetch fresh data
-        if (formData.get("profile_image") || formData.get("cover_image")) {
-          // required to fetch server side user image urls
-          enhanceUserInBackground(updatedUserData);
-        } else {
-          // if no images a local update of user data can occur
-          saveUser(updatedUserData);
-        }
-
-        return {
-          success: true,
-          user: updatedUserData,
-          data: response.data,
-        };
-      }
-
-      return { success: false, error: response.error };
+      const updates = {};
+      if (formData.get("display_name")) updates.displayName = formData.get("display_name");
+      if (formData.get("bio")) updates.bio = formData.get("bio");
+      
+      await setDoc(doc(db, "users", user.uid), updates, { merge: true });
+      setUser(prev => ({ ...prev, ...updates }));
+      
+      return { success: true };
     } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || "Profile Update failed",
-      };
+      handleFirestoreError(error, OperationType.UPDATE, `users/${user.uid}`);
+      return { success: false, error: error.message };
     }
   };
 
   return (
     <AuthContext.Provider
-      value={{ user, token, login, register, logout, update, googleAuth }}
+      value={{ user, login, register, logout, update, googleAuth, loading }}
     >
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 };

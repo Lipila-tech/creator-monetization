@@ -1,28 +1,34 @@
-import { useGoogleLogin } from "@react-oauth/google";
+import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
 const GoogleLoginButton = ({
   buttonText = "Continue with Google",
-  mode = "login",
 }) => {
   const navigate = useNavigate();
+  const { googleAuth } = useAuth();
 
-  const login = useGoogleLogin({
-    onSuccess: (codeResponse) =>
-      navigate(`/auth/callback?code=${codeResponse.code}&mode=${mode}`),
-    onError: (error) => {
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await googleAuth();
+      if (result.success) {
+        // Redirect based on role
+        const user = result.user;
+        // Note: result.user from signInWithPopup is the Firebase User object.
+        // The useAuth hook's onAuthStateChanged will handle fetching the Firestore profile.
+        // But we can also check the role if we have it.
+        navigate(user.role === "creator" ? "/creator-dashboard" : "/");
+      } else {
+        alert(result.error || "Google login failed. Please try again.");
+      }
+    } catch (error) {
       console.error("Google Login Error:", error);
       alert("Google login failed. Please try again.");
-    },
-
-    flow: "auth-code", // We need the authorization code for the backend
-    scope: "openid email profile",
-    state: mode, // Tracks if this was a login or register attempt
-  });
+    }
+  };
 
   return (
     <button
-      onClick={() => login()}
+      onClick={handleGoogleLogin}
       type="button"
       className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-700 font-bold hover:bg-gray-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed shadow-sm"
     >

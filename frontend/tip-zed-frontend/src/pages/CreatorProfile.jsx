@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import {
   ArrowLeft,
   AlertCircle,
@@ -8,22 +8,27 @@ import {
   Users,
   Star,
   Share2,
+  Facebook,
+  Youtube,
+  Twitter,
+  X,
+  Instagram,
+  Link as LinkIcon,
 } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { creatorService } from "@/services/creatorService";
 import SupportModal from "@/components/Payment/SupportModal";
 import MetaTags from "@/components/Common/MetaTags";
-import { useAuth } from "@/hooks/useAuth";
 
 const getName = (creator) =>
-  `${creator?.user?.firstName || ""} ${creator?.user?.lastName || ""}`.trim() ||
+  `${creator?.user?.firstName || creator?.firstName || ""} ${creator?.user?.lastName || creator?.lastName || ""}`.trim() ||
   creator?.user?.username ||
+  creator?.username ||
   "Creator";
 
 const CreatorProfile = () => {
   const [isSupportOpen, setIsSupportOpen] = useState(false);
   const { slug } = useParams();
-  const { user } = useAuth();
   const navigate = useNavigate();
 
   const [creator, setCreator] = useState(null);
@@ -31,24 +36,25 @@ const CreatorProfile = () => {
   const [error, setError] = useState(null);
   const [toast, setToast] = useState({ show: false, message: "" });
 
-  // if this is not their own profile do not show supporters, reviews if they are null
-  const showEmptyState = useMemo(() => {
-    if (user && creator && user.id == creator.user.id) return true;
-
-    return false;
-  }, [user, creator]);
-
   useEffect(() => {
     const fetchCreator = async () => {
       try {
         const response = await creatorService.getCreatorBySlug(slug);
-        if (response.status === "success") {
+        // Handle both wrapped {status: 'success', data: {}} and direct object {}
+        if (response && response.status === "success" && response.data) {
+          setCreator(response.data);
+        } else if (response && response.user) {
+          // If it looks like a creator object directly
+          setCreator(response);
+        } else if (response && response.data && response.data.user) {
+          // If it's { data: { user: ... } }
           setCreator(response.data);
         } else {
-          throw new Error("Failed to fetch");
+          console.error("Unexpected API response format:", response);
+          throw new Error("Invalid data format received from server");
         }
       } catch (err) {
-        console.error(err);
+        console.error("Fetch creator error:", err);
         setError("Creator not found.");
       } finally {
         setLoading(false);
@@ -228,7 +234,7 @@ const CreatorProfile = () => {
               {creator.profileImage ? (
                 <img
                   src={creator.profileImage}
-                  alt={creator.user.username}
+                  alt={creator.user?.username || creator.username}
                   className="w-40 h-40 md:w-48 md:h-48 rounded-[2.5rem] object-cover border-[6px] border-white shadow-xl bg-white"
                 />
               ) : (
@@ -256,14 +262,73 @@ const CreatorProfile = () => {
                   />
                 )}
               </div>
-              <p className="text-lg text-gray-500 font-medium mb-4">
-                @{creator.user.username}
+              <p className="text-lg text-gray-500 font-medium mb-2">
+                @{creator.user?.username || creator.username}
               </p>
+
+              {/* Social Links */}
+              <div className="flex items-center gap-3 mb-4">
+                <a
+                  href={creator.facebook || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-blue-600 transition-colors"
+                  title="Facebook"
+                >
+                  <Facebook size={16} />
+                </a>
+                <a
+                  href={creator.tiktok || creator.tikTok || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-black transition-colors"
+                  title="TikTok"
+                >
+                  <svg
+                    size={16}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-4 h-4"
+                  >
+                    <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+                  </svg>
+                </a>
+                <a
+                  href={creator.youtube || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-red-600 transition-colors"
+                  title="YouTube"
+                >
+                  <Youtube size={16} />
+                </a>
+                <a
+                  href={creator.twitter || creator.x || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-black transition-colors"
+                  title="X"
+                >
+                  <X size={16} />
+                </a>
+                <a
+                  href={creator.website || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-zed-green transition-colors"
+                  title="Website"
+                >
+                  <Globe size={16} />
+                </a>
+              </div>
 
               {/* Cleaner Stats Row */}
               <div className="flex flex-wrap gap-6 text-sm">
-                {((creator.followersCount && creator.followersCount > 0) ||
-                  showEmptyState) && (
+                {creator.followersCount > 0 && (
                   <div className="flex items-center gap-1.5 text-gray-700">
                     <Users size={18} className="text-zed-green" />
                     <span className="font-bold">
@@ -272,7 +337,7 @@ const CreatorProfile = () => {
                     <span className="text-gray-400">Supporters</span>
                   </div>
                 )}
-                {((creator.rating && creator.rating > 0) || showEmptyState) && (
+                {creator.rating > 0 && (
                   <div className="flex items-center gap-1.5 text-gray-700">
                     <Star size={18} className="text-zed-orange" />
                     <span className="font-bold">{creator.rating || 0}</span>
@@ -282,7 +347,7 @@ const CreatorProfile = () => {
                 <div className="flex items-center gap-1.5 text-gray-700">
                   <Calendar size={18} className="text-gray-400" />
                   <span className="text-gray-400">
-                    Joined {new Date(creator.user.dateJoined).getFullYear()}
+                    Joined {new Date(creator.user?.dateJoined || creator.dateJoined || Date.now()).getFullYear()}
                   </span>
                 </div>
               </div>
@@ -307,6 +372,24 @@ const CreatorProfile = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
             {/* Left Side: About & Feed */}
             <div className="lg:col-span-8 space-y-12">
+              {/* Support Button - Moved here */}
+              <div className="bg-zed-green/5 border-2 border-zed-green/20 rounded-[2rem] p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="text-center sm:text-left">
+                  <h3 className="text-xl font-black text-gray-900">
+                    Support {getName(creator).split(" ")[0]}
+                  </h3>
+                  <p className="text-gray-500 text-sm">
+                    Direct support helps me keep creating.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setIsSupportOpen(true)}
+                  className="whitespace-nowrap bg-zed-green text-white px-10 py-4 rounded-2xl font-black text-lg shadow-lg shadow-green-200 hover:bg-green-600 hover:-translate-y-1 transition-all active:scale-95"
+                >
+                  Support
+                </button>
+              </div>
+
               <section>
                 <h2 className="text-xl font-black text-gray-900 mb-4 flex items-center gap-2 uppercase tracking-widest text-xs">
                   <span className="w-8 h-[2px] bg-zed-green" />
@@ -330,37 +413,37 @@ const CreatorProfile = () => {
               </section>
             </div>
 
-            {/* Right Side: Support Card */}
+            {/* Right Side: Info Card */}
             <div className="lg:col-span-4">
               <div className="sticky top-28 space-y-6">
-                <div className="bg-white rounded-[2.5rem] border-2 border-zed-green p-8 shadow-2xl shadow-green-100/50 text-center relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-zed-green/5 rounded-full -mr-12 -mt-12" />
+                <div className="bg-white rounded-[2.5rem] border-2 border-gray-100 p-8 shadow-xl text-center relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-gray-50 rounded-full -mr-12 -mt-12" />
 
-                  <h3 className="text-2xl font-black text-gray-900 mb-2">
-                    Support {getName(creator).split(" ")[0]}
+                  <h3 className="text-xl font-black text-gray-900 mb-4">
+                    Creator Info
                   </h3>
-                  <p className="text-gray-500 text-sm mb-8">
-                    Direct support helps me keep creating the content you love.
-                  </p>
 
-                  <button
-                    onClick={() => setIsSupportOpen(true)}
-                    className="w-full bg-zed-green text-white py-4 rounded-2xl font-black text-lg shadow-lg shadow-green-200 hover:bg-green-600 hover:-translate-y-1 transition-all active:scale-95"
-                  >
-                    Send a Tip
-                  </button>
+                  <div className="space-y-4 text-left">
+                    <div className="flex items-center gap-3 text-gray-600">
+                      <Calendar size={18} className="text-gray-400" />
+                      <div>
+                        <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400">Joined</p>
+                        <p className="font-medium">{new Date(creator.user?.dateJoined || creator.dateJoined || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
+                      </div>
+                    </div>
 
-                  {creator.website && (
-                    <a
-                      href={creator.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-zed-green transition-colors"
-                    >
-                      <Globe size={14} />
-                      Official Website
-                    </a>
-                  )}
+                    {creator.website && (
+                      <div className="flex items-center gap-3 text-gray-600">
+                        <Globe size={18} className="text-gray-400" />
+                        <div>
+                          <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400">Website</p>
+                          <a href={creator.website} target="_blank" rel="noopener noreferrer" className="font-medium text-zed-green hover:underline break-all">
+                            {creator.website.replace(/^https?:\/\//, '')}
+                          </a>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Secondary info card */}

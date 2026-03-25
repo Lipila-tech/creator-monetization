@@ -1,0 +1,93 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: {userId}
+    // Fields:
+    //   - uid: string (required) - The unique identifier for the user.
+    //   - email: string (required, email) - The user's email address.
+    //   - displayName: string (optional) - The user's display name.
+    //   - photoURL: string (optional) - The URL to the user's profile picture.
+    //   - role: string (required, enum: ['admin', 'creator', 'user']) - The user's role.
+    //   - createdAt: timestamp (required) - When the user profile was created.
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "mightypz2@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function uidUnchanged() {
+      return !('uid' in request.resource.data) ||
+        request.resource.data.uid == request.auth.uid;
+    }
+
+    function uidNotModified() {
+      return !('uid' in request.resource.data) ||
+        request.resource.data.uid == resource.data.uid;
+    }
+
+    function isValidEmail(email) {
+      return email is string &&
+        email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'role', 'createdAt']) &&
+             data.keys().hasOnly(['uid', 'email', 'displayName', 'photoURL', 'role', 'createdAt']) &&
+             data.uid is string && data.uid.size() > 0 &&
+             data.email is string && isValidEmail(data.email) &&
+             data.role in ['admin', 'creator', 'user'] &&
+             data.createdAt is timestamp &&
+             (data.displayName == null || (data.displayName is string && data.displayName.size() < 100)) &&
+             (data.photoURL == null || (data.photoURL is string && data.photoURL.size() < 500));
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      // Users can only read their own profile.
+      // If public profiles are needed, we should split sensitive data.
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // Users can create their own profile as 'user' or 'creator'.
+      // Only admins can create 'admin' roles.
+      allow create: if isOwner(userId) && 
+                      isValidUser(request.resource.data) && 
+                      (request.resource.data.role != 'admin' || isAdmin());
+      
+      // Users can update their own profile but cannot change their role or uid.
+      allow update: if isOwner(userId) && 
+                      isValidUser(request.resource.data) && 
+                      request.resource.data.role == resource.data.role &&
+                      uidNotModified() || isAdmin();
+    }
+
+    // Default deny
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}
+
