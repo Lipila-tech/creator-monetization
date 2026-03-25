@@ -1,0 +1,261 @@
+import {HashLink as Hlink} from 'react-router-hash-link';
+import {
+  ArrowDown,
+  XCircle,
+  Heart,
+  Repeat,
+  Lock,
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import MetaTags from "@/components/Common/MetaTags";
+import bannerImage from "@/assets/images/banner.webp";
+
+const Home = () => {
+  return (
+    <>
+      <MetaTags
+        title="Support Zambian Creators | TipZed"
+        description="Discover and support talented Zambian creators. Join TipZed to access exclusive content, make tips, and connect with your favorite creators."
+        keywords="Zambian creators, support creators, tip platform, content creators, Zambia, digital content, creator community"
+      />
+
+      <div className="min-h-screen bg-gray-50 pb-24 md:pb-0 font-sans">
+        {/*  HERO SECTION */}
+        <section 
+          className="relative bg-zed-black overflow-hidden pt-20 pb-16 px-6 text-center"
+          style={{
+            backgroundImage: `url(${bannerImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed'
+          }}
+        >
+          <div className="absolute inset-0 bg-black/60 z-0"></div>
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-gradient-to-br from-zed-green/20 via-transparent to-zed-orange/20 blur-3xl opacity-30 z-1 pointer-events-none"></div>
+
+          <div className="max-w-3xl mx-auto relative z-10">
+            <h1 className="text-5xl md:text-6xl font-extrabold text-white mb-6 tracking-tight leading-[1.1]">
+              Stop chasing payments across borders.{" "}
+              <span className="text-zed-green">Start earning from the people who believe in you—right here at home.</span>
+            </h1>
+            <p className="text-xl md:text-2xl text-gray-200 mb-10 leading-relaxed max-w-2xl mx-auto">
+              Build a stable income through local subscriptions and direct fan support.
+            </p>
+
+            {/* CTAs */}
+            <div className="flex flex-col md:flex-row items-center justify-center gap-5">
+              <Link
+                to="/login"
+                className="w-full md:w-auto bg-zed-green text-white px-8 py-4 rounded-xl hover:bg-green-600 transition-all font-bold text-lg shadow-[0_4px_14px_0_rgba(0,255,100,0.39)] active:scale-95"
+              >
+                Start as a Creator
+              </Link>
+              <Hlink
+                to="#learn-more"
+                className="w-full md:w-auto text-white flex items-center justify-center px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white/10 transition-all active:scale-95"
+              >
+                Learn More <ArrowDown className="ml-2 w-5 h-5" />
+              </Hlink>
+            </div>
+          </div>
+        </section>
+
+        {/* TRUST SECTION */}
+        <section className="py-8 px-6 bg-white border-b border-gray-100">
+          <div className="max-w-4xl mx-auto text-center">
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">
+              Works with local payments
+            </p>
+            <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-4 text-gray-600 font-semibold md:text-lg">
+              <span>Airtel</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
+              <span>MTN</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
+              <span>Zamtel</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
+              <span>Mobile Money</span>
+            </div>
+          </div>
+        </section>        {/* THE STRUGGLE */}
+        <section className="py-20 px-6 bg-gray-50" id="learn-more">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 leading-tight">
+              <span className="text-zed-orange">The Problem.</span>
+            </h2>
+            <p className="text-2xl md:text-3xl text-gray-700 mb-12 leading-relaxed font-medium">
+              Global platforms are built for global audiences. They take high fees, pay out late, and don't understand the local love that fuels African creativity.
+            </p>
+          </div>
+        </section>
+
+        {/* THE SOLUTION */}
+        <section className="py-20 px-6 bg-zed-black text-white">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight">
+              <span className="text-zed-green">The Solution.</span>
+            </h2>
+            <p className="text-2xl md:text-3xl text-gray-200 mb-12 leading-relaxed font-medium">
+              TipZed is the Zambian creator's true home. We help you build a stable income through local subscriptions and direct fan support.
+            </p>
+            <div className="bg-gradient-to-r from-zed-orange/20 to-transparent p-8 rounded-2xl border-l-4 border-zed-orange">
+              <p className="text-xl font-semibold">
+                Keep your art authentic. Keep your money close.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* HOW IT WORKS */}
+        <section className="py-20 px-6 bg-white">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-4xl font-bold text-center mb-16 text-gray-900">
+              How It Works
+            </h2>
+
+            <div className="space-y-8 relative before:absolute before:inset-0 before:ml-6 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-1 before:bg-gray-100">
+              {[
+                { step: "1", title: "Create your page" },
+                { step: "2", title: "Share your link" },
+                { step: "3", title: "Fans tip or subscribe" },
+                { step: "4", title: "Withdraw locally" },
+              ].map((item, index) => (
+                <div
+                  key={index}
+                  className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group"
+                >
+                  {/* Icon Marker */}
+                  <div className="flex items-center justify-center w-12 h-12 rounded-full border-4 border-white bg-zed-green text-white font-bold text-xl shadow-md shrink-0 md:absolute md:left-1/2 md:-translate-x-1/2 z-10">
+                    {item.step}
+                  </div>
+                  {/* Content Card */}
+                  <div className="bg-gray-50 p-6 rounded-2xl shadow-sm w-[calc(100%-4rem)] md:w-[calc(50%-3rem)] font-semibold text-xl text-gray-800">
+                    {item.title}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <p className="text-center font-extrabold text-3xl mt-16 text-gray-900">
+              That’s it.
+            </p>
+          </div>
+        </section>
+
+        {/* HOW YOU EARN */}
+        <section className="py-20 px-6 bg-gray-50">
+          <div className="max-w-5xl mx-auto">
+            <h2 className="text-4xl font-bold text-center mb-12 text-gray-900">
+              How You Earn
+            </h2>
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 text-center">
+                <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Heart size={32} />
+                </div>
+                <h3 className="text-2xl font-bold mb-3">Tipping</h3>
+                <p className="text-gray-600 font-medium">
+                  One-time “thank you” payments
+                </p>
+              </div>
+
+              <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 text-center">
+                <div className="w-16 h-16 bg-green-50 text-zed-green rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Repeat size={32} />
+                </div>
+                <h3 className="text-2xl font-bold mb-3">Subscriptions</h3>
+                <p className="text-gray-600 font-medium">
+                  Monthly or yearly support
+                </p>
+              </div>
+
+              <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 text-center">
+                <div className="w-16 h-16 bg-purple-50 text-purple-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Lock size={32} />
+                </div>
+                <h3 className="text-2xl font-bold mb-3">Exclusive Access</h3>
+                <p className="text-gray-600 font-medium">
+                  Private content or close community
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* WHY CREATORS CHOOSE TIPZED */}
+        <section className="py-20 px-6 bg-white">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-3xl md:text-4xl font-bold mb-12 text-gray-900">
+              Why Creators Choose TipZed
+            </h2>
+            <div className="flex flex-wrap justify-center gap-4">
+              {[
+                "Built for Africa",
+                "Mobile money friendly",
+                "No monthly fees",
+                "Transparent wallet",
+                "Fast payouts",
+                "Real support",
+              ].map((benefit, i) => (
+                <span
+                  key={i}
+                  className="bg-gray-100 text-gray-800 px-6 py-3 rounded-full text-lg font-semibold"
+                >
+                  {benefit}
+                </span>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* PRICING */}
+        <section className="py-20 px-6 bg-yellow-50 text-center">
+          <div className="max-w-2xl mx-auto">
+            <h2 className="text-5xl font-black text-gray-900 mb-6 tracking-tight">
+              No monthly fees.
+            </h2>
+            <p className="text-2xl text-gray-700 font-medium mb-10">
+              Small fee per payment.
+            </p>
+            <div className="bg-white inline-block px-8 py-5 rounded-full shadow-sm border border-yellow-200">
+              <p className="text-xl font-bold text-zed-orange">
+                Early creators get <span className="text-2xl">0%</span> fees for
+                30 days.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* FOR FANS */}
+        <section className="py-16 px-6 bg-gray-900 text-center">
+          <div className="max-w-xl mx-auto">
+            <h2 className="text-2xl font-bold text-white mb-4">For Fans</h2>
+            <p className="text-lg text-gray-300 mb-6 font-medium">
+              Support creators easily. Tip or subscribe using local payments.
+            </p>
+            <div className="inline-flex items-center gap-2 bg-red-500/10 text-red-400 px-6 py-3 rounded-full font-bold">
+              <XCircle size={20} />
+              <span>No cards. No PayPal.</span>
+            </div>
+          </div>
+        </section>
+
+        {/* FINAL CTA */}
+        <section className="py-24 px-6 bg-gradient-to-br from-zed-green to-teal-700 text-center text-white">
+          <div className="max-w-2xl mx-auto">
+            <h2 className="text-4xl md:text-5xl font-extrabold mb-10 leading-tight">
+              Start earning from your audience
+            </h2>
+            <Link
+              to="/register"
+              className="block w-full md:inline-block md:w-auto bg-white text-zed-green px-10 py-5 rounded-2xl hover:bg-gray-50 transition-all font-bold text-xl shadow-xl active:scale-95"
+            >
+              Create your creator page
+            </Link>
+          </div>
+        </section>
+      </div>
+    </>
+  );
+};
+
+export default Home;
