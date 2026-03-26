@@ -31,7 +31,7 @@ class TestFirebaseAuthenticationUserType:
         """Test that Firebase auth creates a user with user_type='creator' by default."""
         # Mock Firebase token verification
         mock_verify.return_value = {
-            "username": "firebase_user_123",
+            "name": "firebase_user_123",
             "email": "test@example.com",
         }
 
@@ -49,7 +49,7 @@ class TestFirebaseAuthenticationUserType:
     def test_firebase_auth_creates_creator_profile_automatically(self, mock_verify):
         """Test that creating a Firebase user with user_type='creator' triggers CreatorProfile creation."""
         mock_verify.return_value = {
-            "username": "firebase_creator_123",
+            "name": "firebase_creator_123",
             "email": "creator@example.com",
             "role": "creator",
         }
@@ -73,7 +73,7 @@ class TestFirebaseAuthenticationUserType:
     def test_firebase_auth_respects_custom_user_type_claim(self, mock_verify):
         """Test that Firebase custom claims can override default user_type."""
         mock_verify.return_value = {
-            "username": "firebase_admin_123",
+            "name": "firebase_admin_123",
             "email": "admin@example.com",
             "role": "admin",  # Custom claim
         }
@@ -89,7 +89,7 @@ class TestFirebaseAuthenticationUserType:
     def test_firebase_auth_with_staff_user_type(self, mock_verify):
         """Test Firebase auth with staff user_type."""
         mock_verify.return_value = {
-            "username": "firebase_staff_123",
+            "name": "firebase_staff_123",
             "email": "staff@example.com",
             "role": "staff",
         }
@@ -104,7 +104,7 @@ class TestFirebaseAuthenticationUserType:
     def test_firebase_auth_ignores_invalid_user_type_claim(self, mock_verify):
         """Test that invalid user_type claims are ignored and defaults to 'creator'."""
         mock_verify.return_value = {
-            "username": "firebase_invalid_123",
+            "name": "firebase_invalid_123",
             "email": "invalid@example.com",
             "role": "invalid_type",  # Invalid claim
         }
@@ -121,7 +121,7 @@ class TestFirebaseAuthenticationUserType:
         """Test that subsequent logins sync email if changed."""
         # Create initial user
         initial_token = {
-            "username": "firebase_sync_123",
+            "name": "firebase_sync_123",
             "email": "original@example.com",
         }
         mock_verify.return_value = initial_token
@@ -132,7 +132,7 @@ class TestFirebaseAuthenticationUserType:
 
         # Simulate second login with updated username
         updated_token = {
-            "username": "firebase_updated_123",
+            "name": "firebase_updated_123",
             "email": "original@example.com",
         }
         mock_verify.return_value = updated_token
@@ -148,7 +148,7 @@ class TestFirebaseAuthenticationUserType:
         """Test that user_type changes are synced on subsequent logins."""
         # Create initial creator user
         initial_token = {
-            "username": "firebase_type_sync_123",
+            "name": "firebase_type_sync_123",
             "email": "typesync@example.com",
         }
         mock_verify.return_value = initial_token
@@ -160,7 +160,7 @@ class TestFirebaseAuthenticationUserType:
 
         # Simulate second login with different user_type
         updated_token = {
-            "username": "firebase_type_sync_123",
+            "name": "firebase_type_sync_123",
             "email": "typesync@example.com",
             "role": "admin",
         }
@@ -219,25 +219,13 @@ class TestFirebaseAuthenticationUserType:
         from rest_framework.exceptions import AuthenticationFailed
         
         mock_verify.return_value = {
-                "username": "testuser",
+                "name": "testuser",
                 }
         request = self.create_mock_request()
 
         with pytest.raises(AuthenticationFailed, match="Invalid email"):
             self.auth.authenticate(request)
 
-    @patch("utils.authentication.auth.verify_id_token")
-    def test_firebase_auth_missing_username(self, mock_verify):
-        """Test that missing Firebase username raises AuthenticationFailed."""
-        from rest_framework.exceptions import AuthenticationFailed
-
-        mock_verify.return_value = {
-            "email": "test@example.com",
-        }
-        request = self.create_mock_request()
-
-        with pytest.raises(AuthenticationFailed, match="Invalid username"):
-            self.auth.authenticate(request)
 
     @patch("utils.authentication.auth.verify_id_token")
     def test_firebase_auth_attaches_token_to_request(self, mock_verify):

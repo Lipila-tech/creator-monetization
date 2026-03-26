@@ -54,7 +54,7 @@ class FirebaseAuthentication(authentication.BaseAuthentication):
 
         firebase_uid = decoded_token.get("uid")
         email = decoded_token.get("email", "")
-        username = decoded_token.get("username", "")
+        username = (decoded_token.get("name") or email.split("@")[0])
         user_type = decoded_token.get("role", "")
         picture = decoded_token.get("picture", "")
         
@@ -68,9 +68,6 @@ class FirebaseAuthentication(authentication.BaseAuthentication):
 
         if user_type not in allowed_roles:
             user_type = "creator"
-
-        # Determine user_type from Firebase custom claims or use default
-        # user_type = self._get_user_type_from_token(decoded_token)
 
         user, created = User.objects.get_or_create(
             email=email,
