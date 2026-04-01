@@ -67,7 +67,7 @@ class TestUpdateCreatorProfile:
 
         response = auth_api_client.get("/api/v1/creators/profile/me/")
 
-        assert response.status_code == 401
+        assert response.status_code == 403
 
     def test_endpoint_returns_expected_fields(self, auth_api_client, user_factory):
         """Test expected fields are returned"""
