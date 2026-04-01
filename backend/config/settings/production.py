@@ -37,7 +37,8 @@ CORS_ALLOW_HEADERS = (
     "x-api-key",  # Allow the custom header
 )
 
-CSRF_TRUSTED_ORIGINS = env('CSRF_TRUSTED_ORIGINS', default='http://localhost:5173').split(',')
+CSRF_TRUSTED_ORIGINS = env('CSRF_TRUSTED_ORIGINS',
+                           default='http://localhost:5173').split(',')
 # Application definition
 
 INSTALLED_APPS = [
@@ -62,19 +63,7 @@ INSTALLED_APPS = [
     'apps.payments',
     'apps.payouts',
     'apps.wallets',
-    # Allauth apps for social authentication
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    # Add Google and Facebook providers for social authentication
-    'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.facebook',
-    # DRF Auth kit
-    # 'auth_kit', 
-    'auth_kit.social'
 ]
-
-SITE_ID = 1 # Required for django-allauth
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -86,54 +75,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'utils.authentication.ClientIdentificationMiddleware',
-    'allauth.account.middleware.AccountMiddleware', # Middleware for django-allauth
 ]
 
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'SCOPE': [
-            'profile',
-            'email',
-        ],
-        'AUTH_PARAMS': {
-            'access_type': 'online',
-        },
-        'FETCH_USERINFO': True,
-        'APP': {
-            'client_id': env('GOOGLE_CLIENT_ID', default=''),
-            'secret': env('GOOGLE_CLIENT_SECRET', default=''),
-            'key': '',
-        }
-    },
-    'facebook': {
-        'METHOD': 'oauth2',
-        'SCOPE': ['email', 'public_profile'],
-        'APP': {
-            'client_id': env('FACEBOOK_APP_ID', default=''),
-            'secret': env('FACEBOOK_APP_SECRET', default=''),
-            'key': '',
-        },
-        'FIELDS': [
-            'id',
-            'email',
-            'name',
-            'first_name',
-            'last_name',
-            'picture',
-        ],
-        'VERIFIED_EMAIL': False,
-        'VERSION': 'v13.0',
-    }
-}
-
-
-AUTH_KIT = {
-    'SOCIAL_LOGIN_SERIALIZER': 'apps.customauth.serializers.CustomSocialLoginSerializer',
-}
-
-# SOCIALACCOUNT_ADAPTER = 'apps.customauth.adapters.CustomSocialAccountAdapter'
-SOCIALACCOUNT_AUTO_SIGNUP = True
-SOCIALACCOUNT_QUERY_EMAIL = True
 DEFAULT_USER_TYPE = 'creator'  # Default user type for new users
 
 ROOT_URLCONF = 'config.urls'
@@ -171,7 +114,6 @@ DATABASES = {
         default='sqlite:///db.sqlite3'
     )
 }
-
 
 
 # Password validation
@@ -216,7 +158,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 AUTH_USER_MODEL = 'customauth.CustomUser'
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media') 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Django REST Framework Configuration
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -233,15 +175,14 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
     ],
-    # 'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.NamespaceVersioning',
-    # 'DEFAULT_THROTTLE_CLASSES': [
-    #     'rest_framework.throttling.AnonRateThrottle',
-    #     'rest_framework.throttling.UserRateThrottle',
-    # ],
-    # 'DEFAULT_THROTTLE_RATES': {
-    #     'anon': '100/hour',
-    #     'user': '1000/hour',
-    # },
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/hour',
+        'user': '1000/hour',
+    },
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_RENDERER_CLASSES': (
         'djangorestframework_camel_case.render.CamelCaseJSONRenderer',
@@ -297,7 +238,8 @@ SPECTACULAR_SETTINGS = {
     'SERVERS': [{'url': 'https://123f-41-216-82-30.ngrok-free.app/api'}],
 }
 
-PAWAPAY_BASE_URL = env("PAWAPAY_BASE_URL", default="https://api.sandbox.pawapay.io")
+PAWAPAY_BASE_URL = env(
+    "PAWAPAY_BASE_URL", default="https://api.sandbox.pawapay.io")
 PAWAPAY_API_KEY = env("PAWAPAY_API_KEY", default="")
 
 LOGGING = {
@@ -305,14 +247,14 @@ LOGGING = {
     'disable_existing_loggers': False,
     'handlers': {
         'console': {
-            'level': 'INFO', # Use 'DEBUG' for more verbosity, 'INFO' is standard for production
+            'level': 'INFO',  # Use 'DEBUG' for more verbosity, 'INFO' is standard for production
             'class': 'logging.StreamHandler',
         },
     },
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'INFO', # Ensure this is low enough to catch errors
+            'level': 'INFO',  # Ensure this is low enough to catch errors
             'propagate': True,
         },
     },
