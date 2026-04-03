@@ -30,7 +30,7 @@ const STATUS_MAPPINGS = {
   ],
 };
 
-const SupportModal = ({ isOpen, onClose, creator }) => {
+const SupportModal = ({ isOpen, onClose, creator}) => {
   const [step, setStep] = useState("AMOUNT"); // AMOUNT | PHONE | PROCESSING | PENDING | SUCCESS | ERROR
   const [amount, setAmount] = useState(null);
   const [errorMsg, setErrorMsg] = useState("");
@@ -126,7 +126,7 @@ const SupportModal = ({ isOpen, onClose, creator }) => {
       <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 max-h-[90vh] flex flex-col">
         <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center shrink-0">
           <div>
-            <h3 className="font-bold text-gray-900">Support {creator.name}</h3>
+            <h3 className="font-bold text-gray-900">Support {creator.user?.username}</h3>
             {step === "PHONE" && (
               <p className="text-xs text-zed-green font-medium">
                 Sending K{amount}
@@ -175,3 +175,4 @@ const SupportModal = ({ isOpen, onClose, creator }) => {
 };
 
 export default SupportModal;
+

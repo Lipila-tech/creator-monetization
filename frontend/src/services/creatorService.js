@@ -26,7 +26,7 @@ export const creatorService = {
       // Populate individual cache for faster profile loading
       if (Array.isArray(creators)) {
         creators.forEach((c) => {
-          const slug = c.user?.slug || c.slug;
+          const slug = c.user?.slug;
           if (slug) creatorBySlugCache.set(slug, c);
         });
       }

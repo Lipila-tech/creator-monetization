@@ -201,7 +201,7 @@ const CreatorCatalog = () => {
                 const name = getCreatorName(creator);
                 return (
                   <Link
-                    to={`/${creator.user?.slug || creator.slug}`}
+                    to={`/${creator.user?.slug}`}
                     state={{ creator }}
                     key={creator.user?.id || creator._id || creator.id}
                     className="group"
