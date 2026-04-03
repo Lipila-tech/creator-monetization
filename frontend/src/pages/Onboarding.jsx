@@ -27,9 +27,16 @@ const Onboarding = () => {
     setIsLoading(true);
 
     try {
+      const nameParts = formData.name.trim().split(/\s+/);
+      const firstName = nameParts[0] || "";
+      const lastName = nameParts.slice(1).join(" ") || "";
+      
       const data = new FormData();
-      data.append("bio", formData.bio);
+      // Always send bio, even if empty
+      data.append("bio", formData.bio || "");
       data.append("name", formData.name);
+      data.append("firstName", firstName);
+      data.append("lastName", lastName);
       
       const result = await update(data);
       if (result.success) {
@@ -96,6 +103,14 @@ const Onboarding = () => {
                     className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-zed-green outline-none transition-all"
                   />
                 </div>
+                {formData.name && (
+                  <div className="px-4 py-3 bg-zed-green/5 rounded-2xl border border-zed-green/10 animate-in fade-in zoom-in-95 duration-300">
+                    <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 mb-1">Your profile link will be:</p>
+                    <p className="text-sm font-black text-zed-green break-all">
+                      tipzed.space/{formData.name.toLowerCase().replace(/[^a-z0-9]/g, "")}
+                    </p>
+                  </div>
+                )}
                 <button
                   type="button"
                   onClick={() => setStep(2)}
@@ -183,3 +198,4 @@ const Onboarding = () => {
 };
 
 export default Onboarding;
+

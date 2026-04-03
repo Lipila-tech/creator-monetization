@@ -18,7 +18,7 @@ import { validateMobileNumber } from "@/utils/mobileMoney";
 
 const EditProfile = () => {
   const navigate = useNavigate();
-  const { user, update } = useAuth();
+  const { user, update, refreshUser } = useAuth();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -103,14 +103,8 @@ const EditProfile = () => {
       // Create FormData object -what DRF MultiPartParser expects
       const formDataToSend = new FormData();
 
-      if (formData.bio?.trim()) {
-        formDataToSend.append("bio", formData.bio.trim());
-      }
-
-      // Email & phone
-      // if (formData.email?.trim()) {
-      //   formDataToSend.append("email", formData.email.trim());
-      // }
+      // Always send bio, even if empty, to allow clearing it
+      formDataToSend.append("bio", formData.bio || "");
 
       if (formData.phoneNumber?.trim()) {
         const phoneValidation = validateMobileNumber(formData.phoneNumber);
@@ -122,11 +116,11 @@ const EditProfile = () => {
       }
 
       // Social Links
-      if (formData.tiktok?.trim()) formDataToSend.append("tiktok", formData.tiktok.trim());
-      if (formData.facebook?.trim()) formDataToSend.append("facebook", formData.facebook.trim());
-      if (formData.website?.trim()) formDataToSend.append("website", formData.website.trim());
-      if (formData.instagram?.trim()) formDataToSend.append("instagram", formData.instagram.trim());
-      if (formData.twitter?.trim()) formDataToSend.append("twitter", formData.twitter.trim());
+      formDataToSend.append("tiktok", formData.tiktok || "");
+      formDataToSend.append("facebook", formData.facebook || "");
+      formDataToSend.append("website", formData.website || "");
+      formDataToSend.append("instagram", formData.instagram || "");
+      formDataToSend.append("twitter", formData.twitter || "");
 
       // IMPORTANT: Append files directly - NO Base64 conversion!
       if (pendingFiles.profile) {
@@ -146,20 +140,28 @@ const EditProfile = () => {
         setPendingFiles({ profile: null, cover: null });
 
         // Update user data with new image URLs from response
-        if (result.data?.profileImage) {
+        const normalized = result.data?.creator || result.data?.user || result.data?.data || result.data;
+        
+        if (normalized?.profileImage || normalized?.profile_image) {
           setPreviews((prev) => ({
             ...prev,
-            profile: result.data.profileImage,
+            profile: normalized.profileImage || normalized.profile_image,
           }));
         }
-        if (result.data?.coverImage) {
-          setPreviews((prev) => ({ ...prev, cover: result.data.coverImage }));
+        if (normalized?.coverImage || normalized?.cover_image) {
+          setPreviews((prev) => ({ 
+            ...prev, 
+            cover: normalized.coverImage || normalized.cover_image 
+          }));
         }
 
-        // Redirect after successful update - FORCE FULL RELOAD
+        // Background refetch to ensure everything is in sync
+        refreshUser();
+        
+        // Hide success message after 3 seconds
         setTimeout(() => {
-          window.location.href = "/creator-dashboard";
-        }, 1500);
+          setSuccess(false);
+        }, 3000);
       } else {
         setError(result.error || "Failed to update profile");
       }
@@ -215,7 +217,7 @@ const EditProfile = () => {
           {/* Success Message */}
           {success && (
             <div className="mb-6 bg-green-50 text-green-700 px-4 py-3 rounded-xl border border-green-200 flex items-center gap-2 animate-in slide-in-from-top-2">
-              <User size={18} /> Profile updated successfully! Redirecting...
+              <User size={18} /> Profile updated successfully!
             </div>
           )}
           {/* Error Message */}

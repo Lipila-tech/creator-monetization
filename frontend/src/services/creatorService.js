@@ -62,6 +62,19 @@ export const creatorService = {
   },
 
   /**
+   * Fetch the authenticated creator's own profile.
+   * @returns {Promise<any>} Resolves with the creator object.
+   */
+  getMe: async () => {
+    try {
+      const response = await api.get("/creators/profile/me/");
+      return response.data?.data || response.data;
+    } catch (error) {
+      throw error.response?.data || error.message || "Failed to fetch profile.";
+    }
+  },
+
+  /**
    * Fully updates (replaces) the authenticated creator’s profile.
    * @param {{
    *   firstName: string,
@@ -80,7 +93,7 @@ export const creatorService = {
    */
   updateCreator: async (userData) => {
     try {
-      const response = await api.putForm("/creators/profile/me/", userData);
+      const response = await api.put("/creators/profile/me/", userData);
 
       return {
         success: true,

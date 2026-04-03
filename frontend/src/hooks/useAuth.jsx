@@ -172,6 +172,25 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const refreshUser = async () => {
+    if (!auth.currentUser) return;
+    try {
+      const [userDoc, creatorData] = await Promise.all([
+        getDoc(doc(db, "users", auth.currentUser.uid)),
+        creatorService.getMe().catch(() => null)
+      ]);
+
+      let userData = userDoc.exists() ? userDoc.data() : {};
+      if (creatorData) {
+        const normalized = creatorData.creator || creatorData.user || creatorData.data || creatorData;
+        userData = { ...userData, ...normalized };
+      }
+      setUser(formatUser(auth.currentUser, userData));
+    } catch (err) {
+      console.error("Refresh user failed:", err);
+    }
+  };
+
   const update = async (formData) => {
     if (!user) return { success: false, error: "Not authenticated" };
     
@@ -180,22 +199,23 @@ export const AuthProvider = ({ children }) => {
       const result = await creatorService.updateCreator(formData);
       
       if (result.success) {
-        const normalizedData = result.data;
+        // Handle nested response data (e.g. { creator: { ... } })
+        const normalizedData = result.data?.creator || result.data?.user || result.data?.data || result.data;
         
         // Prepare Firestore updates to keep in sync
         const firestoreUpdates = {
-          name: normalizedData.name || user.name,
+          name: normalizedData.name || normalizedData.full_name || user.name,
           bio: normalizedData.bio !== undefined ? normalizedData.bio : user.bio,
           slug: normalizedData.slug || user.slug,
-          profileImage: normalizedData.profileImage || user.profileImage || "",
-          coverImage: normalizedData.coverImage || user.coverImage || "",
-          phoneNumber: normalizedData.phoneNumber || user.phoneNumber || "",
+          profileImage: normalizedData.profileImage || normalizedData.profile_image || user.profileImage || "",
+          coverImage: normalizedData.coverImage || normalizedData.cover_image || user.coverImage || "",
+          phoneNumber: normalizedData.phoneNumber || normalizedData.phone_number || user.phoneNumber || "",
           // Social links
-          tiktok: normalizedData.tiktok || "",
-          facebook: normalizedData.facebook || "",
-          website: normalizedData.website || "",
-          instagram: normalizedData.instagram || "",
-          twitter: normalizedData.twitter || "",
+          tiktok: normalizedData.tiktok || normalizedData.tiktok_url || "",
+          facebook: normalizedData.facebook || normalizedData.facebook_url || "",
+          website: normalizedData.website || normalizedData.website_url || "",
+          instagram: normalizedData.instagram || normalizedData.instagram_url || "",
+          twitter: normalizedData.twitter || normalizedData.twitter_url || "",
         };
 
         // Remove undefined fields
@@ -210,7 +230,7 @@ export const AuthProvider = ({ children }) => {
           await updateProfile(auth.currentUser, { displayName: normalizedData.name });
         }
 
-        const finalUser = formatUser(auth.currentUser, { ...user, ...normalizedData });
+        const finalUser = formatUser(auth.currentUser, { ...user, ...normalizedData, ...firestoreUpdates });
         setUser(finalUser);
         return { success: true, data: normalizedData };
       } else {
@@ -224,7 +244,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, login, register, logout, update, googleAuth, loading }}
+      value={{ user, login, register, logout, update, refreshUser, googleAuth, loading }}
     >
       {!loading && children}
     </AuthContext.Provider>
