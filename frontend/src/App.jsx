@@ -2,8 +2,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Footer from "./components/Common/Footer";
@@ -14,6 +12,7 @@ import ProtectedRoute from "./components/Auth/ProtectedRoute";
 import CreatorCatalog from "./pages/CreatorCatalog";
 import CreatorProfile from "./pages/CreatorProfile";
 import Contact from "./pages/Contact";
+import HelpCenter from "./pages/HelpCenter";
 import NotFound from "./pages/NotFound";
 import { menuItems } from "@/utils/creatorMenuItems";
 
@@ -34,12 +33,11 @@ function App() {
             <Route path="/:slug" element={<CreatorProfile />} />
             <Route path="/creator-catalog" element={<CreatorCatalog />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/help-center" element={<HelpCenter />} />
 
             {/* Auth Pages */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Signup />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
             <Route 
               path="/onboarding" 
               element={

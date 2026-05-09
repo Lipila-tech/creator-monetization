@@ -31,6 +31,9 @@ const Footer = () => {
             <Link to="/privacy-policy" className="text-gray-500 hover:text-zed-green text-sm">
               Privacy Policy
             </Link>
+            <Link to="/help-center" className="text-gray-500 hover:text-zed-green text-sm">
+              Help Center
+            </Link>
             <Link to="/contact" className="text-gray-500 hover:text-zed-green text-sm">
               Contact Us
             </Link>
