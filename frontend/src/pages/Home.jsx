@@ -16,7 +16,8 @@ const Home = () => {
       <MetaTags
         title="TipZed | Local Support for Zambian Creators"
         description="Get tipped and subscribed directly via Mobile Money. The simplest way for Zambian creators to earn from their audience."
-        keywords="Zambian creators, mobile money tips, support creators, Zambia"
+        keywords="Zambian creators, mobile money tips, support creators, Zambia, TipZed"
+        image={bannerImage}
       />
 
       <div className="min-h-screen bg-white font-sans text-gray-900">
@@ -33,11 +34,11 @@ const Home = () => {
           
           <div className="max-w-3xl mx-auto relative z-10">
             <h1 className="text-3xl md:text-4xl font-black text-white mb-4 tracking-tight leading-tight">
-              Your Zambian fans are here. <br />
-              <span className="text-zed-green text-2xl md:text-3xl">Your money should be too.</span>
+              Fund your creative vision <br />
+              <span className="text-zed-green text-2xl md:text-3xl">Monetize your passion effortlessly.</span>
             </h1>
             <p className="text-base md:text-lg text-gray-300 mb-8 max-w-xl mx-auto font-medium">
-              Monetize the content you already post on TikTok, Facebook, and YouTube. Get tipped directly via Airtel, MTN, and Zamtel.
+              Gather support, build your membership, and launch your shop. It's more accessible than you'd imagine.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -45,7 +46,7 @@ const Home = () => {
                 to="/register"
                 className="w-full sm:w-auto bg-zed-green text-white px-8 py-3.5 rounded-xl hover:bg-green-600 transition-all font-bold text-base shadow-lg active:scale-95"
               >
-                Claim your page
+                Start my page
               </Link>
               <Link
                 to="/creator-catalog"
@@ -65,7 +66,7 @@ const Home = () => {
                 The Reality
               </h2>
               <p className="text-lg text-gray-700 leading-relaxed font-medium">
-                Global platforms weren't built for us. High fees, late payouts, and "card only" barriers keep your local fans from supporting you. 
+                You're creating amazing content on TikTok, Facebook, and YouTube, and your fans love it. But while they're ready to support you, global platforms make it nearly impossible to get paid locally here in Zambia.
               </p>
             </div>
             <div className="bg-gray-50 p-8 rounded-[2rem] border-2 border-gray-100">
@@ -73,7 +74,7 @@ const Home = () => {
                 The Fix
               </h2>
               <p className="text-lg text-gray-700 leading-relaxed font-medium">
-                TipZed is built for Zambia. Direct Mobile Money support, instant notifications, and local withdrawals. Simple.
+                TipZed is your direct connection. We bridge the gap by letting your loyal fans support you instantly using Mobile Money—the way Zambians actually pay. No cards, no complications.
               </p>
             </div>
           </div>
@@ -87,7 +88,7 @@ const Home = () => {
             </h2>
             <div className="grid sm:grid-cols-3 gap-8">
               {[
-                { icon: <div className="w-10 h-10 rounded-full bg-zed-green/10 flex items-center justify-center text-zed-green font-bold">1</div>, title: "Create your page", desc: "Set up your profile in less than 2 minutes." },
+                { icon: <div className="w-10 h-10 rounded-full bg-zed-green/10 flex items-center justify-center text-zed-green font-bold">1</div>, title: "Create your page", desc: "Set up your profile in less than a minute." },
                 { icon: <div className="w-10 h-10 rounded-full bg-zed-green/10 flex items-center justify-center text-zed-green font-bold">2</div>, title: "Share your link", desc: "Post your payment link on your TikTok, FB, or YouTube." },
                 { icon: <div className="w-10 h-10 rounded-full bg-zed-green/10 flex items-center justify-center text-zed-green font-bold">3</div>, title: "Get tipped", desc: "Fans support you instantly via Mobile Money." }
               ].map((item, i) => (
@@ -128,7 +129,7 @@ const Home = () => {
               Start Earning Now
             </Link>
             <p className="mt-6 text-gray-500 text-sm font-medium">
-              Takes less than 2 minutes to set up.
+              Takes less than a minute to set up.
             </p>
           </div>
         </section>
@@ -138,3 +139,4 @@ const Home = () => {
 };
 
 export default Home;
+
