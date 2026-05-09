@@ -230,7 +230,7 @@ const CreatorProfile = () => {
 
         <main className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10 -mt-24 pb-20">
           {/* Top Profile Info Area */}
-          <div className="flex flex-col md:flex-row items-end gap-6 mb-8 px-2">
+          <div className="flex flex-col md:flex-row items-end gap-3 sm:gap-4 md:gap-6 mb-8 px-3 sm:px-4 md:px-2">
             {/* Large Profile Image */}
             <div className="relative group">
               <div className="w-40 h-40 md:w-48 md:h-48 rounded-[2.5rem] overflow-hidden border-[6px] border-white shadow-xl bg-white">
@@ -252,9 +252,9 @@ const CreatorProfile = () => {
               )}
             </div>
 
-            <div className="flex-1 pb-2 bg-white/80 backdrop-blur-md p-4 rounded-3xl shadow-sm border border-white/20">
-              <div className="flex flex-wrap items-center gap-3 mb-1">
-                <h1 className="truncate text-4xl font-black text-gray-900 tracking-tight">
+            <div className="flex-1 pb-2 bg-white/80 backdrop-blur-md p-3 sm:p-5 md:p-6 rounded-3xl shadow-sm border border-white/20">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-1">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-gray-900 tracking-tight line-clamp-2">
                   {getName(creator)}
                 </h1>
                 {creator.verified && (
@@ -264,12 +264,12 @@ const CreatorProfile = () => {
                   />
                 )}
               </div>
-              <p className="truncate text-lg text-gray-500 font-medium mb-2">
+              <p className="truncate text-sm sm:text-base md:text-lg text-gray-500 font-medium mb-2">
                 @{creator.user?.slug}
               </p>
 
               {/* Social Links */}
-              <div className="flex items-center gap-3 mb-4">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4">
                 <a
                   href={creator.facebook || "#"}
                   target="_blank"
@@ -329,19 +329,19 @@ const CreatorProfile = () => {
               </div>
 
               {/* Cleaner Stats Row */}
-              <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-sm">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3 md:gap-6 text-xs sm:text-sm">
                 {creator.followersCount > 0 && (
-                  <div className="flex items-center gap-1.5 text-gray-700">
-                    <Users size={18} className="text-zed-green" />
+                  <div className="flex items-center gap-1 sm:gap-1.5 text-gray-700 text-xs sm:text-sm">
+                    <Users size={16} className="text-zed-green flex-shrink-0" />
                     <span className="font-bold">
                       {creator.followersCount || 0}
                     </span>
-                    <span className="text-gray-400">Supporters</span>
+                    <span className="text-gray-400 hidden sm:inline">Supporters</span>
                   </div>
                 )}
-                <div className="flex items-center gap-1.5 text-gray-700">
-                  <Calendar size={18} className="text-gray-400" />
-                  <span className="text-gray-400">
+                <div className="flex items-center gap-1 sm:gap-1.5 text-gray-700 text-xs sm:text-sm">
+                  <Calendar size={16} className="text-gray-400 flex-shrink-0" />
+                  <span className="text-gray-400 whitespace-nowrap">
                     Joined {new Date(creator.user?.dateJoined || creator.dateJoined || Date.now()).getFullYear()}
                   </span>
                 </div>
@@ -362,7 +362,7 @@ const CreatorProfile = () => {
             {/* Share Button */}
             <button
               onClick={handleShare}
-              className="p-3 rounded-full bg-gray-50 text-gray-400 hover:bg-zed-green/10 hover:text-zed-green transition-all active:scale-90 group relative"
+              className="p-2 sm:p-3 rounded-full bg-gray-50 text-gray-400 hover:bg-zed-green/10 hover:text-zed-green transition-all active:scale-90 group relative flex-shrink-0"
               title="Share Profile"
             >
               <Share2 size={20} />
