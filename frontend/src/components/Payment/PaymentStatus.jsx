@@ -24,9 +24,9 @@ const PaymentStatus = ({
 
   useEffect(() => {
     if (status === "PROCESSING") {
-      // Use a small timeout to avoid the synchronous setState in effect warning
+      // Use a 10 seconds timeout to avoid the synchronous setState in effect warning
       const startTimer = setTimeout(() => setIsDelaying(true), 0);
-      const endTimer = setTimeout(() => setIsDelaying(false), 4000);
+      const endTimer = setTimeout(() => setIsDelaying(false), 10000);
       return () => {
         clearTimeout(startTimer);
         clearTimeout(endTimer);
