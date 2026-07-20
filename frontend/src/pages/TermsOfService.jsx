@@ -87,9 +87,8 @@ const TermsOfService = () => {
                   1. Platform Overview
                 </h2>
                 <p className="text-gray-600">
-                  Tipzed is a platform that allows creators to receive tips and
-                  support payments from their audience using mobile money and
-                  other supported payment methods.
+                  Tipzed is a platform that allows creators to receive donations
+                  from their audience using mobile money and other supported payment methods.
                 </p>
               </section>
 

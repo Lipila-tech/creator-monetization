@@ -198,8 +198,8 @@ const CreatorProfile = () => {
     <>
       <MetaTags
         title={`${getName(creator)} | TipZed`}
-        description={creator.bio || `Support ${getName(creator)} on TipZed. Direct support empowers their creative journey.`}
-        keywords={`creator, tip, support, ${getName(creator)}, zambia`}
+        description={creator.bio || `Support ${getName(creator)} on TipZed. Direct support empowers their work.`}
+        keywords={`creator, donate, support, ${getName(creator)}, zambia`}
         image={creator.profileImage || creator.coverImage}
         type="profile"
       />

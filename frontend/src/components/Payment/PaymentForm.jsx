@@ -164,7 +164,7 @@ const PaymentForm = ({ amount, onSubmit, onBack }) => {
             className="w-4 h-4 rounded border-gray-300 text-zed-green focus:ring-zed-green"
           />
           <span className="text-sm text-gray-500 group-hover:text-gray-700 transition-colors">
-            Save details for future tips
+            Save details for future donations
           </span>
         </label>
 
@@ -202,7 +202,7 @@ const PaymentForm = ({ amount, onSubmit, onBack }) => {
         disabled={notValid}
         className="w-full bg-zed-green text-white py-4 rounded-xl font-bold text-lg hover:bg-green-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-green-100"
       >
-        Tip K{amount}
+        Send K{amount}
       </button>
 
       <div className="mt-4 flex items-center justify-center gap-2 text-gray-400 text-xs">

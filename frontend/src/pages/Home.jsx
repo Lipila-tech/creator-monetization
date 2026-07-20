@@ -16,7 +16,7 @@ const Home = () => {
       <MetaTags
         title="TipZed | Local Support for Zambian Creators"
         description="Get tipped and subscribed directly via Mobile Money. The simplest way for Zambian creators to earn from their audience."
-        keywords="Zambian creators, mobile money tips, support creators, Zambia, TipZed"
+        keywords="Zambian creators, mobile money donations, support creators, Zambia, TipZed"
         image={bannerImage}
       />
 

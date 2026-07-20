@@ -134,7 +134,7 @@ const PrivacyPolicy = () => {
                 <ul className="space-y-4">
                   {[
                     "Create and manage your account",
-                    "Process tips and payouts",
+                    "Process donations and payouts",
                     "Prevent fraud and abuse",
                     "Communicate platform updates",
                     "Improve platform performance",

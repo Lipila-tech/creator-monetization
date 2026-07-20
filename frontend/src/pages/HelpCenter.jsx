@@ -11,7 +11,7 @@ const HelpCenter = () => {
       title: "Getting Started",
       icon: <HelpCircle className="text-zed-green" size={24} />,
       articles: [
-        { id: "what-is-tipzed", title: "What is TipZed?", content: "TipZed is a Zambian-centric platform designed for creators to receive financial support from their fans. Fans can tip creators directly using Mobile Money (Airtel, MTN, Zamtel)." },
+        { id: "what-is-tipzed", title: "What is TipZed?", content: "TipZed is a Zambian-centric platform designed for creators to receive financial support from their fans. Fans can donate to creators directly using Mobile Money (Airtel, MTN, Zamtel)." },
         { id: "share-page", title: "How do I let my fans know about my page?", content: "After creating your page, go to your dashboard and copy your support link. You can then share this link with your fans on social media, in your bio, or via direct messages." },
         { id: "one-time-support", title: "How does one-time support work?", content: "One-time support (clinking a glass) is a direct donation from a fan to a creator. The fan selects an amount, pays via Mobile Money, and the funds are added to the creator's balance instantly." },
       ]

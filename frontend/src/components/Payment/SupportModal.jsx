@@ -114,7 +114,7 @@ const SupportModal = ({ isOpen, onClose, creator}) => {
         setLoading(false);
       }
     } else {
-      setErrorMsg("No tip detected.");
+      setErrorMsg("No payment detected.");
     }
   };
 

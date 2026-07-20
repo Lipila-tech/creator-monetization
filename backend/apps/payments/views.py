@@ -20,8 +20,8 @@ class DepositAPIView(APIView):
     serializer_class = PaymentSerializer
 
     @extend_schema(
-        operation_id="send_tip",
-        summary="Send Tip",
+        operation_id="send_donation",
+        summary="Send Donation",
         responses={
             201: helpers.CreatedResponseSerializer,
             400: helpers.ValidationErrorSerializer,
@@ -35,13 +35,13 @@ class DepositAPIView(APIView):
     )
     def post(self, request, wallet_id):
         """
-        Creates a tip intent and initiates a Mobile Money payment request. This
+        Creates a donation intent and initiates a Mobile Money payment request. This
         endpoint is called after a patron selects an amount (K10, K20, or custom)
         provides their phone number and selects provider then clicks send.
 
         Authentication
         --------------
-        Guest tipping is  currently supported.
+        Guest donation is  currently supported.
         Optional:Authenticated patron(future).
 
         If guest is supported, return a receipt without attaching a user identity.
@@ -75,7 +75,7 @@ class DepositAPIView(APIView):
                         "phoneNumber": '26' + str(payment.patron_phone),
                     },
                 },
-                "customerMessage": "Tipping at TipZed",
+                "customerMessage": "Donating at TipZed",
                 "clientReferenceId": payment.reference,
                 "metadata": [
                     {

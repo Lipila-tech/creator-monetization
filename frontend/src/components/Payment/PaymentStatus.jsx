@@ -95,7 +95,7 @@ const PaymentStatus = ({
           Still Processing
         </h3>
         <p className="text-gray-500 mb-8 px-4">
-          Tips can sometimes take a few minutes to reflect. Don't worry, your
+          Donations can sometimes take a few minutes to reflect. Don't worry, your
           support is on its way!
         </p>
         <div className="flex flex-col gap-3">
@@ -129,7 +129,7 @@ const PaymentStatus = ({
         </div>
         <h3 className="text-2xl font-bold text-gray-900 mb-2">Thank You!</h3>
         <p className="text-gray-500 mb-8">
-          Your tip of <span className="font-bold text-gray-900">K{amount}</span>{" "}
+          Your Donation of <span className="font-bold text-gray-900">K{amount}</span>{" "}
           has been confirmed.
         </p>
         

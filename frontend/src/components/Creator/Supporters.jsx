@@ -23,7 +23,7 @@ const Supporters = () => {
         const data = await walletService.getSupporters();
         
         // The backend already returns completed payments with patron info
-        const tips = (data.data || []).map(txn => ({
+        const donations = (data.data || []).map(txn => ({
           id: txn.id,
           name: txn.patronName || "Anonymous",
           message: txn.patronMessage || "",
@@ -32,7 +32,7 @@ const Supporters = () => {
           time: new Date(txn.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         }));
 
-        setSupporters(tips);
+        setSupporters(donations);
       } catch (err) {
         console.error("Error fetching supporters:", err);
       } finally {
@@ -44,7 +44,7 @@ const Supporters = () => {
   }, []);
 
   const shoutoutText = supporters.length > 0 
-    ? `Big shout out to my latest supporters on TipZed: ${supporters.slice(0, 3).map(s => s.name).join(", ")}${supporters.length > 3 ? " and others" : ""}! 💛 Your support keeps me going. Tip me here: ${window.location.origin}/${localStorage.getItem("user_slug") || ""}`
+    ? `Big shout out to my latest supporters on TipZed: ${supporters.slice(0, 3).map(s => s.name).join(", ")}${supporters.length > 3 ? " and others" : ""}! 💛 Your support keeps me going. Send me a donation here: ${window.location.origin}/${localStorage.getItem("user_slug") || ""}`
     : `Huge thanks to everyone supporting my creative journey on TipZed! 💛 You can support me here: ${window.location.origin}/${localStorage.getItem("user_slug") || ""}`;
 
   const copyShoutout = () => {
@@ -141,7 +141,7 @@ const Supporters = () => {
               <Users className="text-gray-300" size={32} />
             </div>
             <h4 className="font-bold text-gray-900 mb-1">No supporters yet</h4>
-            <p className="text-sm text-gray-500">Share your link to start receiving tips and messages!</p>
+            <p className="text-sm text-gray-500">Share your link to start receiving donations!</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4">

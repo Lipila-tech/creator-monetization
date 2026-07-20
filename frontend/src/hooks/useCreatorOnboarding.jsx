@@ -38,8 +38,8 @@ export const useCreatorOnboarding = (user, walletStats) => {
 
     if (!hasEarnings) {
       missingSteps.push({
-        id: "first-tip",
-        label: "Receive your first tip",
+        id: "first-donation",
+        label: "Receive your first donation",
         link: "/creator-dashboard/guide#share",
       });
     }
@@ -48,13 +48,13 @@ export const useCreatorOnboarding = (user, walletStats) => {
     // We show onboarding if ANY profile field is missing OR if they have 0 earnings
     const showOnboarding = missingSteps.length > 0;
 
-    const firstTipOnly =
-      missingSteps.length === 1 && missingSteps[0].id === "first-tip";
+    const firstDonationOnly =
+      missingSteps.length === 1 && missingSteps[0].id === "first-donation";
 
     return {
       showOnboarding,
       missingSteps,
-      firstTipOnly,
+      firstDonationOnly,
       completionPercentage: Math.round(((4 - missingSteps.length) / 4) * 100),
     };
   }, [user, walletStats]);

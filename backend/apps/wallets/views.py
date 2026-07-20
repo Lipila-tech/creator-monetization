@@ -44,10 +44,10 @@ class SupporterListView(APIView):
     )
     def get(self, request):
         """
-        List supporters who have sent tips to the authenticated creator.
+        List supporters who have sent donations to the authenticated creator.
 
-        Returns a list of supporters who have sent tips to the creator, including
-        their name and total amount tipped.
+        Returns a list of supporters who have sent donations to the creator, including
+        their name and total amount donated.
 
         Authentication
         --------------

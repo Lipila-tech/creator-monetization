@@ -10,7 +10,7 @@ const AmountSelector = ({ onSelect }) => {
     e.preventDefault();
     const val = parseFloat(customAmount);
     if (!val || val < 10) {
-      setError("Minimum tip is K10");
+      setError("Minimum is K10");
       return;
     }
     onSelect(val);
@@ -19,7 +19,7 @@ const AmountSelector = ({ onSelect }) => {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <p className="text-gray-600 mb-4">Select an amount to tip</p>
+        <p className="text-gray-600 mb-4">Select an amount to Donate</p>
 
         {/* Preset Grid */}
         <div className="grid grid-cols-2 gap-3 mb-6">

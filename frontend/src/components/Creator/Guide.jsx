@@ -7,7 +7,7 @@ const Guide = ({ slug }) => {
   const [copiedScript, setCopiedScript] = useState(false);
 
   const creatorLink = `${window.location.protocol}//${window.location.host}/${slug}`;
-  const exampleScript = `Hi! I'm now on TipZed. If you'd like to support my work, you can tip me here: ${creatorLink}`;
+  const exampleScript = `Hi! I'm now on TipZed. If you'd like to support my work, you can send me a donation here: ${creatorLink}`;
 
   const copyToClipboard = (text, setFn) => {
     navigator.clipboard.writeText(text);

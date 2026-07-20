@@ -3,7 +3,7 @@
 # signals, or Celery tasks. 
 # Types of emails
 # - Missing payout account email: Sent to creators who have a pending payout but no payout account set up.
-# - Transaction receipt email: Sent to users after they receive a tip, containing transaction details.
+# - Transaction receipt email: Sent to users after they receive a donation, containing transaction details.
 # - Daily/weekly summary email: Sent to creators summarizing their earnings and activity over a period of time (future feature).
 
 from django.core.mail import send_mail
@@ -108,7 +108,7 @@ TipZed Admin Team
 
 def send_transaction_receipt_email(payment, recipient_email=None):
     """
-    Send a transaction receipt email to a user after they've sent a tip.
+    Send a transaction receipt email to a user after they've sent a donation.
     
     Contains transaction details, amount, creator information, and receipt reference.
     
@@ -140,13 +140,13 @@ def send_transaction_receipt_email(payment, recipient_email=None):
         provider_fee = payment.provider_fee or Decimal('0.00')
         net_amount = payment.net_amount or (payment.amount - provider_fee)
         
-        subject = f"TipZed Receipt: Your tip to {creator_user.get_full_name() or creator_user.username}"
+        subject = f"TipZed Receipt: Your donation to {creator_user.get_full_name() or creator_user.username}"
         
         # Plain text version
         message = f"""
 Hello {payment.patron_name or 'Valued Supporter'},
 
-Thank you for your support! We've received your tip.
+Thank you for your support! We've received your donation.
 
 Transaction Details:
 Reference: {payment.reference}
@@ -180,7 +180,7 @@ TipZed Team
             <div style="padding: 20px;">
                 <p>Hello {payment.patron_name or 'Valued Supporter'},</p>
                 
-                <p>Thank you for your support! We've received your tip to 
+                <p>Thank you for your support! We've received your donation to 
                 <strong>{creator_user.get_full_name() or creator_user.username}</strong>.</p>
                 
                 <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
@@ -254,8 +254,8 @@ def send_daily_weekly_summary_email(wallet, period='daily'):
     
     Future feature: Sends daily, weekly, or custom period summaries with:
     - Total earnings during period
-    - Number of tips received
-    - Average tip amount
+    - Number of donations received
+    - Average donation amount
     - Top supporters
     - Activity trend insights
     
@@ -334,12 +334,12 @@ Here's a summary of your TipZed earnings for {period_label}:
 
 Summary Statistics:
 Total Earnings: {total_earnings} {wallet.currency}
-Number of Tips: {total_tips}
-Average Tip: {average_tip} {wallet.currency}
+Number of Donations: {total_tips}
+Average Donation: {average_tip} {wallet.currency}
 Total Fees: {total_fees} {wallet.currency}
 Current Balance: {wallet.balance} {wallet.currency}
 
-Keep creating amazing content, and your supporters will keep tipping!
+Keep creating amazing content, and your supporters will keep donating!
 
 Best regards,
 TipZed Team
@@ -370,11 +370,11 @@ TipZed Team
                             </td>
                         </tr>
                         <tr>
-                            <td style="padding: 12px 0; border-bottom: 1px solid #e0e0e0; font-weight: bold;">Number of Tips:</td>
+                            <td style="padding: 12px 0; border-bottom: 1px solid #e0e0e0; font-weight: bold;">Number of Donations:</td>
                             <td style="padding: 12px 0; border-bottom: 1px solid #e0e0e0; text-align: right;">{total_tips}</td>
                         </tr>
                         <tr>
-                            <td style="padding: 12px 0; border-bottom: 1px solid #e0e0e0; font-weight: bold;">Average Tip:</td>
+                            <td style="padding: 12px 0; border-bottom: 1px solid #e0e0e0; font-weight: bold;">Average Donation:</td>
                             <td style="padding: 12px 0; border-bottom: 1px solid #e0e0e0; text-align: right;">{average_tip} {wallet.currency}</td>
                         </tr>
                         <tr>
@@ -394,7 +394,7 @@ TipZed Team
                 
                 <div style="background-color: #f0f7ff; padding: 15px; border-left: 4px solid #667eea; margin: 20px 0; border-radius: 4px;">
                     <p style="margin: 0;">
-                        <strong>💡 Pro Tip:</strong> Keep creating amazing content, and your supporters will keep tipping! 
+                        <strong>💡 Pro Tip:</strong> Keep creating amazing content, and your supporters will keep donating! 
                         Your dedication to your craft is what makes TipZed special.
                     </p>
                 </div>
@@ -462,7 +462,7 @@ Getting Started:
 
 3. Share Your Creator Link
    - Promote your unique creator page to your audience
-   - Each tip supports your creative work directly
+   - Each donation supports your creative work directly
    - Engage with your supporters and thank them
 
 Tips for Success:
@@ -532,7 +532,7 @@ Email: tipzed2@gmail.com
                         <h3 style="margin: 0 0 8px 0; color: #667eea;">3. Share Your Creator Link</h3>
                         <ul style="margin: 8px 0; color: #666;">
                             <li>Promote your unique creator page to your audience</li>
-                            <li>Each tip supports your creative work directly</li>
+                            <li>Each donation supports your creative work directly</li>
                             <li>Engage with your supporters and thank them</li>
                         </ul>
                     </div>
@@ -692,7 +692,7 @@ def send_reminder_to_complete_profile(email: str) -> bool:
         3. Write a compelling bio about yourself and your content
         4. Set up your wallet to receive payouts
 
-        The more complete your profile, the more likely supporters will be to tip you! If you need any help, feel free to reach out to our support team.
+        The more complete your profile, the more likely supporters will be to support you! If you need any help, feel free to reach out to our support team.
 
         Best regards,
         The TipZed Team

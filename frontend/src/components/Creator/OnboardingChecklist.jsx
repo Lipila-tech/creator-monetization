@@ -21,7 +21,7 @@ const OnboardingChecklist = ({
               </h2>
             </div>
             <p className="text-gray-600 text-sm">
-              Creators with complete profiles earn 3x more tips!
+              Creators with complete profiles earn 3x more!
             </p>
           </div>
 
@@ -34,7 +34,7 @@ const OnboardingChecklist = ({
               to={`/creator-dashboard/guide${firstTipOnly ? "#share" : ""}`}
               className="text-sm font-bold text-zed-green hover:text-zed-green-dark underline"
             >
-              {firstTipOnly ? "Receive your first tip" : "View Guide"}
+              {firstTipOnly ? "Receive your first donation" : "View Guide"}
             </Link>
           </div>
         </div>
