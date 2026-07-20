@@ -478,7 +478,7 @@ Happy creating!
 
 Best regards,
 The TipZed Team
-Email: admin@tipzed.space
+Email: tipzed2@gmail.com
         """
         
         # HTML version
@@ -567,7 +567,7 @@ Email: admin@tipzed.space
                 <p style="margin: 0;">
                     Best regards,<br>
                     <strong>The TipZed Team</strong>
-                    <strong> Email: admin@tipzed.space</strong>
+                    <strong> Email: tipzed2@gmail.com</strong>
                 </p>
                 <p style="margin: 10px 0 0 0; color: #999;">
                     TipZed - Empower Creators, Support Creativity
@@ -656,7 +656,7 @@ def welcome_early_adopter_email(email: str) -> bool:
 
         Best regards,
         The TipZed Team
-        Email: admin@tipzed.space
+        Email: tipzed2@gmail.com
         """
         send_mail(
             subject=subject,
@@ -696,7 +696,7 @@ def send_reminder_to_complete_profile(email: str) -> bool:
 
         Best regards,
         The TipZed Team
-        Email: admin@tipzed.space
+        Email: tipzed2@gmail.com
         """
         send_mail(
             subject=subject,

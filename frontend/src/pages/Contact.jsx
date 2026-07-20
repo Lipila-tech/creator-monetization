@@ -26,10 +26,10 @@ const Contact = () => {
                   For support, inquiries, or partnerships, reach out to us at:
                 </p>
                 <a 
-                  href="mailto:admin@tipzed.space" 
+                  href="mailto:tipzed2@gmail.com" 
                   className="text-2xl font-black text-zed-black hover:text-zed-green transition-colors break-all"
                 >
-                  admin@tipzed.space
+                  tipzed2@gmail.com
                 </a>
               </div>
 

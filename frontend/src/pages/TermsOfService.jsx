@@ -305,7 +305,7 @@ const TermsOfService = () => {
                   </div>
 
                   <a
-                    href="mailto:admin@tipzed.space"
+                    href="mailto:tipzed2@gmail.com"
                     className="flex items-center gap-3 bg-white text-zed-green px-8 py-4 rounded-2xl font-black hover:scale-105 transition-transform"
                   >
                     <Mail size={20} />
