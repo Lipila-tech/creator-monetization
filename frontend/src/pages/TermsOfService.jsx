@@ -40,7 +40,7 @@ const TermsOfService = () => {
               Terms of Service
             </h1>
             <p className="text-gray-500 font-medium">
-              Last updated: <span className="text-zed-green">January 2026</span>
+              Last updated: <span className="text-zed-green">June 2026</span>
             </p>
           </div>
         </div>
@@ -101,7 +101,7 @@ const TermsOfService = () => {
 
                 <ul className="space-y-4">
                   {[
-                    "You must be at least 18 years old",
+                    "You must be at least 16 years old",
                     "Have legal capacity to receive payments",
                     "Ensure your content complies with applicable laws",
                   ].map((item) => (
@@ -124,8 +124,8 @@ const TermsOfService = () => {
                 </h2>
 
                 <p className="text-gray-600 mb-4">
-                  Tipzed charges a <strong>10% platform fee</strong> on each
-                  transaction. This fee covers:
+                  Tipzed charges a <strong>5.5% platform fee</strong> on each
+                  transaction. The fee is subject to change, and any updates will be communicated in advance. The fee covers:
                 </p>
 
                 <ul className="space-y-4">

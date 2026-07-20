@@ -147,12 +147,19 @@ const Header = () => {
           <div className="px-4 py-6 space-y-4">
             {!user ? (
               <>
+              <Link
+                to="/"
+                className="block text-lg font-bold text-gray-800 hover:text-zed-green py-2 border-b border-gray-50"
+                onClick={() => setIsMenuOpen(false)}
+              >
+              Home
+              </Link>
                 <Link
                   to="/creator-catalog"
                   className="block text-lg font-bold text-gray-800 hover:text-zed-green py-2 border-b border-gray-50"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Explore Creators
+                  Explore
                 </Link>
                 <Link
                   to="/help-center"

@@ -11,25 +11,25 @@ const HelpCenter = () => {
       title: "Getting Started",
       icon: <HelpCircle className="text-zed-green" size={24} />,
       articles: [
-        { id: "what-is-tipzed", title: "What is TipZed?", content: "TipZed is a Zambian-centric platform designed for creators to receive financial support from their fans. Fans can donate to creators directly using Mobile Money (Airtel, MTN, Zamtel)." },
-        { id: "share-page", title: "How do I let my fans know about my page?", content: "After creating your page, go to your dashboard and copy your support link. You can then share this link with your fans on social media, in your bio, or via direct messages." },
-        { id: "one-time-support", title: "How does one-time support work?", content: "One-time support (clinking a glass) is a direct donation from a fan to a creator. The fan selects an amount, pays via Mobile Money, and the funds are added to the creator's balance instantly." },
+        { id: "what-is-tipzed", title: "What is TipZed?", content: "TipZed is a simple platform that lets people receive support and donations from their audience through Mobile Money. It is useful for creators, journalists, whistleblowers, fundraisers, and anyone sharing important work with the public." },
+        { id: "share-page", title: "How do I let my supporters know about my page?", content: "After creating your page, go to your dashboard and copy your donation link. You can then share it on social media, in your bio, in messages, or anywhere your audience already follows you." },
+        { id: "one-time-support", title: "How does one-time support work?", content: "One-time support is a direct donation from a supporter to the person or cause they want to back. The supporter selects an amount, pays via Mobile Money, and the funds are added to the recipient's balance instantly." },
       ]
     },
     {
       title: "For Creators",
       icon: <Users className="text-zed-orange" size={24} />,
       articles: [
-        { id: "withdrawals", title: "How do I withdraw my earnings?", content: "You can withdraw your earnings directly to your Mobile Money account. Go to your dashboard, click 'Withdraw', and follow the prompts. Fees are kept minimal to ensure you keep more of what you earn." },
-        { id: "memberships", title: "Setting up memberships", content: "Memberships allow you to receive recurring monthly support from your most loyal fans in exchange for exclusive content or perks." },
+        { id: "withdrawals", title: "How do I withdraw my earnings?", content: "You can withdraw your earnings directly to your Mobile Money account. Go to your dashboard, click 'Withdraw', and follow the prompts. Fees are kept minimal so you can keep more of what you receive." },
+        { id: "memberships", title: "Setting up memberships", content: "Memberships allow you to receive recurring monthly support from your most loyal supporters in exchange for exclusive content, updates, or other benefits." },
       ]
     },
     {
       title: "Payments & Security",
       icon: <CreditCard className="text-zed-black" size={24} />,
       articles: [
-        { id: "is-it-secure", title: "Is TipZed secure?", content: "Yes. We use industry-standard encryption and partner with regulated Zambian payment processors to ensure your transactions are safe." },
-        { id: "transaction-fees", title: "What are the transaction fees?", content: "We charge a small percentage on each transaction to cover payment processing and platform maintenance. There are no hidden monthly fees for creators." },
+        { id: "is-it-secure", title: "Is TipZed secure?", content: "Yes. We use industry-standard security measures and work with trusted payment partners to help keep your transactions safe and reliable." },
+        { id: "transaction-fees", title: "What are the transaction fees?", content: "We charge a small percentage on each transaction to cover payment processing and platform maintenance. There are no hidden monthly fees for users." },
       ]
     }
   ];
@@ -101,7 +101,7 @@ const HelpCenter = () => {
           <MessageSquare className="mx-auto text-zed-green mb-4" size={40} />
           <h2 className="text-2xl font-black text-gray-900 mb-4">Still have questions?</h2>
           <p className="text-gray-600 mb-8 max-w-lg mx-auto">
-            Our team is here to support you in your creative journey. Reach out to us directly.
+            Our team is here to support you whether you are building a community, sharing stories, raising funds, or receiving donations for important work.
           </p>
           <Link
             to="/contact"
