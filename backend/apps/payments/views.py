@@ -87,7 +87,7 @@ class DepositAPIView(APIView):
             }
 
             data, code = limopay_request(
-                "POST", f"/api/v1/payments/mobile-money/{wallet_id}/", payload=payload)
+                "POST", f"/api/v1/payments/mobile-money/{LIMOPAY_WALLET_ID}/", payload=payload)
             # Treat any 2xx as success from the gateway
             if 200 <= code < 300:
                 # Map Limopay response to local payment fields
