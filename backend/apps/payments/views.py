@@ -8,13 +8,14 @@ from apps.payments.serializers import PaymentSerializer
 from apps.wallets.models import Wallet
 from rest_framework.permissions import AllowAny
 from utils.authentication import RequireAPIKey
-from utils.external_requests import pawapay_request, limopay_request
+from utils.external_requests import limopay_request
 from drf_spectacular.utils import extend_schema
+from django.conf import settings
 from utils import serializers as helpers
 
 User = get_user_model()
 
-
+LIMOPAY_WALLET_ID = settings.LIMOPAY_WALLET_ID
 class DepositAPIView(APIView):
     permission_classes = [AllowAny, RequireAPIKey]
     serializer_class = PaymentSerializer

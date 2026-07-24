@@ -147,7 +147,7 @@ class PaymentStatusAPIView(APIView):
                 ],
             ).exists():
             # Use payment.reference when asking gateway for latest status
-            data, code = resend_callback(payment.reference)
+                data, code = resend_callback(payment.reference)
             if code == 200:
                 # Assume gateway returns a status field
                 return Response(
