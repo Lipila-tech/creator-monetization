@@ -7,7 +7,7 @@ const Signup = () => {
     <>
       <MetaTags
         title="Start Supporting Zambian Creators  | TipZed"
-        description="Create your TipZed account today. Join a growing community of Zambian creators and supporters. Start tipping and accessing exclusive content."
+        description="Create your TipZed account today. Join a growing community of Zambian creators and supporters. Start donating and accessing exclusive content."
         keywords="sign up, create account, join TipZed, register, new creator, become a supporter, Zambia creators platform"
       />
       <div className="bg-gradient-to-br from-orange-50 via-white to-green-50 py-8 md:py-12 px-4">

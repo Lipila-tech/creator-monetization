@@ -40,7 +40,7 @@ const TermsOfService = () => {
               Terms of Service
             </h1>
             <p className="text-gray-500 font-medium">
-              Last updated: <span className="text-zed-green">January 2026</span>
+              Last updated: <span className="text-zed-green">June 2026</span>
             </p>
           </div>
         </div>
@@ -87,9 +87,8 @@ const TermsOfService = () => {
                   1. Platform Overview
                 </h2>
                 <p className="text-gray-600">
-                  Tipzed is a platform that allows creators to receive tips and
-                  support payments from their audience using mobile money and
-                  other supported payment methods.
+                  Tipzed is a platform that allows creators to receive donations
+                  from their audience using mobile money and other supported payment methods.
                 </p>
               </section>
 
@@ -102,7 +101,7 @@ const TermsOfService = () => {
 
                 <ul className="space-y-4">
                   {[
-                    "You must be at least 18 years old",
+                    "You must be at least 16 years old",
                     "Have legal capacity to receive payments",
                     "Ensure your content complies with applicable laws",
                   ].map((item) => (
@@ -125,8 +124,8 @@ const TermsOfService = () => {
                 </h2>
 
                 <p className="text-gray-600 mb-4">
-                  Tipzed charges a <strong>10% platform fee</strong> on each
-                  transaction. This fee covers:
+                  Tipzed charges a <strong>5.5% platform fee</strong> on each
+                  transaction. The fee is subject to change, and any updates will be communicated in advance. The fee covers:
                 </p>
 
                 <ul className="space-y-4">
@@ -305,7 +304,7 @@ const TermsOfService = () => {
                   </div>
 
                   <a
-                    href="mailto:admin@tipzed.space"
+                    href="mailto:tipzed2@gmail.com"
                     className="flex items-center gap-3 bg-white text-zed-green px-8 py-4 rounded-2xl font-black hover:scale-105 transition-transform"
                   >
                     <Mail size={20} />

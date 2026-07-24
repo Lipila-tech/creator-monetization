@@ -465,7 +465,7 @@ class TestSendDailyWeeklySummaryEmail:
         assert 'Number of Tips: 1' in message or '1' in message
 
     def test_send_summary_email_calculates_average_tip(self, mocker, user_factory):
-        """Test that average tip is calculated correctly."""
+        """Test that average donation is calculated correctly."""
         # Arrange
         wallet = user_factory.creator_profile.wallet
         now = timezone.now()

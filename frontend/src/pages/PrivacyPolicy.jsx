@@ -37,7 +37,7 @@ const PrivacyPolicy = () => {
               Privacy Policy
             </h1>
             <p className="text-gray-500 font-medium">
-              Last updated: <span className="text-zed-green">January 2026</span>
+              Last updated: <span className="text-zed-green">June 2026</span>
             </p>
           </div>
         </div>
@@ -73,7 +73,7 @@ const PrivacyPolicy = () => {
             {/* Content */}
             <article className="flex-1 max-w-3xl space-y-16">
               <p className="text-lg text-gray-600 leading-relaxed">
-                Tipzed Technologies respects your privacy and is committed to
+                Tipzed respects your privacy and is committed to
                 protecting your personal information. This Privacy Policy
                 explains how we collect, use, store, and protect your data when
                 you use our platform.
@@ -134,7 +134,7 @@ const PrivacyPolicy = () => {
                 <ul className="space-y-4">
                   {[
                     "Create and manage your account",
-                    "Process tips and payouts",
+                    "Process donations and payouts",
                     "Prevent fraud and abuse",
                     "Communicate platform updates",
                     "Improve platform performance",
@@ -257,7 +257,7 @@ const PrivacyPolicy = () => {
                   </div>
 
                   <a
-                    href="mailto:admin@tipzed.space"
+                    href="mailto:tipzed2@gmail.com"
                     className="flex items-center gap-3 bg-white text-zed-green px-8 py-4 rounded-2xl font-black hover:scale-105 transition-transform"
                   >
                     <Mail size={20} />

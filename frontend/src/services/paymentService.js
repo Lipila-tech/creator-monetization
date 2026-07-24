@@ -2,8 +2,8 @@ import api from "./api";
 
 export const paymentService = {
   /**
-   * Initiates a mobile money tip/payment to a creator.
-   * @param {number|string} walletId The ID of the creator's wallet that will receive the tip.
+   * Initiates a mobile money payment to a creator.
+   * @param {number|string} walletId The ID of the creator's wallet that will receive the donation.
    * @param {string} ispProvider The mobile money provider identifier.
    *  Supported values:
    *  - "MTN_MOMO_ZMB"
@@ -12,7 +12,7 @@ export const paymentService = {
    * @param {number} amount The amount to be tipped (in ZMW).
    * @param {string} patronPhone The supporter’s mobile number (MSISDN format).
    * @param {string} patronEmail The supporter’s email address.
-   * @param {string} [patronMessage=""] Optional message attached to the tip.
+   * @param {string} [patronMessage=""] Optional message attached to the donation.
    * @param {string} [patronName=""] Optional name of the supporter.
    *
    * @returns {Promise<{
@@ -63,7 +63,7 @@ export const paymentService = {
   },
 
   /**
-   * Checks the status of an existing tip/payment.
+   * Checks the status of an existing payment.
    * @param {number|string} paymentId The unique ID of the payment transaction.
    *
    * @returns {Promise<{

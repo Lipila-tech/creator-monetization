@@ -161,7 +161,7 @@ const CreatorProfile = () => {
           onClick={() => navigate("/creator-catalog")}
           className="mt-6 px-6 py-2 bg-zed-green text-white rounded-full font-bold shadow-lg shadow-green-100 transition-all active:scale-95"
         >
-          Explore Creators
+          Explore
         </button>
       </div>
     );
@@ -198,8 +198,8 @@ const CreatorProfile = () => {
     <>
       <MetaTags
         title={`${getName(creator)} | TipZed`}
-        description={creator.bio || `Support ${getName(creator)} on TipZed. Direct support empowers their creative journey.`}
-        keywords={`creator, tip, support, ${getName(creator)}, zambia`}
+        description={creator.bio || `Support ${getName(creator)} on TipZed. Direct support empowers their work.`}
+        keywords={`creator, donate, support, ${getName(creator)}, zambia`}
         image={creator.profileImage || creator.coverImage}
         type="profile"
       />

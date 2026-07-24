@@ -36,12 +36,10 @@ const CreatorCatalog = () => {
           // Some APIs return { data: [] } without status
           setCreators(response.data);
         } else {
-          console.error("Unexpected API response format:", response);
           throw new Error("Invalid data format received from server");
         }
       } catch (err) {
-        console.error("Fetch creators error:", err);
-        setError("Unable to reach the creator directory. Please try again later.");
+        setError("Unable to Fetch Creators. Please try again later.");
       } finally {
         setLoading(false);
       }
@@ -145,10 +143,10 @@ const CreatorCatalog = () => {
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
             <div className="space-y-2">
               <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">
-                Creator Directory
+                Explore Creators
               </h1>
               <p className="text-gray-500 font-medium italic">
-                Support creators directly.
+                Discover and support content providers from all over Zambia. Find your favorite creators and help them grow!
               </p>
             </div>
 
