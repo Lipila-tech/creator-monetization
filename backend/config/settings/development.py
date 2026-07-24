@@ -234,6 +234,10 @@ SPECTACULAR_SETTINGS = {
 PAWAPAY_BASE_URL = env("PAWAPAY_BASE_URL", default="https://api.sandbox.pawapay.io")
 PAWAPAY_API_KEY = env("PAWAPAY_API_KEY", default="")
 
+# Limopay (Lipila) configuration
+LIMOPAY_BASE_URL = env("LIMOPAY_BASE_URL", default="https://sandbox.lipila.tech")
+LIMOPAY_API_KEY = env("LIMOPAY_API_KEY", default="")
+
 # Configure Gmail Email settings
 if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

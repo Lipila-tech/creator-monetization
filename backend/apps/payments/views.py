@@ -8,7 +8,7 @@ from apps.payments.serializers import PaymentSerializer
 from apps.wallets.models import Wallet
 from rest_framework.permissions import AllowAny
 from utils.authentication import RequireAPIKey
-from utils.external_requests import pawapay_request
+from utils.external_requests import pawapay_request, limopay_request
 from drf_spectacular.utils import extend_schema
 from utils import serializers as helpers
 
@@ -85,11 +85,19 @@ class DepositAPIView(APIView):
                 ],
             }
 
-            data, code = pawapay_request(
-                "POST", "/v2/deposits/", payload=payload)
-            if code == 200:
-                status_lower = data.get("status", "").lower()
-                payment.status = status_lower
+            data, code = limopay_request(
+                "POST", f"/api/v1/payments/mobile-money/{wallet_id}/", payload=payload)
+            # Treat any 2xx as success from the gateway
+            if 200 <= code < 300:
+                # Map Limopay response to local payment fields
+                gw_status = (data.get("status") or "").lower() if isinstance(data, dict) else ""
+                if gw_status == "success":
+                    payment.status = "accepted"
+                else:
+                    payment.status = gw_status or payment.status
+                # Limopay returns transaction_id on success
+                if isinstance(data, dict) and data.get("transaction_id"):
+                    payment.external_id = data.get("transaction_id")
                 payment.metadata = data
                 payment.save()
                 serializer = PaymentSerializer(payment)
@@ -99,7 +107,11 @@ class DepositAPIView(APIView):
                      },
                     status=status.HTTP_201_CREATED
                 )
-            return Response({"status": data['status']}, status=code)
+            # Forward gateway error
+            try:
+                return Response({"status": data.get('status', 'error')}, status=code)
+            except Exception:
+                return Response({"status": "error"}, status=code)
 
         return Response(
             {

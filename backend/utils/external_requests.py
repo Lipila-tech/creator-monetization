@@ -87,12 +87,49 @@ def pawapay_request(method, endpoint, headers=None, payload=None):
         return {"status": e}, 500
 
 
-def resend_callback(deposit_id):
-    """Helper function to resend callback for a given deposit id
-    Args:
-        deposit_id (str): ID of the deposit to resend callback for
-    Returns:
-        tuple: (response data, status code) from the callback resend request
+def limopay_request(method, endpoint, headers=None, payload=None):
     """
-    data, code = pawapay_request("POST", f"/v2/deposits/resend-callback/{deposit_id}")
+    Utility function to make requests to Limopay (Lipila) API.
+    Uses settings.LIMOPAY_BASE_URL and settings.LIMOPAY_API_KEY.
+    Returns (data, status_code) similar to pawapay_request.
+    """
+    url = f"{settings.LIMOPAY_BASE_URL}{endpoint}"
+    headers = {
+        "Accept": "application/json",
+        "x-api-key": settings.LIMOPAY_API_KEY,
+        "Content-Type": "application/json",
+    }
+    try:
+        if method == "POST" and payload is None:
+            raise AttributeError("Payload missing")
+        response = requests.request(
+            method, url, headers=headers, json=payload, timeout=10
+        )
+        try:
+            return response.json(), response.status_code
+        except ValueError:
+            return response.text, response.status_code
+    except AttributeError:
+        return {"status": "BAD_REQUEST"}, 400
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Limopay Request Error: {e}")
+        return {"status": "EXTERNAL_ERROR"}, 500
+    except requests.exceptions.ConnectionError:
+        return {"status": "NETWORK_ERROR"}, 500
+    except Exception as e:
+        logger.error(f"Internal Error: {e}")
+        return {"status": str(e)}, 500
+
+
+def resend_callback(reference):
+    """Helper function to check payment status by reference on Limopay
+
+    Args:
+        reference (str): payment reference to query on Limopay
+
+    Returns:
+        tuple: (response data, status code) from the Limopay GET request
+    """
+    # Limopay exposes GET /payments/{reference}/ to check status
+    data, code = limopay_request("GET", f"/payments/{reference}/")
     return data, code
