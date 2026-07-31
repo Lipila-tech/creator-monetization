@@ -384,7 +384,7 @@ class TestSendDailyWeeklySummaryEmail:
         assert '150.00' in message or '150' in message
         # Total fees: 7.50
         assert '7.50' in message or '7.5' in message
-        # Number of tips: 2
+        # Number of Donations: 2
         assert '2' in message
 
     def test_send_summary_email_only_includes_completed_transactions(self, mocker, user_factory):
@@ -422,8 +422,8 @@ class TestSendDailyWeeklySummaryEmail:
         
         # Should only include the 100.00 transaction
         assert '100.00' in message
-        # Number of tips should be 1
-        assert 'Number of Tips: 1' in message
+        # Number of donations should be 1
+        assert 'Number of Donations: 1' in message
 
     from unittest import skip
 
@@ -462,7 +462,7 @@ class TestSendDailyWeeklySummaryEmail:
         message = call_kwargs['message']
         
         # Should only include the recent 100.00 transaction
-        assert 'Number of Tips: 1' in message or '1' in message
+        assert 'Number of Donations: 1' in message or '1' in message
 
     def test_send_summary_email_calculates_average_tip(self, mocker, user_factory):
         """Test that average donation is calculated correctly."""
@@ -533,7 +533,7 @@ class TestSendDailyWeeklySummaryEmail:
         
         # Should show zero earnings
         assert 'Total Earnings: 0' in message or 'Total Earnings: 0.00' in message
-        assert 'Number of Tips: 0' in message
+        assert 'Number of Donations: 0' in message
 
     def test_send_summary_email_exception_handling(self, mocker, user_factory):
         """Test exception handling during summary email send."""

@@ -8,13 +8,14 @@ from apps.payments.serializers import PaymentSerializer
 from apps.wallets.models import Wallet
 from rest_framework.permissions import AllowAny
 from utils.authentication import RequireAPIKey
-from utils.external_requests import pawapay_request
+from utils.external_requests import limopay_request
 from drf_spectacular.utils import extend_schema
+from django.conf import settings
 from utils import serializers as helpers
 
 User = get_user_model()
 
-
+LIMOPAY_WALLET_ID = settings.LIMOPAY_WALLET_ID
 class DepositAPIView(APIView):
     permission_classes = [AllowAny, RequireAPIKey]
     serializer_class = PaymentSerializer
@@ -25,7 +26,7 @@ class DepositAPIView(APIView):
         responses={
             201: helpers.CreatedResponseSerializer,
             400: helpers.ValidationErrorSerializer,
-            401: helpers.UnauthorizedErrorSerializer,
+            401: helpers.UnauthorizedErrorSerializer,  
             403: helpers.ForbiddenErrorSerializer,
             404: helpers.NotFoundErrorSerializer,
             409: helpers.ConflictErrorSerializer,
@@ -59,6 +60,7 @@ class DepositAPIView(APIView):
                     },
                     status=status.HTTP_400_BAD_REQUEST
                 )
+
             wallet = get_object_or_404(Wallet, id=wallet_id)
             
             with transaction.atomic():
@@ -67,29 +69,36 @@ class DepositAPIView(APIView):
             payload = {
                 "amount": str(int(payment.amount)),
                 "currency": "ZMW",
-                "depositId": str(payment.id),
-                "payer": {
-                    "type": "MMO",
-                    "accountDetails": {
-                        "provider": str(payment.provider),
-                        "phoneNumber": '26' + str(payment.patron_phone),
-                    },
-                },
-                "customerMessage": "Donating at TipZed",
-                "clientReferenceId": payment.reference,
+                "reference": str(payment.id),
+                "payer": str(payment.patron_phone),
+                "provider": str(payment.provider),
+                "payerMessage": payment.patron_message or "",
+                "payerEmail": payment.patron_email or "",
                 "metadata": [
                     {
                         "paymentId": str(payment.id),
-                        "walletId": str(wallet.id)
+                        "walletId": str(wallet.id),
+                        "clientReferenceId": payment.reference,
+                        "patronMessage": payment.patron_message or "",
+                        "patronEmail": payment.patron_email or "",
+                        "patronPhone": payment.patron_phone or "",
                     }
                 ],
             }
 
-            data, code = pawapay_request(
-                "POST", "/v2/deposits/", payload=payload)
-            if code == 200:
-                status_lower = data.get("status", "").lower()
-                payment.status = status_lower
+            data, code = limopay_request(
+                "POST", f"/api/v1/payments/mobile-money/{LIMOPAY_WALLET_ID}/", payload=payload)
+            # Treat any 2xx as success from the gateway
+            if 200 <= code < 300:
+                # Map Limopay response to local payment fields
+                gw_status = (data.get("status") or "").lower() if isinstance(data, dict) else ""
+                if gw_status == "success":
+                    payment.status = "accepted"
+                else:
+                    payment.status = gw_status or payment.status
+                # Limopay returns transaction_id on success
+                if isinstance(data, dict) and data.get("transaction_id"):
+                    payment.external_id = data.get("transaction_id")
                 payment.metadata = data
                 payment.save()
                 serializer = PaymentSerializer(payment)
@@ -99,8 +108,11 @@ class DepositAPIView(APIView):
                      },
                     status=status.HTTP_201_CREATED
                 )
-            return Response({"status": data['status']}, status=code)
-
+            # Forward gateway error
+            try:
+                return Response({"status": data.get('status', 'error')}, status=code)
+            except Exception:
+                return Response({"status": "error"}, status=code)
         return Response(
             {
                 "status": "failed",

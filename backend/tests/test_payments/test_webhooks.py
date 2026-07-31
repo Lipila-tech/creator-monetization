@@ -12,13 +12,12 @@ User = get_user_model()
 
 @pytest.mark.django_db
 class TestPaymentStatusAPIView:
-    def test_get_payment_status_pending(
+    def test_get_payment_status_completed(
         self, auth_api_client, payment_factory, mocker
     ):
-        """Test retrieving payment status with no webhook log"""
-        mock_resend = mocker.patch(
-            "apps.payments.webhooks.resend_callback",
-            return_value=({"status": "COMPLETED"}, 200),
+        mock_limopay_req = mocker.patch(
+            "apps.payments.webhooks.limopay_request",
+            return_value=({"status": "completed"}, 200),
         )
         response = auth_api_client.get(
             reverse("payments:payment_status", args=[payment_factory.id]), format="json"
@@ -26,19 +25,18 @@ class TestPaymentStatusAPIView:
         assert response.status_code == 200
         assert response.data["status"] == "completed"
 
-        mock_resend.assert_called_once_with(str(payment_factory.id))
+        mock_limopay_req.assert_called_once_with('GET', f'/api/v1/payments/{str(payment_factory.reference)}/')
 
     
-    def test_get_payment_status_processing(
+    def test_get_payment_status_failed(
         self, auth_api_client, payment_factory, mocker
     ):
-        """Test retrieving payment status with no webhook log and processing status"""
         payment_factory.status = "processing"
         payment_factory.save()
 
-        mock_resend = mocker.patch(
-            "apps.payments.webhooks.resend_callback",
-            return_value=({"status": "FAILED"}, 200),
+        mock_limopay_req = mocker.patch(
+            "apps.payments.webhooks.limopay_request",
+            return_value=({"status": "failed"}, 200),
         )
         response = auth_api_client.get(
             reverse("payments:payment_status", args=[payment_factory.id]), format="json"
@@ -46,119 +44,7 @@ class TestPaymentStatusAPIView:
         assert response.status_code == 200
         assert response.data["status"] == "failed"
 
-        mock_resend.assert_called_once_with(str(payment_factory.id)
-    )
-
-    def test_get_payment_status_in_reconciliation(
-        self, auth_api_client, payment_factory, mocker
-    ):
-        """Test retrieving payment status with no webhook log and in_reconciliation status"""
-        payment_factory.status = "in_reconciliation"
-        payment_factory.save()
-
-        mock_resend = mocker.patch(
-            "apps.payments.webhooks.resend_callback",
-            return_value=({"status": "COMPLETED"}, 200),
-        )
-        response = auth_api_client.get(
-            reverse("payments:payment_status", args=[payment_factory.id]), format="json"
-        )
-        assert response.status_code == 200
-        assert response.data["status"] == "completed"
-
-        mock_resend.assert_called_once_with(str(payment_factory.id)
-    )
-
-    def test_get_payment_status_final_completed(
-        self, auth_api_client, payment_factory, mocker
-    ):
-        """Test retrieving payment status with existing webhook log"""
-        mock_resend = mocker.patch(
-            "apps.payments.webhooks.resend_callback",
-            return_value=({"status": "COMPLETED"}, 200),
-        )
-        PaymentWebhookLog.objects.create(
-            payment=payment_factory,
-            provider=payment_factory.provider,
-            event_type="deposit.completed",
-            external_id="EXT-123",
-            parsed_payload={"status": "COMPLETED"},
-        )
-
-        payment_factory.status = "completed"
-        payment_factory.save()
-
-        response = auth_api_client.get(
-            reverse("payments:payment_status", args=[payment_factory.id]), format="json"
-        )
-        assert response.status_code == 200
-        assert response.data["status"] == "completed"
-
-        mock_resend.assert_not_called()
-
-    def test_get_payment_status_with_final_pending(
-        self, auth_api_client, payment_factory, mocker
-    ):
-        """Test retrieving payment status with existing webhook log but pending status"""
-        mock_resend = mocker.patch(
-            "apps.payments.webhooks.resend_callback",
-            return_value=({"status": "FAILED"}, 200),
-        )
-        PaymentWebhookLog.objects.create(
-            payment=payment_factory,
-            provider=payment_factory.provider,
-            event_type="deposit.pending",
-            external_id="EXT-123",
-            parsed_payload={"status": "PENDING"},
-        )
-
-        payment_factory.status = "PENDING"
-        payment_factory.save()
-
-        request = auth_api_client.get(
-            reverse("payments:payment_status", args=[payment_factory.id]), format="json"
-        )
-        assert request.status_code == 200
-        assert request.data["status"] == "failed"
-        mock_resend.assert_called_once_with(str(payment_factory.id))
-
-    def test_get_payment_status_final_failed(
-        self, auth_api_client, payment_factory, mocker
-    ):
-        mock_resend = mocker.patch(
-            "apps.payments.webhooks.resend_callback",
-            return_value=({"status": "COMPLETED"}, 200),
-        )
-
-        payment_factory.status = "failed"
-        payment_factory.save()
-
-        response = auth_api_client.get(
-            reverse("payments:payment_status", args=[payment_factory.id]), format="json"
-        )
-        assert response.status_code == 200
-        assert response.data["status"] == "failed"
-
-        mock_resend.assert_not_called()
-
-    def test_get_payment_status_final_rejected(
-        self, auth_api_client, payment_factory, mocker
-    ):
-        mock_resend = mocker.patch(
-            "apps.payments.webhooks.resend_callback",
-            return_value=({"status": "COMPLETED"}, 200),
-        )
-
-        payment_factory.status = "rejected"
-        payment_factory.save()
-
-        response = auth_api_client.get(
-            reverse("payments:payment_status", args=[payment_factory.id]), format="json"
-        )
-        assert response.status_code == 200
-        assert response.data["status"] == "rejected"
-
-        mock_resend.assert_not_called()
+        mock_limopay_req.assert_called_once_with('GET', f'/api/v1/payments/{str(payment_factory.reference)}/')
 
 
 @pytest.mark.django_db

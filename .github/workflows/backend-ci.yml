@@ -24,10 +24,11 @@ jobs:
           cache: pip
           cache-dependency-path: backend/requirements/production.txt
       - name: Install dependencies
-        run: pip install -r requirements/prod.txt
+        run: pip install -r requirements/production.txt
       - name: Run Pytest tests
         env:
-            DJANGO_SETTINGS_MODULE: config.settings.test
+          DJANGO_SETTINGS_MODULE: config.settings.test
+          SECRET_KEY: "ci-test-secret-key"
         run: pytest --cov=apps --cov=utils --cov-report=xml --cov-fail-under=80
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3

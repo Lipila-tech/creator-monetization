@@ -11,8 +11,7 @@ from apps.payments.models import PaymentWebhookLog as WebHook
 from apps.wallets.services.wallet_services import WalletTransactionService
 from utils.authentication import RequireAPIKey
 from utils.exceptions import DuplicateTransaction
-from utils.external_requests import resend_callback
-
+from utils.external_requests import limopay_request
 User = get_user_model()
 
 
@@ -31,9 +30,13 @@ class WebhookAPIView(APIView):
                 {"error": "Invalid JSON"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        deposit_id = payload.get("depositId")
-        res_status = payload.get("status").lower()
-        external_id = payload.get("providerTransactionId")
+        # Support both old pawapay shape and new Limopay shape
+        data = payload.get("data") if isinstance(payload, dict) and payload.get("data") else payload
+
+        # Extract fields from nested data if present
+        deposit_id = data.get("depositId") or data.get("reference")
+        res_status = (data.get("status") or payload.get("status") or "").lower()
+        external_id = data.get("id") or data.get("providerTransactionId")
 
         if not all([deposit_id, res_status]):
             return Response(
@@ -42,14 +45,19 @@ class WebhookAPIView(APIView):
 
         res_status = res_status.lower()
 
-        # IDEMPOTENCY CHECK (fast path) - check for duplicate based on external_id
+        # IDEMPOTENCY CHECK - prefer external_id when available
         if external_id and WebHook.objects.filter(external_id=external_id).exists():
             return Response(
                 {"message": "Duplicate callback ignored"}, status=status.HTTP_200_OK
             )
         try:
             with transaction.atomic():
-                payment = Payment.objects.select_for_update().get(id=deposit_id)
+                # Try to resolve by reference first, fallback to UUID id
+                try:
+                    payment = Payment.objects.select_for_update().get(reference=deposit_id)
+                except Payment.DoesNotExist:
+                    payment = Payment.objects.select_for_update().get(id=deposit_id)
+
                 # Dont update status if pending/submitted/accepted to
                 # avoid overwriting final state
                 skip_statuses = [
@@ -62,15 +70,20 @@ class WebhookAPIView(APIView):
                 if res_status in skip_statuses:
                     res_status = payment.status
                 payment.status = res_status
+                # store gateway id if present
+                if external_id:
+                    payment.external_id = external_id
+                payment.provider_data = data
                 payment.save()
 
-                # Create webhook log ONCE
+                # Create webhook log ONCE, include raw payload
                 WebHook.objects.create(
-                    parsed_payload=payload,
+                    raw_payload=json.dumps(payload),
+                    parsed_payload=data if isinstance(data, dict) else {"data": data},
                     event_type=f"deposit.{res_status}",
                     payment=payment,
                     provider=payment.provider,
-                    external_id=external_id,
+                    external_id=external_id or "",
                 )
                 if res_status == "completed" and payment.wallet is not None:
                     try:
@@ -78,7 +91,7 @@ class WebhookAPIView(APIView):
                             wallet=payment.wallet,
                             amount=payment.amount,
                             payment=payment,
-                            reference=external_id,
+                            reference=external_id or payment.reference,
                         )
                     except DuplicateTransaction:
                         pass
@@ -87,7 +100,7 @@ class WebhookAPIView(APIView):
             return Response({"status": "NOT_FOUND"}, status=status.HTTP_404_NOT_FOUND)
 
         except Exception:
-            # If unique constraint triggered by race condition
+            # If unique constraint triggered by race condition or other parsing errors
             return Response(
                 {"message": "Duplicate callback ignored"}, status=status.HTTP_200_OK
             )
@@ -123,25 +136,14 @@ class PaymentStatusAPIView(APIView):
             final_statuses = ["completed", "failed", "rejected"]
             if payment.status in final_statuses:
                 return Response({"status": payment.status}, status=status.HTTP_200_OK)
-            # Check if payment has received a callback before returning status
-            if not WebHook.objects.filter(
-                payment=payment,
-                event_type__in=[
-                    "deposit.completed",
-                    "deposit.failed",
-                    "deposit.rejected",
-                ],
-            ).exists():
-                data, code = resend_callback(str(payment_id))
-                if code == 200:
-                    return Response(
-                        {"status": data["status"].lower()}, status=status.HTTP_200_OK
-                    )
-                else:
-                    return Response(
-                        {"status": "error"},
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    )
-            return Response({"status": payment.status}, status=status.HTTP_200_OK)
+            
+            # Use payment.reference when asking gateway for latest status 
+            data, code = limopay_request("GET", f"/api/v1/payments/{payment.reference}/")
+            if 200 <= code < 300:
+                # Assume gateway returns a status field
+                return Response(
+                    {"status": (data.get("status") or "").lower()}, status=status.HTTP_200_OK
+                )
+            return Response({"status": "error"}, status=code)
         except Payment.DoesNotExist:
             return Response({"status": "NOT_FOUND"}, status=status.HTTP_404_NOT_FOUND)

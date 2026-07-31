@@ -8,7 +8,7 @@ from apps.wallets.models import WalletTransaction
 class TestCashinViews:
 
     def test_unauthorized_frontend_client_fails(self, api_client, wallet_factory, mocker):
-        mock_request = mocker.patch("apps.payments.views.pawapay_request")
+        mock_request = mocker.patch("apps.payments.views.limopay_request")
         mock_request.return_value = (
             {"depositId": "1234", "status": "ACCEPTED"}, 200)
 
@@ -25,7 +25,7 @@ class TestCashinViews:
 
     def test_single_deposit_does_not_cashin(self, auth_api_client, wallet_factory, mocker):
 
-        mock_request = mocker.patch("apps.payments.views.pawapay_request")
+        mock_request = mocker.patch("apps.payments.views.limopay_request")
         mock_request.return_value = (
             {"depositId": "1234", "status": "ACCEPTED"}, 200)
 
@@ -56,7 +56,7 @@ class TestCashinViews:
         mock_request.assert_called_once()
 
     def test_deposit_without_message_accepted(self, auth_api_client, wallet_factory, mocker):
-        mock_request = mocker.patch("apps.payments.views.pawapay_request")
+        mock_request = mocker.patch("apps.payments.views.limopay_request")
         mock_request.return_value = (
             {"depositId": "1234", "status": "ACCEPTED"}, 200)
 
@@ -84,7 +84,7 @@ class TestCashinViews:
         mock_request.assert_called_once()
 
     def test_external_gateway_down(self, auth_api_client, wallet_factory, mocker):
-        mock_request = mocker.patch("apps.payments.views.pawapay_request")
+        mock_request = mocker.patch("apps.payments.views.limopay_request")
         mock_request.return_value = (
             {"depositId": "1234", "status": "INTERNAL_ERROR"}, 500)
 
@@ -100,7 +100,7 @@ class TestCashinViews:
         mock_request.assert_called_once()
 
     def test_deposit_no_wallet_exists(self, api_key, auth_api_client, mocker):
-        mock_request = mocker.patch("apps.payments.views.pawapay_request")
+        mock_request = mocker.patch("apps.payments.views.limopay_request")
 
         data = {
             "patronPhone": "7655555556",
@@ -115,7 +115,7 @@ class TestCashinViews:
         mock_request.assert_not_called()
 
     def test_deposit_missing_patron_phone_field(self, auth_api_client, wallet_factory, mocker):
-        mock_request = mocker.patch("apps.payments.views.pawapay_request")
+        mock_request = mocker.patch("apps.payments.views.limopay_request")
 
         data = {
             "provider": "MTN_MOMO_ZMB",
@@ -131,7 +131,7 @@ class TestCashinViews:
         mock_request.assert_not_called()
 
     def test_deposit_missing_amount_field(self, auth_api_client, wallet_factory, mocker):
-        mock_request = mocker.patch("apps.payments.views.pawapay_request")
+        mock_request = mocker.patch("apps.payments.views.limopay_request")
         data = {
             "patronPhone": "7655555556",
             "provider": "MTN_MOMO_ZMB",
@@ -150,7 +150,7 @@ class TestCashinViews:
         mock_request.assert_not_called()
 
     def test_deposit_missing_invalid_amount(self, auth_api_client, wallet_factory, mocker):
-        mock_request = mocker.patch("apps.payments.views.pawapay_request")
+        mock_request = mocker.patch("apps.payments.views.limopay_request")
         data = {
             "patronPhone": "7655555556",
             "amount": '',
@@ -164,7 +164,7 @@ class TestCashinViews:
         mock_request.assert_not_called()
 
     def test_deposit_invalid_amount_type(self, auth_api_client, wallet_factory, mocker):
-        mock_request = mocker.patch("apps.payments.views.pawapay_request")
+        mock_request = mocker.patch("apps.payments.views.limopay_request")
         data = {
             "patronPhone": "7655555556",
             "amount": 'one',
@@ -178,7 +178,7 @@ class TestCashinViews:
         mock_request.assert_not_called()
 
     def test_deposit_fails_with_invalid_phone_number(self, auth_api_client, wallet_factory, mocker):
-        mock_request = mocker.patch("apps.payments.views.pawapay_request")
+        mock_request = mocker.patch("apps.payments.views.limopay_request")
         data = {
             "patronPhone": "invalid-phone",
             "amount": '10',
@@ -193,7 +193,7 @@ class TestCashinViews:
         mock_request.assert_not_called()
 
     def test_deposit_fails_with_null_phone_number(self, auth_api_client, wallet_factory, mocker):
-        mock_request = mocker.patch("apps.payments.views.pawapay_request")
+        mock_request = mocker.patch("apps.payments.views.limopay_request")
         data = {
             "patronPhone": "",
             "amount": '10',
@@ -208,7 +208,7 @@ class TestCashinViews:
         mock_request.assert_not_called()
 
     def test_deposit_fails_with_missing_provider_field(self, auth_api_client, wallet_factory, mocker):
-        mock_request = mocker.patch("apps.payments.views.pawapay_request")
+        mock_request = mocker.patch("apps.payments.views.limopay_request")
 
         data = {
             "patronPhone": "7655555556",
@@ -222,7 +222,7 @@ class TestCashinViews:
         mock_request.assert_not_called()
 
     def test_deposit_fails_with_invalid_provider(self, auth_api_client, wallet_factory, mocker):
-        mock_request = mocker.patch("apps.payments.views.pawapay_request")
+        mock_request = mocker.patch("apps.payments.views.limopay_request")
         data = {
             "patronPhone": "7655555556",
             "provider": 'INVALID_PROVIDER',
@@ -238,7 +238,7 @@ class TestCashinViews:
     def test_deposit_works_with_extra_fields(self, auth_api_client, wallet_factory, mocker):
         """Default DRF behaviour is to drop any unknown fields"""
 
-        mock_request = mocker.patch("apps.payments.views.pawapay_request")
+        mock_request = mocker.patch("apps.payments.views.limopay_request")
         mock_request.return_value = (
             {"depositId": "1234", "status": "ACCEPTED"}, 200)
 
@@ -263,7 +263,7 @@ class TestCashinViews:
   
     def test_payment_with_very_large_amount(self, auth_api_client, wallet_factory, mocker):
         """Test handling of large payment amounts"""
-        mock_request = mocker.patch("apps.payments.views.pawapay_request")
+        mock_request = mocker.patch("apps.payments.views.limopay_request")
 
         large_amount = 999999.99
 
@@ -287,7 +287,7 @@ class TestCashinViews:
 
     def test_multiple_tips_to_same_wallet(self, auth_api_client, wallet_factory, mocker):
         """Test handling multiple tips for the same wallet"""
-        mock_request = mocker.patch("apps.payments.views.pawapay_request")
+        mock_request = mocker.patch("apps.payments.views.limopay_request")
 
         mock_request.return_value = (
             {"depositId": "2000", "status": "ACCEPTED"}, 200)
