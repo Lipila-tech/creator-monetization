@@ -17,6 +17,11 @@ def pytest_configure():
     django.setup()
 
 @pytest.fixture(autouse=True)
+def mock_env_credentials(monkeypatch):
+    # This causes json.loads to succeed but passes a blank dict to Firebase
+    monkeypatch.setenv("FIREBASE_CREDENTIALS", "{}")
+
+@pytest.fixture(autouse=True)
 def mock_firebase_setup():
     # Patch the library inside your custom module before Django loads it
     with patch('apps.customauth.firebase.initialize_firebase') as mock:
