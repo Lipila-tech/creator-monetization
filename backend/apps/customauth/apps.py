@@ -2,12 +2,12 @@ from django.apps import AppConfig
 import os
 from django.conf import settings
 from django.core.management import call_command
+from .firebase import initialize_firebase
 
 class CustomAuthConfig(AppConfig):
     name = "apps.customauth"
 
     def ready(self):
-        from .firebase import initialize_firebase
         initialize_firebase()
 
         if os.environ.get("DJANGO_AUTO_SETUP", "false").lower() != "true":
