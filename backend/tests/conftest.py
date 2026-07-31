@@ -7,7 +7,6 @@ from decimal import Decimal
 import types
 import firebase_admin
 from unittest.mock import patch
-
 from apps.wallets.models import WalletTransaction as WTxn
 
 def pytest_configure():
@@ -16,6 +15,12 @@ def pytest_configure():
     import django
     django.setup()
 
+@pytest.fixture(autouse=True)
+def configure_celery_test_env(settings):
+    # Execute tasks synchronously in-process
+    settings.CELERY_TASK_ALWAYS_EAGER = True
+    # Propagate exceptions instead of swallowing them
+    settings.CELERY_TASK_EAGER_PROPAGATES = True
 
 @pytest.fixture(autouse=True)
 def mock_firebase_setup():
