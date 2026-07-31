@@ -26,7 +26,7 @@ class DepositAPIView(APIView):
         responses={
             201: helpers.CreatedResponseSerializer,
             400: helpers.ValidationErrorSerializer,
-            401: helpers.UnauthorizedErrorSerializer,
+            401: helpers.UnauthorizedErrorSerializer,  
             403: helpers.ForbiddenErrorSerializer,
             404: helpers.NotFoundErrorSerializer,
             409: helpers.ConflictErrorSerializer,
@@ -60,6 +60,7 @@ class DepositAPIView(APIView):
                     },
                     status=status.HTTP_400_BAD_REQUEST
                 )
+
             wallet = get_object_or_404(Wallet, id=wallet_id)
             
             with transaction.atomic():
@@ -68,20 +69,19 @@ class DepositAPIView(APIView):
             payload = {
                 "amount": str(int(payment.amount)),
                 "currency": "ZMW",
-                "depositId": str(payment.id),
-                "payer": {
-                    "type": "MMO",
-                    "accountDetails": {
-                        "provider": str(payment.provider),
-                        "phoneNumber": '26' + str(payment.patron_phone),
-                    },
-                },
-                "customerMessage": "Donating at TipZed",
-                "clientReferenceId": payment.reference,
+                "reference": str(payment.id),
+                "payer": str(payment.patron_phone),
+                "provider": str(payment.provider),
+                "payerMessage": payment.patron_message or "",
+                "payerEmail": payment.patron_email or "",
                 "metadata": [
                     {
                         "paymentId": str(payment.id),
-                        "walletId": str(wallet.id)
+                        "walletId": str(wallet.id),
+                        "clientReferenceId": payment.reference,
+                        "patronMessage": payment.patron_message or "",
+                        "patronEmail": payment.patron_email or "",
+                        "patronPhone": payment.patron_phone or "",
                     }
                 ],
             }
@@ -113,7 +113,6 @@ class DepositAPIView(APIView):
                 return Response({"status": data.get('status', 'error')}, status=code)
             except Exception:
                 return Response({"status": "error"}, status=code)
-
         return Response(
             {
                 "status": "failed",
