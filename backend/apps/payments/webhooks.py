@@ -11,8 +11,7 @@ from apps.payments.models import PaymentWebhookLog as WebHook
 from apps.wallets.services.wallet_services import WalletTransactionService
 from utils.authentication import RequireAPIKey
 from utils.exceptions import DuplicateTransaction
-from utils.external_requests import resend_callback
-
+from utils.external_requests import limopay_request
 User = get_user_model()
 
 
@@ -137,27 +136,14 @@ class PaymentStatusAPIView(APIView):
             final_statuses = ["completed", "failed", "rejected"]
             if payment.status in final_statuses:
                 return Response({"status": payment.status}, status=status.HTTP_200_OK)
-            # Check if payment has received a callback before returning status
-            if not WebHook.objects.filter(
-                payment=payment,
-                event_type__in=[
-                    "deposit.completed",
-                    "deposit.failed",
-                    "deposit.rejected",
-                ],
-            ).exists():
-            # Use payment.reference when asking gateway for latest status
-                data, code = resend_callback(payment.reference)
-            if code == 200:
+            
+            # Use payment.reference when asking gateway for latest status 
+            data, code = limopay_request("GET", f"/api/v1/payments/{payment.reference}/")
+            if 200 <= code < 300:
                 # Assume gateway returns a status field
                 return Response(
                     {"status": (data.get("status") or "").lower()}, status=status.HTTP_200_OK
                 )
-            else:
-                return Response(
-                    {"status": "error"},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                )
-            return Response({"status": payment.status}, status=status.HTTP_200_OK)
+            return Response({"status": "error"}, status=code)
         except Payment.DoesNotExist:
             return Response({"status": "NOT_FOUND"}, status=status.HTTP_404_NOT_FOUND)
