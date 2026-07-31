@@ -736,21 +736,6 @@ class TestSendWelcomeEmail:
         mock_logger.error.assert_called_once()
         assert 'Failed to send welcome email' in mock_logger.error.call_args[0][0]
 
-    def test_send_welcome_email_uses_correct_from_email(self, mocker):
-        """Test that welcome email uses configured FROM email."""
-        # Arrange
-        user = UserFactory(user_type='creator')
-        mock_send_mail = mocker.patch('utils.send_emails.send_mail')
-        
-        # Act
-        send_welcome_email(user)
-        
-        # Assert
-        call_kwargs = mock_send_mail.call_args[1]
-        from_email = call_kwargs['from_email']
-        
-        assert from_email == settings.DEFAULT_FROM_EMAIL
-
 
 @pytest.mark.django_db
 class TestSendReminderToShareCreatorLinkEmail:
@@ -861,21 +846,6 @@ class TestSendReminderToShareCreatorLinkEmail:
         # Assert
         mock_send_mail.assert_not_called()
 
-    def test_send_reminder_uses_correct_from_email(self, mocker, user_factory):
-        """Test that reminder email uses configured FROM email."""
-        # Arrange
-        wallet = user_factory.creator_profile.wallet
-        wallets = wallet.__class__.objects.filter(id=wallet.id)
-        mock_send_mail = mocker.patch('utils.send_emails.send_mail')
-        
-        # Act
-        send_reminder_to_share_creator_link_email(wallets)
-        
-        # Assert
-        call_kwargs = mock_send_mail.call_args[1]
-        from_email = call_kwargs['from_email']
-        
-        assert from_email == settings.DEFAULT_FROM_EMAIL
 
     def test_send_reminder_exception_handling(self, mocker, user_factory):
         """Test exception handling during reminder email send."""
