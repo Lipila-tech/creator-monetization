@@ -846,7 +846,6 @@ class TestSendReminderToShareCreatorLinkEmail:
         # Assert
         mock_send_mail.assert_not_called()
 
-
     def test_send_reminder_exception_handling(self, mocker, user_factory):
         """Test exception handling during reminder email send."""
         # Arrange
