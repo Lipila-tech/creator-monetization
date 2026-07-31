@@ -41,7 +41,6 @@ jobs:
         env:
           DJANGO_SETTINGS_MODULE: config.settings.test
           SECRET_KEY: "ci-test-secret-key"
-          DEFAULT_FROM_EMAIL
         run: pytest --cov=apps --cov=utils --cov-report=xml --cov-fail-under=80
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
