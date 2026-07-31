@@ -58,10 +58,10 @@ def pawapay_request(method, endpoint, headers=None, payload=None):
     Returns:
         Tuple of ({'data': response_data}, status_code).
     """
-    url = f"{settings.PAWAPAY_BASE_URL}{endpoint}"
+    url = f"{settings.LIMOPAY_BASE_URL}{endpoint}"
     headers = {
         "Accept": "application/json",
-        "Authorization": f"Bearer {settings.PAWAPAY_API_KEY}",
+        "Authorization": f"Bearer {settings.LIMOPAY_API_KEY}",
         "Content-Type": "application/json",
     }
     try:

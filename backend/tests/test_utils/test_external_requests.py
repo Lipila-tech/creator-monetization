@@ -64,7 +64,7 @@ class TestPawapayRequest:
         # Verify the function was called with the correct arguments
         # Note: The function builds its own headers with Bearer token
         call_args = mock_request.call_args
-        assert call_args[0] == ("POST", "https://api.sandbox.pawapay.io/deposits/")
+        assert call_args[0] == ("POST", "https://sandbox.lipila.tech/deposits/")
         assert "Authorization" in call_args[1]["headers"]
         assert call_args[1]["json"] == payload
         assert call_args[1]["timeout"] == 10
