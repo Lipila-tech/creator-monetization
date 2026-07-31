@@ -4,15 +4,24 @@ Pytest configuration and fixtures.
 import os
 import pytest
 from decimal import Decimal
-
+import types
+import firebase_admin
+from unittest.mock import patch
 
 from apps.wallets.models import WalletTransaction as WTxn
+
 def pytest_configure():
     """Configure pytest settings."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
     import django
     django.setup()
 
+@pytest.fixture(autouse=True)
+def mock_firebase_init():
+    with patch('firebase_admin.initialize_app') as mock_init, \
+         patch('firebase_admin.get_app') as mock_get:
+        mock_init.return_value = None
+        yield
 
 @pytest.fixture
 def api_client():
