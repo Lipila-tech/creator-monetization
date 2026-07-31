@@ -4,15 +4,40 @@ Pytest configuration and fixtures.
 import os
 import pytest
 from decimal import Decimal
-
+import types
+import firebase_admin
 
 from apps.wallets.models import WalletTransaction as WTxn
+
 def pytest_configure():
     """Configure pytest settings."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
     import django
     django.setup()
 
+@pytest.fixture(autouse=True)
+def stub_firebase(monkeypatch):
+    """
+    Prevent firebase_admin from trying to initialize with real credentials.
+    This runs automatically for all tests.
+    """
+    # Replace firebase_admin.initialize_app with a no-op
+    monkeypatch.setattr(firebase_admin, "initialize_app", lambda *a, **k: None)
+
+    # If the code calls firebase_admin.get_app(), make it return a dummy object
+    monkeypatch.setattr(firebase_admin, "get_app", lambda name=None: types.SimpleNamespace(name=name))
+
+    # If the code constructs credentials.Certificate(...) or uses firebase_admin.credentials,
+    # stub Certificate to return a simple object so passing it to initialize_app is harmless.
+    try:
+        from firebase_admin import credentials as _creds
+        monkeypatch.setattr(_creds, "Certificate", lambda *a, **k: object())
+        monkeypatch.setattr(_creds, "ApplicationDefault", lambda *a, **k: object())
+    except Exception:
+        # If credentials import fails, ignore — initialize_app is already stubbed.
+        pass
+
+    yield
 
 @pytest.fixture
 def api_client():
