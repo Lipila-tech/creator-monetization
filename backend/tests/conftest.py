@@ -16,12 +16,13 @@ def pytest_configure():
     import django
     django.setup()
 
+
 @pytest.fixture(autouse=True)
-def mock_firebase_init():
-    with patch('firebase_admin.initialize_app') as mock_init, \
-         patch('firebase_admin.get_app') as mock_get:
-        mock_init.return_value = None
-        yield
+def mock_firebase_setup():
+    # Patch the library inside your custom module before Django loads it
+    with patch('apps.customauth.apps.initialize_firebase') as mock:
+        yield mock
+
 
 @pytest.fixture
 def api_client():
