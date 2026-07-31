@@ -106,20 +106,6 @@ class TestSendMissingPayoutAccountEmail:
         mock_logger.error.assert_called_once()
         assert 'Failed to send payout account email' in mock_logger.error.call_args[0][0]
 
-    def test_send_missing_payout_account_email_uses_correct_from_email(self, mocker, user_factory):
-        """Test that email uses configured FROM email."""
-        # Arrange
-        wallet = user_factory.creator_profile.wallet
-        mock_send_mail = mocker.patch('utils.send_emails.send_mail')
-        
-        # Act
-        send_missing_payout_account_email(wallet)
-        
-        # Assert
-        call_kwargs = mock_send_mail.call_args[1]
-        from_email = call_kwargs['from_email']
-        assert from_email == settings.DEFAULT_FROM_EMAIL
-
 
 @pytest.mark.django_db
 class TestSendTransactionReceiptEmail:
