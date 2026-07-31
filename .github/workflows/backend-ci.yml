@@ -11,6 +11,18 @@ on:
 jobs:
   backend-ci:
     runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis:7-alpine
+        # Map port 6379 on the docker host to port 6379 on the container
+        ports:
+          - 6379:6379
+        # Wait for redis to be healthy before starting steps
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     defaults:
       run:
         working-directory: ./backend
