@@ -5,7 +5,11 @@ import {
   confirmPasswordReset,
 } from "firebase/auth";
 import { auth } from "@/firebase";
+import PasswordStrengthIndicator from "@/components/Auth/PasswordStrengthIndicator";
 import MetaTags from "@/components/Common/MetaTags";
+
+const PASSWORD_MIN_LENGTH = 8;
+const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()_+=;':"\\|,.<>/?{}-]).{8,}$/;
 
 const ResetPassword = () => {
   const [searchParams] = useSearchParams();
@@ -19,6 +23,7 @@ const ResetPassword = () => {
   const [isValidCode, setIsValidCode] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({});
 
   const oobCode = searchParams.get("oobCode");
 
@@ -50,23 +55,46 @@ const ResetPassword = () => {
     verifyCode();
   }, [oobCode]);
 
+  const validatePasswords = () => {
+    const errors = {};
+
+    if (!formData.password) {
+      errors.password = "Password is required.";
+    } else if (formData.password.length < PASSWORD_MIN_LENGTH) {
+      errors.password = `Password must be at least ${PASSWORD_MIN_LENGTH} characters long.`;
+    } else if (!PASSWORD_REGEX.test(formData.password)) {
+      errors.password = "Password must contain uppercase, lowercase, numbers, and special characters.";
+    }
+
+    if (!formData.confirmPassword) {
+      errors.confirmPassword = "Please confirm your password.";
+    } else if (formData.password !== formData.confirmPassword) {
+      errors.confirmPassword = "Passwords do not match.";
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (error) setError("");
+    if (validationErrors[name]) {
+      setValidationErrors((prev) => {
+        const updated = { ...prev };
+        delete updated[name];
+        return updated;
+      });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    // Validation
-    if (formData.password.length < 8) {
-      setError("Password must be at least 8 characters long.");
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match.");
+    if (!validatePasswords()) {
       return;
     }
 
@@ -88,7 +116,7 @@ const ResetPassword = () => {
       console.error("Password reset error:", err);
       
       if (err.code === "auth/weak-password") {
-        setError("Password is too weak. Please use a stronger password.");
+        setError("Password is too weak. Please use a stronger password with uppercase, lowercase, numbers, and special characters.");
       } else if (err.code === "auth/expired-action-code") {
         setError("Reset link has expired. Please request a new one.");
       } else if (err.code === "auth/invalid-action-code") {
@@ -117,7 +145,7 @@ const ResetPassword = () => {
             </h2>
             {userEmail && (
               <p className="text-gray-500 text-sm mt-2">
-                for {userEmail}
+                for <span className="font-medium text-gray-700">{userEmail}</span>
               </p>
             )}
           </div>
@@ -129,11 +157,11 @@ const ResetPassword = () => {
           ) : success ? (
             <div className="text-center space-y-4">
               <div className="bg-green-50 text-green-600 text-sm p-4 rounded-lg border border-green-100">
-                Password reset successfully! Redirecting to login...
+                ✓ Password reset successfully! Redirecting to login...
               </div>
               <Link
                 to="/login"
-                className="inline-block text-zed-orange font-medium hover:underline"
+                className="inline-block text-zed-orange font-medium hover:underline focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zed-orange rounded"
               >
                 Go to Login →
               </Link>
@@ -166,20 +194,32 @@ const ResetPassword = () => {
                     required
                     value={formData.password}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-zed-green focus:border-transparent outline-none transition-all"
+                    aria-invalid={validationErrors.password ? "true" : "false"}
+                    aria-describedby={validationErrors.password ? "password-error" : undefined}
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:border-transparent outline-none transition-all ${
+                      validationErrors.password
+                        ? "border-red-300 focus:ring-red-500"
+                        : "border-gray-300 focus:ring-zed-green"
+                    }`}
                     placeholder="••••••••"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-sm font-medium focus:outline-none"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? "Hide" : "Show"}
                   </button>
                 </div>
-                <p className="text-gray-500 text-xs mt-1">
-                  Must be at least 8 characters long
-                </p>
+                {validationErrors.password && (
+                  <p id="password-error" className="text-red-600 text-xs mt-1">
+                    {validationErrors.password}
+                  </p>
+                )}
+
+                {/* Password Strength Indicator */}
+                <PasswordStrengthIndicator password={formData.password} />
               </div>
 
               {/* Confirm Password Input */}
@@ -198,30 +238,43 @@ const ResetPassword = () => {
                     required
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-zed-green focus:border-transparent outline-none transition-all"
+                    aria-invalid={validationErrors.confirmPassword ? "true" : "false"}
+                    aria-describedby={validationErrors.confirmPassword ? "confirm-password-error" : undefined}
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:border-transparent outline-none transition-all ${
+                      validationErrors.confirmPassword
+                        ? "border-red-300 focus:ring-red-500"
+                        : "border-gray-300 focus:ring-zed-green"
+                    }`}
                     placeholder="••••••••"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-sm font-medium focus:outline-none"
+                    aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                   >
                     {showConfirmPassword ? "Hide" : "Show"}
                   </button>
                 </div>
+                {validationErrors.confirmPassword && (
+                  <p id="confirm-password-error" className="text-red-600 text-xs mt-1">
+                    {validationErrors.confirmPassword}
+                  </p>
+                )}
               </div>
 
               {/* Submit Button */}
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-2.5 rounded-lg font-semibold text-white bg-zed-orange hover:bg-orange-600 transition shadow-md disabled:opacity-50"
+                className="w-full py-2.5 rounded-lg font-semibold text-white bg-zed-orange hover:bg-orange-600 transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">
                     <svg
                       className="animate-spin h-5 w-5 text-white"
                       viewBox="0 0 24 24"
+                      aria-hidden="true"
                     >
                       <circle
                         className="opacity-25"
@@ -250,7 +303,7 @@ const ResetPassword = () => {
                 Remember your password?{" "}
                 <Link
                   to="/login"
-                  className="text-zed-orange font-medium hover:underline"
+                  className="text-zed-orange font-medium hover:underline focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zed-orange rounded"
                 >
                   Back to Login
                 </Link>
